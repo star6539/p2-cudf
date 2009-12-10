@@ -40,6 +40,8 @@ public class Main implements IApplication {
 		BufferedReader reader = null;
 		try {
 			URL url = Activator.getFile(filename);
+			if (url == null)
+				throw new IllegalArgumentException("Unable to find input file: " + filename);
 			reader = new BufferedReader(new InputStreamReader(url.openStream()));
 			String next = reader.readLine();
 			while (true) {

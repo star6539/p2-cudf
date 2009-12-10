@@ -1,3 +1,6 @@
+preamble: 
+property: installedsize: nat = [0], size: nat = [0], sourceversion: string, source: string, number: string
+
 package: a
 version: 1
 depends: b >= 2 ,
@@ -11,3 +14,7 @@ version: 1
 depends: a >= 5 , 
  c | d > 2, f >= 5
 conflicts: g
+
+request: SAMPLE-DATA
+install: a
+
