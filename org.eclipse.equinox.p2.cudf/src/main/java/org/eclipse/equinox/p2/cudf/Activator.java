@@ -19,7 +19,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class Activator implements BundleActivator {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.mancoosi.cdf"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 
