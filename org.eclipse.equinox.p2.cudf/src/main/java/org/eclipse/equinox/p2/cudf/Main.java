@@ -16,6 +16,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
@@ -130,7 +131,7 @@ public class Main implements IApplication {
 
 	private static final void handleR(String line) {
 		if (line.startsWith("request: ")) {
-			currentRequest = ProfileChangeRequest.createByProfileId("SELF");
+			currentRequest = ProfileChangeRequest.createByProfileId(IProfileRegistry.SELF);
 			return;
 		}
 		if (line.startsWith("remove: ")) {
