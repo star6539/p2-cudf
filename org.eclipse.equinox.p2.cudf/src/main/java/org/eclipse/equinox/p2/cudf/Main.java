@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 public class Main implements IApplication {
 
 	private static boolean DEBUG = true;
-	private static InstallableUnit currentIU = new InstallableUnit();
+	private static InstallableUnit currentIU = null;
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
 
@@ -55,14 +55,16 @@ public class Main implements IApplication {
 
 				// terminating condition of the loop... reached the end of the file
 				if (line == null) {
-					allIUs.add(currentIU);
+					if (currentIU != null)
+						allIUs.add(currentIU);
 					break;
 				}
 
 				// end of stanza
 				if (line.length() == 0) {
-					allIUs.add(currentIU);
-					currentIU = new InstallableUnit();
+					if (currentIU != null)
+						allIUs.add(currentIU);
+					currentIU = null;
 					continue;
 				}
 
@@ -258,6 +260,8 @@ public class Main implements IApplication {
 	// package name matches: "^[a-zA-Z0-9+./@()%-]+$"
 	private static void handleP(String readLine) {
 		if (readLine.startsWith("package: ")) {
+			// beginning of "package" stanza
+			currentIU = new InstallableUnit();
 			currentIU.setId(readLine.substring("package: ".length()));
 			return;
 		}
