@@ -15,6 +15,6 @@ depends: a >= 5 ,
  c | d > 2, f >= 5
 conflicts: g
 
-#request: SAMPLE-DATA
-#install: a
+request: SAMPLE-DATA
+install: a
 

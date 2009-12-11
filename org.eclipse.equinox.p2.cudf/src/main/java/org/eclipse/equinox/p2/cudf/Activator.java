@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -46,7 +47,14 @@ public class Activator implements BundleActivator {
 	}
 
 	public static URL getFile(String location) {
-		return bundleContext.getBundle().getEntry(location);
+		URL result = bundleContext.getBundle().getEntry(location);
+		if (result != null)
+			return result;
+		try {
+			return new URL(location);
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 
 	private static boolean startEarly(String bundleName) throws BundleException {

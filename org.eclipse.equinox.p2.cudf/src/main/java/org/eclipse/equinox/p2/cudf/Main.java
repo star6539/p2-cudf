@@ -14,17 +14,18 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 /**
  * TODO - if we have 2 versions in a row for the same bundle, convert it to a version range (e>2,e<4 should be e (2,4))
+ * TODO - are the keys in the stanzas always lower-case?
  */
 public class Main implements IApplication {
 
-	private static boolean DEBUG = true;
+	private static final boolean DEBUG = true;
 	private static InstallableUnit currentIU = null;
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
@@ -55,16 +56,13 @@ public class Main implements IApplication {
 
 				// terminating condition of the loop... reached the end of the file
 				if (line == null) {
-					if (currentIU != null)
-						allIUs.add(currentIU);
+					validateAndAddIU();
 					break;
 				}
 
 				// end of stanza
 				if (line.length() == 0) {
-					if (currentIU != null)
-						allIUs.add(currentIU);
-					currentIU = null;
+					validateAndAddIU();
 					continue;
 				}
 
@@ -118,6 +116,23 @@ public class Main implements IApplication {
 		debug(currentRequest);
 	}
 
+	/*
+	 * Ensure that the current IU that we have been building is validate and if so, then
+	 * add it to our collected list of all converted IUs from the file.
+	 */
+	private static void validateAndAddIU() {
+		if (currentIU == null)
+			return;
+		// For a package stanze, the id and version are the only mandatory elements
+		if (currentIU.getId() == null)
+			throw new IllegalStateException("Malformed \'package\' stanza. No package element found.");
+		if (currentIU.getVersion() == null)
+			throw new IllegalStateException("Malformed \'package\' stanza. Package " + currentIU.getId() + " does not have a version.");
+		allIUs.add(currentIU);
+		// reset to be ready for the next stanza
+		currentIU = null;
+	}
+
 	private static void handleI(String line) {
 		if (line.startsWith("installed: ")) {
 			String value = line.substring("installed: ".length());
@@ -131,11 +146,16 @@ public class Main implements IApplication {
 		}
 	}
 
-	private static final void handleR(String line) {
+	private static void handleRequest(String line) {
+		currentRequest = new ProfileChangeRequest(new Profile("cudf-parser", null, null));
+	}
+
+	private static void handleR(String line) {
 		if (line.startsWith("request: ")) {
-			currentRequest = ProfileChangeRequest.createByProfileId(IProfileRegistry.SELF);
+			handleRequest(line);
 			return;
 		}
+
 		if (line.startsWith("remove: ")) {
 			line = line.substring("remove: ".length());
 			// todo
@@ -143,7 +163,7 @@ public class Main implements IApplication {
 		}
 	}
 
-	private static final void handleU(String line) {
+	private static void handleU(String line) {
 		if (!line.startsWith("upgrade: "))
 			return;
 		line = line.substring("upgrade: ".length());
@@ -271,6 +291,7 @@ public class Main implements IApplication {
 	private static void debug(ProfileChangeRequest request) {
 		if (!DEBUG || request == null)
 			return;
+		System.out.println("\nProfile Change Request:");
 		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
 		if (toAdd == null || toAdd.length == 0) {
 			System.out.println("No installable units to add.");
