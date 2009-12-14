@@ -12,12 +12,15 @@ package org.eclipse.equinox.p2.cudf;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 
 /**
  * TODO - if we have 2 versions in a row for the same bundle, convert it to a version range (e>2,e<4 should be e (2,4))
@@ -29,7 +32,8 @@ public class Main implements IApplication {
 	private static InstallableUnit currentIU = null;
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
-
+	private static QueryableArray query = null;
+	
 	public static void main(String[] args) {
 		String filename = null;
 		if (args.length > 0)
@@ -142,10 +146,32 @@ public class Main implements IApplication {
 
 		if (line.startsWith("install: ")) {
 			line = line.substring("install: ".length());
-			// todo
+			currentRequest.addInstallableUnits(new IInstallableUnit[] {findIUToInstall(line)});
+			return;
 		}
 	}
 
+	private static IInstallableUnit findIUToInstall(String line) {
+		Collector c = query.query(new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, line, VersionRange.emptyRange, null, false, false)), new Collector(), null);
+		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
+			IInstallableUnit packageToInstall = (IInstallableUnit) iterator.next();
+			if(! "true".equals(packageToInstall.getProperty("installed")))
+				return packageToInstall;
+		}
+		throw new IllegalStateException("Can't find an IU to install: " + line );
+	}
+	
+	private static IInstallableUnit findIUToUninstall(String line) {
+		Collector c = query.query(new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, line, VersionRange.emptyRange, null, false, false)), new Collector(), null);
+		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
+			IInstallableUnit packageToInstall = (IInstallableUnit) iterator.next();
+			if("true".equals(packageToInstall.getProperty("installed")))
+				return packageToInstall;
+		}
+		throw new IllegalStateException("Can't find an IU to install: " + line );
+	}
+	
+	
 	private static void handleRequest(String line) {
 		currentRequest = new ProfileChangeRequest(new Profile("cudf-parser", null, null));
 	}
@@ -153,14 +179,19 @@ public class Main implements IApplication {
 	private static void handleR(String line) {
 		if (line.startsWith("request: ")) {
 			handleRequest(line);
+			initializeQueryableArray();
 			return;
 		}
 
 		if (line.startsWith("remove: ")) {
 			line = line.substring("remove: ".length());
-			// todo
+			currentRequest.removeInstallableUnits(new IInstallableUnit[] {findIUToUninstall(line)});
 			return;
 		}
+	}
+
+	private static void initializeQueryableArray() {
+		query = new QueryableArray((IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]));
 	}
 
 	private static void handleU(String line) {
