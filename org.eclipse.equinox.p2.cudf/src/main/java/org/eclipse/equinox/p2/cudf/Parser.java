@@ -9,25 +9,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
-import org.eclipse.equinox.p2.cudf.metadata.ORRequirement;
-import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.Version;
-import org.eclipse.equinox.p2.cudf.metadata.VersionRange;
+import java.io.*;
+import java.util.*;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
@@ -42,7 +26,22 @@ public class Parser {
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
 	private static QueryableArray query = null;
-	
+
+	static class Tuple {
+		String name;
+		String version;
+		String operator;
+
+		Tuple(String line) {
+			String[] tuple = new String[3];
+			int i = 0;
+			for (StringTokenizer iter = new StringTokenizer(line, " \t"); iter.hasMoreTokens(); i++)
+				tuple[i] = iter.nextToken();
+			name = tuple[0];
+			operator = tuple[1];
+			version = tuple[2];
+		}
+	}
 
 	public static ProfileChangeRequest parse(File file) {
 		BufferedReader reader = null;
@@ -69,37 +68,35 @@ public class Parser {
 					continue;
 				}
 
-				// what type of line are we dealing with?
-				int c = line.charAt(0);
-				switch (c) {
-					case -1 :
-						return null;
-					case '#' :
-						// ignore comments
-						break;
-					case 'p' :
-						handleP(line);
-						break;
-					case 'v' :
-						handleVersion(line);
-						break;
-					case 'd' :
-						handleDepends(line);
-						break;
-					case 'c' :
-						handleConflicts(line);
-						break;
-					case 'i' :
-						handleI(line);
-						break;
-					case 'r' :
-						handleR(line);
-						break;
-					case 'u' :
-						handleU(line);
-						break;
-					default :
-						break;
+				// preamble stanza
+				if (line.startsWith("#") || line.startsWith("preamble: ") || line.startsWith("property: ") || line.startsWith("univ-checksum: ")) {
+					// ignore
+				}
+
+				// request stanza
+				else if (line.startsWith("request: ")) {
+					handleRequest(line);
+				} else if (line.startsWith("install: ")) {
+					handleInstall(line);
+				} else if (line.startsWith("upgrade: ")) {
+					handleUpgrade(line);
+				} else if (line.startsWith("remove: ")) {
+					handleRemove(line);
+				}
+
+				// package stanza
+				else if (line.startsWith("package: ")) {
+					handlePackage(line);
+				} else if (line.startsWith("version: ")) {
+					handleVersion(line);
+				} else if (line.startsWith("installed: ")) {
+					handleInstalled(line);
+				} else if (line.startsWith("depends: ")) {
+					handleDepends(line);
+				} else if (line.startsWith("conflicts: ")) {
+					handleConflicts(line);
+				} else if (line.startsWith("provides: ")) {
+					handleProvides(line);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -116,8 +113,9 @@ public class Parser {
 		}
 		for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 			debug((InstallableUnit) iter.next());
-		return;
-//		debug(currentRequest);
+
+		debug(currentRequest);
+		return currentRequest;
 	}
 
 	/*
@@ -137,51 +135,38 @@ public class Parser {
 		currentIU = null;
 	}
 
-	private static void handleI(String line) {
-		if (line.startsWith("installed: ")) {
-			String value = line.substring("installed: ".length());
-			if (value.length() != 0) {
-				if (DEBUG)
-					if (Boolean.valueOf(value).booleanValue()) {
-						System.err.println("Unexcepted value for installed.");
-					}
-				currentIU.setInstalled(true);
-				
-			}return;
+	private static void handleInstalled(String line) {
+		String value = line.substring("installed: ".length());
+		if (value.length() != 0) {
+			if (DEBUG)
+				if (Boolean.valueOf(value).booleanValue()) {
+					System.err.println("Unexcepted value for installed.");
+				}
+			currentIU.setInstalled(true);
 		}
+	}
 
-		if (line.startsWith("install: ")) {
-			line = line.substring("install: ".length());
-			currentRequest.addInstallableUnit();
-			return;
-		}
+	private static void handleInstall(String line) {
+		line = line.substring("install: ".length());
+		currentRequest.addInstallableUnit();
 	}
 
 	private static void handleRequest(String line) {
+		handleRequest(line);
 		currentRequest = new ProfileChangeRequest(query);
+		initializeQueryableArray();
 	}
 
-	private static void handleR(String line) {
-		if (line.startsWith("request: ")) {
-			handleRequest(line);
-			initializeQueryableArray();
-			return;
-		}
-
-		if (line.startsWith("remove: ")) {
-			line = line.substring("remove: ".length());
-			currentRequest.removeInstallableUnit();
-			return;
-		}
+	private static void handleRemove(String line) {
+		line = line.substring("remove: ".length());
+		currentRequest.removeInstallableUnit();
 	}
 
 	private static void initializeQueryableArray() {
 		query = new QueryableArray((InstallableUnit[]) allIUs.toArray(new InstallableUnit[allIUs.size()]));
 	}
 
-	private static void handleU(String line) {
-		if (!line.startsWith("upgrade: "))
-			return;
+	private static void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
 		currentRequest.upgradeInstallableUnit();
 	}
@@ -226,6 +211,15 @@ public class Parser {
 		currentIU.setRequiredCapabilities((IRequiredCapability[]) requirements.toArray(new IRequiredCapability[requirements.size()]));
 	}
 
+	private static List createPackageList(String line) {
+		List result = new ArrayList();
+		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
+			Tuple tuple = new Tuple(outer.nextToken());
+			result.add(tuple);
+		}
+		return result;
+	}
+
 	/*
 	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
 	 */
@@ -238,21 +232,15 @@ public class Parser {
 			List ORs = new ArrayList();
 			for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
 				String orStmt = inner.nextToken();
-				String[] tuple = new String[3];
-				int i = 0;
-				for (StringTokenizer operationIterator = new StringTokenizer(orStmt, " \t"); operationIterator.hasMoreTokens(); i++)
-					tuple[i] = operationIterator.nextToken();
-				String name = tuple[0];
-				String operator = tuple[1];
-				String number = tuple[2];
+				Tuple tuple = new Tuple(orStmt);
 
 				// special code to handle not equals
-				if (operator != null && "!=".equals(operator)) {
+				if (tuple.operator != null && "!=".equals(tuple.operator)) {
 					// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
 					// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
-					ORs.add(new ORRequirement(new IRequiredCapability[] {createRequiredCapability(name, "<", number), createRequiredCapability(name, ">", number)}));
+					ORs.add(new ORRequirement(new IRequiredCapability[] {createRequiredCapability(tuple.name, "<", tuple.version), createRequiredCapability(tuple.name, ">", tuple.version)}));
 				} else
-					ORs.add(createRequiredCapability(name, operator, number));
+					ORs.add(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
 			}
 			if (ORs.size() == 1)
 				ANDs.add(ORs.get(0));
@@ -267,6 +255,12 @@ public class Parser {
 	 */
 	private static IRequiredCapability createRequiredCapability(String name, String operator, String number) {
 		return new RequiredCapability(name, createVersionRange(operator, number));
+	}
+
+	private static IProvidedCapability createProvidedCapability(String name, String operator, String number) {
+		// TODO not quite right... we are ignoring the operator
+		Version version = number == null ? Version.emptyVersion : Version.parseVersion(number);
+		return new ProvidedCapability(name, version);
 	}
 
 	/*
@@ -290,54 +284,58 @@ public class Parser {
 	}
 
 	// package name matches: "^[a-zA-Z0-9+./@()%-]+$"
-	private static void handleP(String readLine) {
-		if (readLine.startsWith("package: ")) {
-			// beginning of "package" stanza
-			currentIU = new InstallableUnit();
-			currentIU.setId(readLine.substring("package: ".length()));
-			return;
+	private static void handlePackage(String readLine) {
+		currentIU = new InstallableUnit();
+		currentIU.setId(readLine.substring("package: ".length()));
+	}
+
+	private static void handleProvides(String line) {
+		List pkgs = createPackageList(line);
+		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) iter.next();
+			createProvidedCapability(tuple.name, tuple.operator, tuple.version);
 		}
 	}
 
-//	// copied from ProfileSynchronizer
-//	private static void debug(ProfileChangeRequest request) {
-//		if (!DEBUG || request == null)
-//			return;
-//		System.out.println("\nProfile Change Request:");
-//		InstallableUnit[] toAdd = request.getAddedInstallableUnit();
-//		if (toAdd == null || toAdd.length == 0) {
-//			System.out.println("No installable units to add.");
-//		} else {
-//			for (int i = 0; i < toAdd.length; i++)
-//				System.out.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
-//		}
-//		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
-//		if (propsToAdd == null || propsToAdd.isEmpty()) {
-//			System.out.println("No IU properties to add.");
-//		} else {
-//			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
-//				Object key = iter.next();
-//				System.out.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
-//			}
-//		}
-//
-//		InstallableUnit[] toRemove = request.getRemovedInstallableUnits();
-//		if (toRemove == null || toRemove.length == 0) {
-//			System.out.println("No installable units to remove.");
-//		} else {
-//			for (int i = 0; i < toRemove.length; i++)
-//				System.out.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
-//		}
-//		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
-//		if (propsToRemove == null || propsToRemove.isEmpty()) {
-//			System.out.println("No IU properties to remove.");
-//		} else {
-//			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
-//				Object key = iter.next();
-//				System.out.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
-//			}
-//		}
-//	}
+	//	// copied from ProfileSynchronizer
+	private static void debug(ProfileChangeRequest request) {
+		if (!DEBUG || request == null)
+			return;
+		//		System.out.println("\nProfile Change Request:");
+		//		InstallableUnit[] toAdd = request.getAddedInstallableUnit();
+		//		if (toAdd == null || toAdd.length == 0) {
+		//			System.out.println("No installable units to add.");
+		//		} else {
+		//			for (int i = 0; i < toAdd.length; i++)
+		//				System.out.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
+		//		}
+		//		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
+		//		if (propsToAdd == null || propsToAdd.isEmpty()) {
+		//			System.out.println("No IU properties to add.");
+		//		} else {
+		//			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
+		//				Object key = iter.next();
+		//				System.out.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
+		//			}
+		//		}
+		//
+		//		InstallableUnit[] toRemove = request.getRemovedInstallableUnits();
+		//		if (toRemove == null || toRemove.length == 0) {
+		//			System.out.println("No installable units to remove.");
+		//		} else {
+		//			for (int i = 0; i < toRemove.length; i++)
+		//				System.out.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
+		//		}
+		//		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
+		//		if (propsToRemove == null || propsToRemove.isEmpty()) {
+		//			System.out.println("No IU properties to remove.");
+		//		} else {
+		//			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
+		//				Object key = iter.next();
+		//				System.out.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
+		//			}
+		//		}
+	}
 
 	// dump info to console
 	private static void debug(InstallableUnit unit) {
@@ -345,7 +343,7 @@ public class Parser {
 			return;
 		System.out.println("\nInstallableUnit: " + unit.getId());
 		System.out.println("Version: " + unit.getVersion());
-		if(unit.isInstalled())
+		if (unit.isInstalled())
 			System.out.println("Installed: true");
 		IRequiredCapability[] reqs = unit.getRequiredCapabilities();
 		for (int i = 0; i < reqs.length; i++) {

@@ -1,10 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2009 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: 
+ * IBM Corporation - initial implementation and ideas 
+ ******************************************************************************/
 package org.eclipse.equinox.p2.cudf;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
+import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
@@ -12,29 +18,33 @@ import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
 public class Main {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
-	
+
 	public static void main(String[] args) {
 		String filename = null;
 		if (args.length > 0)
 			filename = args[0];
 		else {
-			System.out.println("FAIL");
-			System.out.println("No input file specified.");
+			printFail("No input file specified.");
+			return;
 		}
-		printResults(invokeSolver(parseCUDF(new File(filename))));
+		File input = new File(filename);
+		if (!input.exists()) {
+			printFail("Input file does not exist.");
+			return;
+		}
+		printResults(invokeSolver(parseCUDF(input)));
 	}
 
 	private static void printResults(Object result) {
-		if(result instanceof Collection) {
+		if (result instanceof Collection) {
 			printSolution((Collection) result);
 			System.exit(0);
-		} 
-		printFail();
-		
+		}
+		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
 	}
 
-	private static void printFail() {
-		System.out.println("FAIL");
+	private static void printFail(String message) {
+		System.out.println("FAIL: " + message);
 	}
 
 	private static Object invokeSolver(ProfileChangeRequest request) {
@@ -44,7 +54,7 @@ public class Main {
 	private static ProfileChangeRequest parseCUDF(File file) {
 		return Parser.parse(file);
 	}
-	
+
 	private static void printSolution(Collection state) {
 		ArrayList l = new ArrayList(state);
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
