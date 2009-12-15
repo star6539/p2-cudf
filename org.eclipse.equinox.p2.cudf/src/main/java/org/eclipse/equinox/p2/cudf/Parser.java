@@ -9,9 +9,27 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf;
 
-import java.io.*;
-import java.util.*;
-import org.eclipse.equinox.p2.cudf.metadata.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.eclipse.equinox.p2.cudf.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
+import org.eclipse.equinox.p2.cudf.metadata.ORRequirement;
+import org.eclipse.equinox.p2.cudf.metadata.ProvidedCapability;
+import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.cudf.metadata.Version;
+import org.eclipse.equinox.p2.cudf.metadata.VersionRange;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
@@ -26,6 +44,7 @@ public class Parser {
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
 	private static QueryableArray query = null;
+	
 
 	static class Tuple {
 		String name;
@@ -147,12 +166,12 @@ public class Parser {
 	}
 
 	private static void handleInstall(String line) {
-		line = line.substring("install: ".length());
-		List pkgs = createPackageList(line);
-		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) iter.next();
-			currentRequest.addInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
-		}
+			line = line.substring("install: ".length());
+			List installRequest = createRequires(line);
+			for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
+				currentRequest.addInstallableUnit((IRequiredCapability) iterator.next());
+			}
+			return;
 	}
 
 	private static void handleRequest(String line) {
@@ -162,12 +181,12 @@ public class Parser {
 	}
 
 	private static void handleRemove(String line) {
-		line = line.substring("remove: ".length());
-		List pkgs = createPackageList(line);
-		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) iter.next();
-			currentRequest.removeInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
-		}
+			line = line.substring("remove: ".length());
+			List removeRequest = createRequires(line);
+			for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
+				currentRequest.removeInstallableUnit((IRequiredCapability) iterator.next());
+			}
+			return;
 	}
 
 	private static void initializeQueryableArray() {
@@ -176,11 +195,11 @@ public class Parser {
 
 	private static void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		List pkgs = createPackageList(line);
-		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) iter.next();
-			currentRequest.upgradeInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
+		List removeRequest = createRequires(line);
+		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
+			currentRequest.upgradeInstallableUnit((IRequiredCapability) iterator.next());
 		}
+		return;
 	}
 
 	/*
