@@ -158,8 +158,9 @@ public class Parser {
 		String value = line.substring("installed: ".length());
 		if (value.length() != 0) {
 			if (DEBUG)
-				if (Boolean.valueOf(value).booleanValue()) {
+				if (!Boolean.valueOf(value).booleanValue()) {
 					System.err.println("Unexcepted value for installed.");
+					return;
 				}
 			currentIU.setInstalled(true);
 		}
