@@ -175,7 +175,6 @@ public class Parser {
 	}
 
 	private static void handleRequest(String line) {
-		handleRequest(line);
 		currentRequest = new ProfileChangeRequest(query);
 		initializeQueryableArray();
 	}
