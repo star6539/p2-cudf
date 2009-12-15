@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.cudf;
+package org.eclipse.equinox.p2.cudf.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,21 +21,17 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.ORRequirement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+import org.eclipse.equinox.p2.cudf.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.metadata.ORRequirement;
 
 public class QueryableArray implements IQueryable {
 	static class IUCapability {
-		final IInstallableUnit iu;
+		final InstallableUnit iu;
 		final IProvidedCapability capability;
 
-		public IUCapability(IInstallableUnit iu, IProvidedCapability capability) {
+		public IUCapability(InstallableUnit iu, IProvidedCapability capability) {
 			this.iu = iu;
 			this.capability = capability;
 		}
@@ -44,7 +40,7 @@ public class QueryableArray implements IQueryable {
 	private final List dataSet;
 	private Map namedCapabilityIndex;
 
-	public QueryableArray(IInstallableUnit[] ius) {
+	public QueryableArray(InstallableUnit[] ius) {
 		dataSet = Arrays.asList(ius);
 	}
 
@@ -100,7 +96,7 @@ public class QueryableArray implements IQueryable {
 
 		namedCapabilityIndex = new HashMap();
 		for (Iterator iterator = dataSet.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			InstallableUnit iu = (InstallableUnit) iterator.next();
 
 			IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
 			for (int i = 0; i < providedCapabilities.length; i++) {
@@ -113,5 +109,9 @@ public class QueryableArray implements IQueryable {
 				iuCapabilities.add(new IUCapability(iu, providedCapabilities[i]));
 			}
 		}
+	}
+	
+	public Iterator iterator() {
+		return dataSet.iterator();
 	}
 }

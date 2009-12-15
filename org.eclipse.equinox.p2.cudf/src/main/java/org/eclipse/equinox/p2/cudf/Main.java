@@ -15,12 +15,11 @@ import java.util.*;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.cudf.metadata.*;
+import org.eclipse.equinox.p2.cudf.query.CapabilityQuery;
+import org.eclipse.equinox.p2.cudf.query.Collector;
+import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
 /**
  * TODO - if we have 2 versions in a row for the same bundle, convert it to a version range (e>2,e<4 should be e (2,4))
@@ -117,7 +116,7 @@ public class Main implements IApplication {
 		}
 		for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 			debug((InstallableUnit) iter.next());
-		debug(currentRequest);
+//		debug(currentRequest);
 	}
 
 	/*
@@ -140,40 +139,25 @@ public class Main implements IApplication {
 	private static void handleI(String line) {
 		if (line.startsWith("installed: ")) {
 			String value = line.substring("installed: ".length());
-			currentIU.setProperty("installed", value);
-			return;
+			if (value.length() != 0) {
+				if (DEBUG)
+					if (Boolean.valueOf(value).booleanValue()) {
+						System.err.println("Unexcepted value for installed.");
+					}
+				currentIU.setInstalled(true);
+				
+			}return;
 		}
 
 		if (line.startsWith("install: ")) {
 			line = line.substring("install: ".length());
-			currentRequest.addInstallableUnits(new IInstallableUnit[] {findIUToInstall(line)});
+			currentRequest.addInstallableUnit();
 			return;
 		}
 	}
 
-	private static IInstallableUnit findIUToInstall(String line) {
-		Collector c = query.query(new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, line, VersionRange.emptyRange, null, false, false)), new Collector(), null);
-		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
-			IInstallableUnit packageToInstall = (IInstallableUnit) iterator.next();
-			if(! "true".equals(packageToInstall.getProperty("installed")))
-				return packageToInstall;
-		}
-		throw new IllegalStateException("Can't find an IU to install: " + line );
-	}
-	
-	private static IInstallableUnit findIUToUninstall(String line) {
-		Collector c = query.query(new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, line, VersionRange.emptyRange, null, false, false)), new Collector(), null);
-		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
-			IInstallableUnit packageToInstall = (IInstallableUnit) iterator.next();
-			if("true".equals(packageToInstall.getProperty("installed")))
-				return packageToInstall;
-		}
-		throw new IllegalStateException("Can't find an IU to install: " + line );
-	}
-	
-	
 	private static void handleRequest(String line) {
-		currentRequest = new ProfileChangeRequest(new Profile("cudf-parser", null, null));
+		currentRequest = new ProfileChangeRequest(query);
 	}
 
 	private static void handleR(String line) {
@@ -185,20 +169,20 @@ public class Main implements IApplication {
 
 		if (line.startsWith("remove: ")) {
 			line = line.substring("remove: ".length());
-			currentRequest.removeInstallableUnits(new IInstallableUnit[] {findIUToUninstall(line)});
+			currentRequest.removeInstallableUnit();
 			return;
 		}
 	}
 
 	private static void initializeQueryableArray() {
-		query = new QueryableArray((IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]));
+		query = new QueryableArray((InstallableUnit[]) allIUs.toArray(new InstallableUnit[allIUs.size()]));
 	}
 
 	private static void handleU(String line) {
 		if (!line.startsWith("upgrade: "))
 			return;
 		line = line.substring("upgrade: ".length());
-		// todo
+		// tod
 	}
 
 	/*
@@ -318,45 +302,45 @@ public class Main implements IApplication {
 		}
 	}
 
-	// copied from ProfileSynchronizer
-	private static void debug(ProfileChangeRequest request) {
-		if (!DEBUG || request == null)
-			return;
-		System.out.println("\nProfile Change Request:");
-		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
-		if (toAdd == null || toAdd.length == 0) {
-			System.out.println("No installable units to add.");
-		} else {
-			for (int i = 0; i < toAdd.length; i++)
-				System.out.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
-		}
-		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
-		if (propsToAdd == null || propsToAdd.isEmpty()) {
-			System.out.println("No IU properties to add.");
-		} else {
-			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				System.out.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
-			}
-		}
-
-		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
-		if (toRemove == null || toRemove.length == 0) {
-			System.out.println("No installable units to remove.");
-		} else {
-			for (int i = 0; i < toRemove.length; i++)
-				System.out.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
-		}
-		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
-		if (propsToRemove == null || propsToRemove.isEmpty()) {
-			System.out.println("No IU properties to remove.");
-		} else {
-			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				System.out.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
-			}
-		}
-	}
+//	// copied from ProfileSynchronizer
+//	private static void debug(ProfileChangeRequest request) {
+//		if (!DEBUG || request == null)
+//			return;
+//		System.out.println("\nProfile Change Request:");
+//		InstallableUnit[] toAdd = request.getAddedInstallableUnit();
+//		if (toAdd == null || toAdd.length == 0) {
+//			System.out.println("No installable units to add.");
+//		} else {
+//			for (int i = 0; i < toAdd.length; i++)
+//				System.out.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
+//		}
+//		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
+//		if (propsToAdd == null || propsToAdd.isEmpty()) {
+//			System.out.println("No IU properties to add.");
+//		} else {
+//			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
+//				Object key = iter.next();
+//				System.out.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
+//			}
+//		}
+//
+//		InstallableUnit[] toRemove = request.getRemovedInstallableUnits();
+//		if (toRemove == null || toRemove.length == 0) {
+//			System.out.println("No installable units to remove.");
+//		} else {
+//			for (int i = 0; i < toRemove.length; i++)
+//				System.out.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
+//		}
+//		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
+//		if (propsToRemove == null || propsToRemove.isEmpty()) {
+//			System.out.println("No IU properties to remove.");
+//		} else {
+//			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
+//				Object key = iter.next();
+//				System.out.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
+//			}
+//		}
+//	}
 
 	// dump info to console
 	private static void debug(InstallableUnit unit) {
@@ -364,12 +348,8 @@ public class Main implements IApplication {
 			return;
 		System.out.println("\nInstallableUnit: " + unit.getId());
 		System.out.println("Version: " + unit.getVersion());
-		Map properties = unit.getProperties();
-		for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-			Object key = iter.next();
-			Object value = properties.get(key);
-			System.out.println("Property: " + key + '=' + value);
-		}
+		if(unit.isInstalled())
+			System.out.println("Installed: true");
 		IRequiredCapability[] reqs = unit.getRequiredCapabilities();
 		for (int i = 0; i < reqs.length; i++) {
 			System.out.println("Requirement: " + reqs[i]);
