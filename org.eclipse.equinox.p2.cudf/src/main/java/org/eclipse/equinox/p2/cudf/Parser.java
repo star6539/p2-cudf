@@ -322,11 +322,14 @@ public class Parser {
 
 	private static void handleProvides(String line) {
 		List pkgs = createPackageList(line);
+		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
+		int i = 0;
 		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
 			Tuple tuple = (Tuple) iter.next();
-			//			pkgs.add(createProvidedCapability(tuple.name, tuple.operator, tuple.version));
+			providedCapabilities[i++] = createProvidedCapability(tuple.name, tuple.operator, tuple.version);
 		}
-
+		providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(), currentIU.getVersion());
+		currentIU.setCapabilities(providedCapabilities);
 	}
 
 	//	// copied from ProfileSynchronizer
