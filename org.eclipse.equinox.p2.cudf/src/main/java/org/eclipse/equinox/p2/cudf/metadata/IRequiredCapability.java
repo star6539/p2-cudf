@@ -28,10 +28,7 @@ package org.eclipse.equinox.p2.cudf.metadata;
  */
 public interface IRequiredCapability {
 
-
 	public String getName();
-
-	public String getNamespace();
 
 	public VersionRange getRange();
 

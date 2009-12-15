@@ -15,10 +15,6 @@ public class NotRequirement implements IRequiredCapability {
 		return negatedRequirement.getName();
 	}
 
-	public String getNamespace() {
-		return negatedRequirement.getNamespace();
-	}
-
 	public VersionRange getRange() {
 		return negatedRequirement.getRange();
 	}

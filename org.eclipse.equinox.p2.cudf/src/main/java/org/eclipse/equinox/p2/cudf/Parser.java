@@ -266,7 +266,7 @@ public class Parser {
 	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
 	 */
 	private static IRequiredCapability createRequiredCapability(String name, String operator, String number) {
-		return new RequiredCapability(InstallableUnit.NAMESPACE_IU_ID, name, createVersionRange(operator, number));
+		return new RequiredCapability(name, createVersionRange(operator, number));
 	}
 
 	/*

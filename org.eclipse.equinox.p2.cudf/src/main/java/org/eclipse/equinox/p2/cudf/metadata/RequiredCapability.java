@@ -27,7 +27,6 @@ package org.eclipse.equinox.p2.cudf.metadata;
  */
 public class RequiredCapability implements IRequiredCapability {
 	private final String name;//never null
-	private final String namespace;//never null
 	private final VersionRange range;//never null
 
 //	public RequiredCapability(String namespace, String name, VersionRange range) {
@@ -38,8 +37,7 @@ public class RequiredCapability implements IRequiredCapability {
 	/**
 	 * TODO replace booleans with int options flag.
 	 */
-	public RequiredCapability(String namespace, String name, VersionRange range) {
-		this.namespace = namespace;
+	public RequiredCapability( String name, VersionRange range) {
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
 	}
@@ -54,8 +52,6 @@ public class RequiredCapability implements IRequiredCapability {
 		final IRequiredCapability other = (IRequiredCapability) obj;
 		if (!name.equals(other.getName()))
 			return false;
-		if (!namespace.equals(other.getNamespace()))
-			return false;
 		if (!range.equals(other.getRange()))
 			return false;
 		return true;
@@ -63,10 +59,6 @@ public class RequiredCapability implements IRequiredCapability {
 
 	public String getName() {
 		return name;
-	}
-
-	public String getNamespace() {
-		return namespace;
 	}
 
 	/**
@@ -90,26 +82,12 @@ public class RequiredCapability implements IRequiredCapability {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + name.hashCode();
-		result = prime * result + namespace.hashCode();
 		result = prime * result + range.hashCode();
 		return result;
 	}
 
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-
-		if (InstallableUnit.NAMESPACE_IU_ID.equals(getNamespace())) {
-			//print nothing for an IU id dependency because this is the default (most common) case
-			result.append(""); //$NON-NLS-1$
-		} else if ("osgi.bundle".equals(getNamespace())) { //$NON-NLS-1$
-			result.append("bundle"); //$NON-NLS-1$
-		} else if ("java.package".equals(getNamespace())) { //$NON-NLS-1$
-			result.append("package"); //$NON-NLS-1$
-		} else {
-			result.append(getNamespace());
-		}
-		if (result.length() > 0)
-			result.append(' ');
 		result.append(getName());
 		result.append(' ');
 		//for an exact version match, print a simpler expression
@@ -126,8 +104,6 @@ public class RequiredCapability implements IRequiredCapability {
 
 	public boolean satisfiedBy(IProvidedCapability cap) {
 		if (getName() == null || !getName().equals(cap.getName()))
-			return false;
-		if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
 			return false;
 		return getRange().isIncluded(cap.getVersion());
 	}

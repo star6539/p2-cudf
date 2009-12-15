@@ -23,8 +23,6 @@ public interface IProvidedCapability {
 
 	public String getName();
 
-	public String getNamespace();
-
 	public Version getVersion();
 
 	/**

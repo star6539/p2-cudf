@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.cudf.metadata;
  *******************************************************************************/
 
 
-public class InstallableUnit {
+public class InstallableUnit implements Comparable {
 
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
 	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
