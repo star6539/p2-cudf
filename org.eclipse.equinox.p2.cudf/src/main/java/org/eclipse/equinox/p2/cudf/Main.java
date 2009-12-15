@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
@@ -39,7 +38,7 @@ public class Main {
 	}
 
 	private static Object invokeSolver(ProfileChangeRequest request) {
-		return new SimplePlanner().getSolutionFor(request, new NullProgressMonitor());
+		return new SimplePlanner().getSolutionFor(request);
 	}
 
 	private static ProfileChangeRequest parseCUDF(File file) {

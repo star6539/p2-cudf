@@ -12,10 +12,27 @@
 package org.eclipse.equinox.p2.cudf.solver;
 
 import java.math.BigInteger;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.p2.cudf.Main;
-import org.eclipse.equinox.p2.cudf.metadata.*;
+import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
 import org.eclipse.equinox.p2.cudf.query.CapabilityQuery;
 import org.eclipse.equinox.p2.cudf.query.Collector;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
@@ -24,7 +41,9 @@ import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.tools.DependencyHelper;
 import org.sat4j.pb.tools.WeightedObject;
-import org.sat4j.specs.*;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.TimeoutException;
 
 /**
  * This class is the interface between SAT4J and the planner. It produces a
@@ -134,10 +153,11 @@ public class Projector {
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			BigInteger weight = BigInteger.ONE;
+			BigInteger weight = POWER;
 			int count = toSort.size();
 			for (int i = 0; i < count; i++) {
-				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
+				InstallableUnit iu = (InstallableUnit) toSort.get(i);
+				weightedObjects.add(WeightedObject.newWO(iu, iu.isInstalled() ? BigInteger.ONE : weight));
 				weight = weight.multiply(POWER);
 			}
 			if (weight.compareTo(maxWeight) > 0)
@@ -378,7 +398,7 @@ public class Projector {
 		return abstractVariable;
 	}
 
-	public IStatus invokeSolver(IProgressMonitor monitor) {
+	public IStatus invokeSolver() {
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
 		// CNF filename is given on the command line
@@ -386,8 +406,6 @@ public class Projector {
 		if (DEBUG)
 			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
 		try {
-			if (monitor.isCanceled())
-				return Status.CANCEL_STATUS;
 			if (dependencyHelper.hasASolution(assumptions)) {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
@@ -443,4 +461,33 @@ public class Projector {
 			printSolution(solution);
 		return solution;
 	}
+	
+	public Set getExplanation(IProgressMonitor monitor) {
+		ExplanationJob job = new ExplanationJob(dependencyHelper);
+		job.schedule();
+		monitor.setTaskName(Messages.Planner_NoSolution);
+		IProgressMonitor pm = new NullProgressMonitor();
+		pm.beginTask(Messages.Planner_NoSolution, 1000);
+		try {
+			synchronized (job) {
+				while (job.getExplanationResult() == null && job.getState() != Job.NONE) {
+					if (monitor.isCanceled()) {
+						job.cancel();
+						throw new OperationCanceledException();
+					}
+					pm.worked(1);
+					try {
+						job.wait(100);
+					} catch (InterruptedException e) {
+						if (DEBUG)
+							Tracing.debug("Interrupted while computing explanations"); //$NON-NLS-1$
+					}
+				}
+			}
+		} finally {
+			monitor.done();
+		}
+		return job.getExplanationResult();
+	}
+
 }

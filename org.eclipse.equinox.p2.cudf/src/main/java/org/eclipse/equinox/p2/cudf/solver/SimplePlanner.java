@@ -1,18 +1,15 @@
 package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.ArrayList;
-import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.metadata.Version;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
-	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, IProgressMonitor monitor) {
+	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest) {
 			QueryableArray profile = profileChangeRequest.getInitialState();
 
 			InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
@@ -23,9 +20,11 @@ public class SimplePlanner {
 //				return new ProvisioningPlan(slicer.getStatus(), profileChangeRequest, null);
 			Projector projector = new Projector(profile);
 			projector.encode(updatedPlan);
-			IStatus s = projector.invokeSolver(null);
-			if (s.getSeverity() == IStatus.CANCEL || s.getSeverity() == IStatus.ERROR)
-				return s;
+			IStatus s = projector.invokeSolver();
+			if (s.getSeverity() != IStatus.OK) {
+				System.out.println(projector.getExplanation(null));
+				return s;//projector.getExplanation(null);
+			}
 			
 			return projector.extractSolution();
 	}

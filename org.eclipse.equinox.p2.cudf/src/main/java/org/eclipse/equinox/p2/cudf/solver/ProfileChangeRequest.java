@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 import java.util.ArrayList;
 
 import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class ProfileChangeRequest {
@@ -31,7 +32,7 @@ public class ProfileChangeRequest {
 	}
 
 	public void removeInstallableUnit(IRequiredCapability toUninstall) {
-		iusToRemove.add(toUninstall);
+		iusToRemove.add(new NotRequirement(toUninstall));
 	}
 
 	public void upgradeInstallableUnit(IRequiredCapability toUpgrade) {
