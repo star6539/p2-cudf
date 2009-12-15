@@ -1,11 +1,8 @@
 package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.metadata.Version;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {

@@ -10,21 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.query;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.cudf.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.metadata.ORRequirement;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 
 public class QueryableArray implements IQueryable {
 	static class IUCapability {

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Cdf
 Bundle-SymbolicName: org.eclipse.equinox.p2.cudf;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.equinox.p2.cudf.Activator
 Require-Bundle: org.sat4j.core;bundle-version="2.1.1",
  org.sat4j.pb;bundle-version="2.1.1",
  org.junit;bundle-version="3.8.2";resolution:=optional,

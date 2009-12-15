@@ -52,7 +52,10 @@ public class Main {
 	}
 
 	private static ProfileChangeRequest parseCUDF(File file) {
-		return Parser.parse(file);
+		long start = System.currentTimeMillis();
+		ProfileChangeRequest result =  Parser.parse(file);
+		System.out.println("Parsing and creating objects took: "  + (System.currentTimeMillis() - start));
+		return result;
 	}
 
 	private static void printSolution(Collection state) {

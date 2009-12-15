@@ -1,14 +1,8 @@
 package org.eclipse.equinox.p2.cudf.tests;
 
 import java.util.Collection;
-
 import junit.framework.TestCase;
-
-import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.metadata.ProvidedCapability;
-import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.Version;
-import org.eclipse.equinox.p2.cudf.metadata.VersionRange;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;

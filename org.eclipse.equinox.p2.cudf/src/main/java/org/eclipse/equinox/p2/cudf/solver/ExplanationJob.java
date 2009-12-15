@@ -1,12 +1,7 @@
 package org.eclipse.equinox.p2.cudf.solver;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.sat4j.pb.tools.DependencyHelper;
 import org.sat4j.specs.TimeoutException;
