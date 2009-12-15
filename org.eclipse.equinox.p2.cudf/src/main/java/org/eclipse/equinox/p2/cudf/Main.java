@@ -11,10 +11,17 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
 
 public class Main {
+	// The plug-in ID
+	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
+	
 	public static void main(String[] args) {
 		String filename = null;
 		if (args.length > 0)
 			filename = args[0];
+		else {
+			System.out.println("FAIL");
+			System.out.println("No input file specified.");
+		}
 		printResults(invokeSolver(parseCUDF(new File(filename))));
 	}
 
@@ -48,6 +55,4 @@ public class Main {
 		}
 	}
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
 }

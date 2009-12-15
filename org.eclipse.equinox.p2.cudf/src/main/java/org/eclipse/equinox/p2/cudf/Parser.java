@@ -183,7 +183,7 @@ public class Parser {
 		if (!line.startsWith("upgrade: "))
 			return;
 		line = line.substring("upgrade: ".length());
-		// tod
+		currentRequest.upgradeInstallableUnit();
 	}
 
 	/*
