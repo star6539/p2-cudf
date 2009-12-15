@@ -47,7 +47,6 @@ public class Projector {
 	private MultiStatus result;
 
 	private InstallableUnit entryPoint;
-	private Map fragments = new HashMap();
 
 	static class AbstractVariable {
 		public String toString() {
