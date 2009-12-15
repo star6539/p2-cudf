@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.core.runtime;
 
-import org.eclipse.equinox.p2.cudf.Activator;
+import org.eclipse.equinox.p2.cudf.Main;
 
 /**
  * A concrete status implementation, suitable either for 
@@ -26,13 +26,13 @@ public class Status implements IStatus {
 	 *
 	 * @since 3.0
 	 */
-	public static final IStatus OK_STATUS = new Status(OK, Activator.PLUGIN_ID, OK, "ok", null); //$NON-NLS-1$
+	public static final IStatus OK_STATUS = new Status(OK, Main.PLUGIN_ID, OK, "ok", null); //$NON-NLS-1$
 	/**
 	 * A standard CANCEL status with no message.
 	 * 
 	 * @since 3.0
 	 */
-	public static final IStatus CANCEL_STATUS = new Status(CANCEL, Activator.PLUGIN_ID, 1, "", null); //$NON-NLS-1$
+	public static final IStatus CANCEL_STATUS = new Status(CANCEL, Main.PLUGIN_ID, 1, "", null); //$NON-NLS-1$
 	/**
 	 * The severity. One of
 	 * <ul>

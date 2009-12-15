@@ -14,7 +14,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.cudf.Activator;
+import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.CapabilityQuery;
 import org.eclipse.equinox.p2.cudf.query.Collector;
@@ -61,7 +61,7 @@ public class Projector {
 		noopVariables = new HashMap();
 		slice = new TwoTierMap();
 		abstractVariables = new ArrayList();
-		result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
+		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
 	}
 
@@ -111,9 +111,9 @@ public class Projector {
 				System.out.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
-			result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
 		} catch (ContradictionException e) {
-			result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.Planner_Unsatisfiable_problem));
+			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unsatisfiable_problem));
 		}
 	}
 
@@ -280,7 +280,7 @@ public class Projector {
 	}
 
 	private void missingRequirement(InstallableUnit iu, IRequiredCapability req) throws ContradictionException {
-		result.add(new Status(IStatus.WARNING, Activator.PLUGIN_ID, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+		result.add(new Status(IStatus.WARNING, Main.PLUGIN_ID, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 		createNegation(iu, req);
 	}
 
@@ -402,12 +402,12 @@ public class Projector {
 					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
 					Tracing.debug("Solver solution NOT found: " + (stop - start)); //$NON-NLS-1$
 				}
-				result.merge(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.Planner_Unsatisfiable_problem));
+				result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unsatisfiable_problem));
 			}
 		} catch (TimeoutException e) {
-			result.merge(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.Planner_Timeout));
+			result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Timeout));
 		} catch (Exception e) {
-			result.merge(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.Planner_Unexpected_problem, e));
+			result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unexpected_problem, e));
 		}
 		if (DEBUG)
 			System.out.println();

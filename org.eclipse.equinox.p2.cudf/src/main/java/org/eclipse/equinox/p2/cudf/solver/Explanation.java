@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.Arrays;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.cudf.Activator;
+import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.osgi.util.NLS;
@@ -33,9 +33,9 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public IStatus toStatus() {
-			MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, 1, Messages.Explanation_unsatisfied, null);
-			result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_from, getUserReadableName(iu))));
-			result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_to, req)));
+			MultiStatus result = new MultiStatus(Main.PLUGIN_ID, 1, Messages.Explanation_unsatisfied, null);
+			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_from, getUserReadableName(iu))));
+			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_to, req)));
 			return result;
 		}
 
@@ -60,7 +60,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
+			return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
 		}
 	}
 
@@ -80,7 +80,7 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
+			return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
 		}
 	}
 
@@ -112,9 +112,9 @@ public abstract class Explanation implements Comparable {
 		public IStatus toStatus() {
 			String filter = req.getFilter();
 			if (filter == null) {
-				return new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
+				return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, getUserReadableName(iu), req}));
+			return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, getUserReadableName(iu), req}));
 		}
 	}
 
@@ -134,9 +134,9 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public IStatus toStatus() {
-			MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, 1, NLS.bind(Messages.Explanation_singleton, ""), null); //$NON-NLS-1$
+			MultiStatus result = new MultiStatus(Main.PLUGIN_ID, 1, NLS.bind(Messages.Explanation_singleton, ""), null); //$NON-NLS-1$
 			for (int i = 0; i < ius.length; i++)
-				result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, getUserReadableName(ius[i])));
+				result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, getUserReadableName(ius[i])));
 			return result;
 		}
 
@@ -183,7 +183,7 @@ public abstract class Explanation implements Comparable {
 	 * Returns a representation of this explanation as a status object.
 	 */
 	public IStatus toStatus() {
-		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, toString());
+		return new Status(IStatus.ERROR, Main.PLUGIN_ID, toString());
 	}
 
 	protected String getUserReadableName(InstallableUnit iu) {
