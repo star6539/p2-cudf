@@ -26,32 +26,22 @@ package org.eclipse.equinox.p2.cudf.metadata;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability implements IRequiredCapability {
-	private static final String[] NO_SELECTORS = new String[0];
-
-	private String filter;
-	private final boolean multiple;
 	private final String name;//never null
 	private final String namespace;//never null
-	private boolean optional;
-	private boolean greedy = true;
 	private final VersionRange range;//never null
-	private String[] selectors = NO_SELECTORS;//never null
 
+//	public RequiredCapability(String namespace, String name, VersionRange range) {
+//		this.namespace = namespace;
+//		this.name = name;
+//		this.range = range == null ? VersionRange.emptyRange : range;
+//	}
 	/**
 	 * TODO replace booleans with int options flag.
 	 */
-	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	public RequiredCapability(String namespace, String name, VersionRange range) {
 		this.namespace = namespace;
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
-		this.optional = optional;
-		this.filter = filter;
-		this.multiple = multiple;
-	}
-
-	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		this(namespace, name, range, filter, optional, multiple);
-		this.greedy = greedy;
 	}
 
 	public boolean equals(Object obj) {
@@ -62,26 +52,13 @@ public class RequiredCapability implements IRequiredCapability {
 		if (!(obj instanceof IRequiredCapability))
 			return false;
 		final IRequiredCapability other = (IRequiredCapability) obj;
-		if (filter == null) {
-			if (other.getFilter() != null)
-				return false;
-		} else if (!filter.equals(other.getFilter()))
-			return false;
-		if (multiple != other.isMultiple())
-			return false;
 		if (!name.equals(other.getName()))
 			return false;
 		if (!namespace.equals(other.getNamespace()))
 			return false;
-		if (optional != other.isOptional())
-			return false;
 		if (!range.equals(other.getRange()))
 			return false;
 		return true;
-	}
-
-	public String getFilter() {
-		return filter;
 	}
 
 	public String getName() {
@@ -108,48 +85,14 @@ public class RequiredCapability implements IRequiredCapability {
 	 * is provided, then a downstream InstallableUnit with a required capability
 	 * filtered with "doc=true" will be included.
 	 */
-	public String[] getSelectors() {
-		return selectors;
-	}
 
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-		result = prime * result + (multiple ? 1231 : 1237);
 		result = prime * result + name.hashCode();
 		result = prime * result + namespace.hashCode();
-		result = prime * result + (optional ? 1231 : 1237);
 		result = prime * result + range.hashCode();
 		return result;
-	}
-
-	public boolean isMultiple() {
-		return multiple;
-	}
-
-	public boolean isOptional() {
-		return optional;
-	}
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setSelectors(String[] selectors) {
-		this.selectors = selectors;
-	}
-
-	public boolean isGreedy() {
-		return greedy;
 	}
 
 	public String toString() {

@@ -165,15 +165,15 @@ public class Projector {
 		long countOptional = 1;
 		List requestedPatches = new ArrayList();
 		IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
-		for (int j = 0; j < reqs.length; j++) {
-			if (!reqs[j].isOptional())
-				continue;
-			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-				InstallableUnit match = (InstallableUnit) iterator.next();
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
-			}
-		}
+//		for (int j = 0; j < reqs.length; j++) {
+//			if (!reqs[j].isOptional())
+//				continue;
+//			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+//			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+//				InstallableUnit match = (InstallableUnit) iterator.next();
+//					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
+//			}
+//		}
 
 		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
 		for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
@@ -238,7 +238,7 @@ public class Projector {
 			return;
 		}
 		List matches = getApplicableMatches(req);
-		if (!req.isOptional()) {
+//		if (!req.isOptional()) {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
@@ -251,13 +251,13 @@ public class Projector {
 				}
 				createImplication(iu, matches, explanation);
 			}
-		} else {
-			if (!matches.isEmpty()) {
-				AbstractVariable abs = getAbstractVariable();
-				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-				optionalAbstractRequirements.add(abs);
-			}
-		}
+//		} else {
+//			if (!matches.isEmpty()) {
+//				AbstractVariable abs = getAbstractVariable();
+//				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+//				optionalAbstractRequirements.add(abs);
+//			}
+//		}
 	}
 
 	private void expandRequirements(IRequiredCapability[] reqs, InstallableUnit iu, boolean isRootIu) throws ContradictionException {

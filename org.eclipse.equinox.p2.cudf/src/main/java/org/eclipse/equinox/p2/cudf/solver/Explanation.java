@@ -102,19 +102,11 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			String filter = req.getFilter();
-			if (filter == null) {
 				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
-			}
-			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, iu, req});
 		}
 
 		public IStatus toStatus() {
-			String filter = req.getFilter();
-			if (filter == null) {
 				return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
-			}
-			return new Status(IStatus.ERROR, Main.PLUGIN_ID, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, getUserReadableName(iu), req}));
 		}
 	}
 

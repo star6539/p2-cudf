@@ -266,11 +266,7 @@ public class Parser {
 	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
 	 */
 	private static IRequiredCapability createRequiredCapability(String name, String operator, String number) {
-		VersionRange range = createVersionRange(operator, number);
-		String filter = null;
-		boolean optional = false;
-		boolean multiple = false;
-		return new RequiredCapability("osgi.bundle", name, range, filter, optional, multiple);
+		return new RequiredCapability(InstallableUnit.NAMESPACE_IU_ID, name, createVersionRange(operator, number));
 	}
 
 	/*

@@ -11,10 +11,6 @@ public class NotRequirement implements IRequiredCapability {
 		return negatedRequirement;
 	}
 
-	public String getFilter() {
-		return negatedRequirement.getFilter();
-	}
-
 	public String getName() {
 		return negatedRequirement.getName();
 	}
@@ -25,32 +21,6 @@ public class NotRequirement implements IRequiredCapability {
 
 	public VersionRange getRange() {
 		return negatedRequirement.getRange();
-	}
-
-	public String[] getSelectors() {
-		return negatedRequirement.getSelectors();
-	}
-
-	public boolean isGreedy() {
-		return negatedRequirement.isGreedy();
-	}
-
-	public boolean isMultiple() {
-		return negatedRequirement.isMultiple();
-	}
-
-	public boolean isOptional() {
-		return negatedRequirement.isOptional();
-	}
-
-	public void setFilter(String filter) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setSelectors(String[] selectors) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean isNegation() {

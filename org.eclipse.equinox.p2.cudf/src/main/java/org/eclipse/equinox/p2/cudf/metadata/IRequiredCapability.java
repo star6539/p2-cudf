@@ -28,60 +28,13 @@ package org.eclipse.equinox.p2.cudf.metadata;
  */
 public interface IRequiredCapability {
 
-	public String getFilter();
 
 	public String getName();
 
 	public String getNamespace();
 
-	/**
-	 * Returns the range of versions that satisfy this required capability. Returns
-	 * an empty version range ({@link VersionRange#emptyRange} if any version
-	 * will satisfy the capability.
-	 * @return the range of versions that satisfy this required capability.
-	 */
 	public VersionRange getRange();
 
-	/**
-	 * Returns the properties to use for evaluating required capability filters 
-	 * downstream from this capability. For example, if the selector "doc"
-	 * is provided, then a downstream InstallableUnit with a required capability
-	 * filtered with "doc=true" will be included.
-	 */
-	public String[] getSelectors();
-
-	public boolean isMultiple();
-
-	public boolean isOptional();
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setFilter(String filter);
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setSelectors(String[] selectors);
-
-	public boolean isGreedy();
-
-	/**
-	 * Returns whether this required capability is equal to the given object.
-	 * 
-	 * This method returns <i>true</i> if:
-	 * <ul>
-	 *  <li> Both this object and the given object are of type IRequiredCapability
-	 *  <li> The result of <b>getFilter()</b> on both objects are equal
-	 *  <li> The result of <b>isMultiple()</b> on both objects are equal
-	 *  <li> The result of <b>getName()</b> on both objects are equal
-	 *  <li> The result of <b>geNamespace()</b> on both objects are equal
-	 *  <li> The result of <b>isOptional()</b> on both objects are equal
-	 *  <li> The result of <b>getRange()</b> on both objects are equal
-	 * </ul> 
-	 */
 	public boolean equals(Object other);
 
 	public boolean isNegation();
