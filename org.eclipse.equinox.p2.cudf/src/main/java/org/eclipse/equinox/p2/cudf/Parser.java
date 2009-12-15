@@ -148,7 +148,11 @@ public class Parser {
 
 	private static void handleInstall(String line) {
 		line = line.substring("install: ".length());
-		currentRequest.addInstallableUnit();
+		List pkgs = createPackageList(line);
+		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) iter.next();
+			currentRequest.addInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
+		}
 	}
 
 	private static void handleRequest(String line) {
@@ -159,7 +163,11 @@ public class Parser {
 
 	private static void handleRemove(String line) {
 		line = line.substring("remove: ".length());
-		currentRequest.removeInstallableUnit();
+		List pkgs = createPackageList(line);
+		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) iter.next();
+			currentRequest.removeInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
+		}
 	}
 
 	private static void initializeQueryableArray() {
@@ -168,7 +176,11 @@ public class Parser {
 
 	private static void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		currentRequest.upgradeInstallableUnit();
+		List pkgs = createPackageList(line);
+		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) iter.next();
+			currentRequest.upgradeInstallableUnit(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
+		}
 	}
 
 	/*
