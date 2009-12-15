@@ -442,16 +442,15 @@ public class Projector {
 		return solution;
 	}
 	
-	public Set getExplanation(IProgressMonitor monitor) {
+	public Set getExplanation() {
 		ExplanationJob job = new ExplanationJob(dependencyHelper);
 		job.schedule();
-		monitor.setTaskName(Messages.Planner_NoSolution);
 		IProgressMonitor pm = new NullProgressMonitor();
 		pm.beginTask(Messages.Planner_NoSolution, 1000);
 		try {
 			synchronized (job) {
 				while (job.getExplanationResult() == null && job.getState() != Job.NONE) {
-					if (monitor.isCanceled()) {
+					if (pm.isCanceled()) {
 						job.cancel();
 						throw new OperationCanceledException();
 					}
@@ -465,7 +464,7 @@ public class Projector {
 				}
 			}
 		} finally {
-			monitor.done();
+			pm.done();
 		}
 		return job.getExplanationResult();
 	}

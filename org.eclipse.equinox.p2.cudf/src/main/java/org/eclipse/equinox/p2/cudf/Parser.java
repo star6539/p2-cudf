@@ -111,12 +111,10 @@ public class Parser {
 					// ignore
 				}
 		}
-		if (DEBUG) {
-			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
-				debug((InstallableUnit) iter.next());
+		for (Iterator iter = allIUs.iterator(); iter.hasNext();)
+			debug((InstallableUnit) iter.next());
 
-			debug(currentRequest);
-		}
+		debug(currentRequest);
 		return currentRequest;
 	}
 
@@ -132,6 +130,9 @@ public class Parser {
 			throw new IllegalStateException("Malformed \'package\' stanza. No package element found.");
 		if (currentIU.getVersion() == null)
 			throw new IllegalStateException("Malformed \'package\' stanza. Package " + currentIU.getId() + " does not have a version.");
+		if (currentIU.getProvidedCapabilities().length == 0) {
+			currentIU.setCapabilities(new IProvidedCapability[] { new ProvidedCapability(currentIU.getId(), currentIU.getVersion()) });
+		}
 		allIUs.add(currentIU);
 		// reset to be ready for the next stanza
 		currentIU = null;
@@ -189,7 +190,7 @@ public class Parser {
 	 * Convert the version string to a version object and set it on the IU
 	 */
 	private static void handleVersion(String line) {
-		currentIU.setVersion(new Version(line.substring("Version: ".length())));
+		currentIU.setVersion(new Version(line.substring("version: ".length())));
 	}
 
 	// VPkg ::= PkgName (Sp + VConstr)?
@@ -208,8 +209,14 @@ public class Parser {
 	private static void handleConflicts(String line) {
 		List reqs = createRequires(line.substring("conflicts: ".length()));
 		List conflicts = new ArrayList();
-		for (Iterator iter = reqs.iterator(); iter.hasNext();)
-			conflicts.add(new NotRequirement((IRequiredCapability) iter.next()));
+		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iter.next();
+			if (currentIU.getId().equals(req.getName())) {
+				currentIU.setSingleton(true);
+			} else {
+				conflicts.add(new NotRequirement(req));
+			}
+		}
 		mergeRequirements(conflicts);
 	}
 
@@ -304,6 +311,7 @@ public class Parser {
 	}
 
 	private static void handleProvides(String line) {
+		line = line.substring("provides: ".length());
 		List pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
 		int i = 0;
