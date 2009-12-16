@@ -197,8 +197,6 @@ public class VersionRange {
 	 * @see Version#toString() string representation of <code>version</code>
 	 */
 	public String toString() {
-		if (VersionRange.versionMax.equals(maxVersion))
-			return minVersion.toString(); // we assume infinity max; use simple version (i.e version="1.0")
 		StringBuffer result = new StringBuffer();
 		result.append(includeMin ? '[' : '(');
 		result.append(minVersion);
