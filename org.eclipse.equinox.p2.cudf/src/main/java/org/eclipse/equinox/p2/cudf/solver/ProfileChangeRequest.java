@@ -22,7 +22,7 @@ public class ProfileChangeRequest {
 	private ArrayList iusToRemove = new ArrayList(10); // list of ius to remove
 	private ArrayList iusToAdd = new ArrayList(10); // list of ius to add
 	private ArrayList iusToUpdate = new ArrayList(10); // list of ius to add
-	private List iusPreInstalled;
+	private List iusPreInstalled = new ArrayList(1); //this will get overwritten
 	
 	public ProfileChangeRequest(QueryableArray initialState) {
 		this.initialState = initialState;
