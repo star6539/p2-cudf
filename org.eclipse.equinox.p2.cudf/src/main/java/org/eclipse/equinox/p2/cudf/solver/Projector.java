@@ -32,6 +32,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static final boolean DEBUG = false;
+	private static final boolean TIMING = true;
 	private static boolean DEBUG_ENCODING = false;
 	private QueryableArray picker;
 
@@ -67,7 +68,7 @@ public class Projector {
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
-			if (DEBUG) {
+			if (TIMING) {
 				start = System.currentTimeMillis();
 				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
 			}
@@ -101,7 +102,7 @@ public class Projector {
 			createMustHave(entryPointIU);
 
 			createOptimizationFunction(entryPointIU);
-			if (DEBUG) {
+			if (TIMING) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
 			}
@@ -382,7 +383,7 @@ public class Projector {
 			return result;
 		// CNF filename is given on the command line
 		long start = System.currentTimeMillis();
-		if (DEBUG)
+		if (TIMING)
 			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
 		try {
 			if (dependencyHelper.hasASolution(assumptions)) {
@@ -391,7 +392,7 @@ public class Projector {
 				}
 				backToIU();
 				long stop = System.currentTimeMillis();
-				if (DEBUG)
+				if (TIMING)
 					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
 			} else {
 				long stop = System.currentTimeMillis();
