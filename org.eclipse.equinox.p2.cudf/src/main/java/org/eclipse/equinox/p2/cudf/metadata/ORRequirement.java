@@ -71,13 +71,4 @@ public class ORRequirement implements IRequiredCapability {
 		}
 		return result + ")";
 	}
-
-	public boolean satisfiedBy(IProvidedCapability cap) {
-		for (int i = 0; i < oredRequirements.length; i++) {
-			boolean result = oredRequirements[i].satisfiedBy(cap);
-			if (result)
-				return true;
-		}
-		return false;
-	}
 }

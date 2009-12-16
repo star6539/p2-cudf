@@ -16,11 +16,11 @@ package org.eclipse.equinox.p2.cudf.metadata;
  */
 public class ProvidedCapability implements IProvidedCapability {
 	private final String name;
-	private final Version version;
+	private final VersionRange version;
 
-	public ProvidedCapability(String name, Version version) {
+	public ProvidedCapability(String name, VersionRange version) {
 		this.name = name;
-		this.version = version == null ? Version.emptyVersion : version;
+		this.version = version == null ? VersionRange.emptyRange : version;
 	}
 
 	public boolean equals(Object other) {
@@ -38,7 +38,7 @@ public class ProvidedCapability implements IProvidedCapability {
 		return name;
 	}
 
-	public Version getVersion() {
+	public VersionRange getVersion() {
 		return version;
 	}
 

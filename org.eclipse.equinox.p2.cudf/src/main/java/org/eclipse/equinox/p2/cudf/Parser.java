@@ -131,7 +131,7 @@ public class Parser {
 		if (currentIU.getVersion() == null)
 			throw new IllegalStateException("Malformed \'package\' stanza. Package " + currentIU.getId() + " does not have a version.");
 		if (currentIU.getProvidedCapabilities().length == 0) {
-			currentIU.setCapabilities(new IProvidedCapability[] { new ProvidedCapability(currentIU.getId(), currentIU.getVersion()) });
+			currentIU.setCapabilities(new IProvidedCapability[] { new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true)) });
 		}
 		allIUs.add(currentIU);
 		// reset to be ready for the next stanza
@@ -280,8 +280,8 @@ public class Parser {
 
 	private static IProvidedCapability createProvidedCapability(String name, String operator, String number) {
 		// TODO not quite right... we are ignoring the operator
-		Version version = number == null ? Version.emptyVersion : Version.parseVersion(number);
-		return new ProvidedCapability(name, version);
+//		Version version = number == null ? Version.emptyVersion : Version.parseVersion(number);
+		return new ProvidedCapability(name, createVersionRange(operator, number));
 	}
 
 	/*
@@ -319,7 +319,7 @@ public class Parser {
 			Tuple tuple = (Tuple) iter.next();
 			providedCapabilities[i++] = createProvidedCapability(tuple.name, tuple.operator, tuple.version);
 		}
-		providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(), currentIU.getVersion());
+		providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true));
 		currentIU.setCapabilities(providedCapabilities);
 	}
 

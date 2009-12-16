@@ -15,17 +15,17 @@ public class TestInstall extends TestCase {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setId("A");
 		iu.setVersion(new Version(1,0,0));
-		iu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new Version(1,0,0))} );
+		iu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new VersionRange(new Version(1,0,0), true, new Version(1,0,0), true))} );
 		
 		InstallableUnit iu2 = new InstallableUnit();
 		iu2.setId("A");
 		iu2.setVersion(new Version(2,0,0));
-		iu2.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new Version(2,0,0))} );
+		iu2.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new VersionRange(new Version(2,0,0), true, new Version(2,0,0), true))} );
 		
 		InstallableUnit iu3 = new InstallableUnit();
 		iu3.setId("A");
 		iu3.setVersion(new Version(3,0,0));
-		iu3.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new Version(3,0,0))} );
+		iu3.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new VersionRange(new Version(3,0,0), true, new Version(3,0,0), true))} );
 		
 		dataSet = new QueryableArray(new InstallableUnit[] { iu,iu2,iu3 });
 	}

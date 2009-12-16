@@ -35,8 +35,7 @@ public class QueryableArray implements IQueryable {
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof CapabilityQuery)
 			return queryCapability((CapabilityQuery) query, collector, monitor);
-		else
-			throw new IllegalArgumentException();
+		throw new IllegalArgumentException();
 	}
 
 	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {
@@ -72,7 +71,7 @@ public class QueryableArray implements IQueryable {
 		Set matchingIUs = new HashSet();
 		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
 			IUCapability iuCapability = (IUCapability) iterator.next();
-			if (requiredCapability.getRange().isIncluded(iuCapability.capability.getVersion()))
+			if (intersect(requiredCapability.getRange(), iuCapability.capability.getVersion()) != null)
 				matchingIUs.add(iuCapability.iu);
 		}
 		return matchingIUs;
@@ -101,5 +100,44 @@ public class QueryableArray implements IQueryable {
 
 	public Iterator iterator() {
 		return dataSet.iterator();
+	}
+
+	private VersionRange intersect(VersionRange r1, VersionRange r2) {
+		Version resultMin = null;
+		boolean resultMinIncluded = false;
+		Version resultMax = null;
+		boolean resultMaxIncluded = false;
+
+		int minCompare = r1.getMinimum().compareTo(r2.getMinimum());
+		if (minCompare < 0) {
+			resultMin = r2.getMinimum();
+			resultMinIncluded = r2.getIncludeMinimum();
+		} else if (minCompare > 0) {
+			resultMin = r1.getMinimum();
+			resultMinIncluded = r1.getIncludeMinimum();
+		} else if (minCompare == 0) {
+			resultMin = r1.getMinimum();
+			resultMinIncluded = r1.getIncludeMinimum() && r2.getIncludeMinimum();
+		}
+
+		int maxCompare = r1.getMaximum().compareTo(r2.getMaximum());
+		if (maxCompare > 0) {
+			resultMax = r2.getMaximum();
+			resultMaxIncluded = r2.getIncludeMaximum();
+		} else if (maxCompare < 0) {
+			resultMax = r1.getMaximum();
+			resultMaxIncluded = r1.getIncludeMaximum();
+		} else if (maxCompare == 0) {
+			resultMax = r1.getMaximum();
+			resultMaxIncluded = r1.getIncludeMaximum() && r2.getIncludeMaximum();
+		}
+
+		int resultRangeComparison = resultMin.compareTo(resultMax);
+		if (resultRangeComparison < 0)
+			return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
+		else if (resultRangeComparison == 0 && resultMinIncluded == resultMaxIncluded)
+			return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
+		else
+			return null;
 	}
 }

@@ -23,7 +23,7 @@ public interface IProvidedCapability {
 
 	public String getName();
 
-	public Version getVersion();
+	public VersionRange getVersion();
 
 	/**
 	 * Returns whether this provided capability is equal to the given object.

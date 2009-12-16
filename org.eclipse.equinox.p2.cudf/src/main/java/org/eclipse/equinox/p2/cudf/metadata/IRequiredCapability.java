@@ -35,7 +35,4 @@ public interface IRequiredCapability {
 	public boolean equals(Object other);
 
 	public boolean isNegation();
-
-	public boolean satisfiedBy(IProvidedCapability cap);
-
 }
