@@ -41,11 +41,11 @@ public class CapabilityQuery extends MatchQuery {
 	 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
 	 */
 	public boolean isMatch(Object object) {
-		if (!(object instanceof InstallableUnit))
-			return false;
-		InstallableUnit candidate = (InstallableUnit) object;
-			if (!candidate.satisfies(required))
-				return false;
+//		if (!(object instanceof InstallableUnit))
+//			return false;
+//		InstallableUnit candidate = (InstallableUnit) object;
+//			if (!candidate.satisfies(required))
+//				return false;
 		return true;
 	}
 }

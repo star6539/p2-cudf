@@ -26,25 +26,6 @@ public interface IProvidedCapability {
 	public Version getVersion();
 
 	/**
-	 * Returns whether this provided capability satisfies the given required capability.
-	 * @return <code>true</code> if this capability satisfies the given required
-	 * capability, and <code>false</code> otherwise.
-	 * 
-	 * This method must maintain the following semantics:
-	 * <ul>
-	 *  <li> If the provided capability and the candidate have different names, 
-	 *       return false
-	 *  <li> If the provided capability and the candidate have different namespaces.
-	 *       return false
-	 *  <li> If the candidate's version range includes the provided capability's
-	 *       version, return true
-	 *  <li> otherwise, return false    
-	 * </ul>
-	 * 
-	 */
-	public boolean satisfies(IRequiredCapability candidate);
-
-	/**
 	 * Returns whether this provided capability is equal to the given object.
 	 * 
 	 * This method returns <i>true</i> if:

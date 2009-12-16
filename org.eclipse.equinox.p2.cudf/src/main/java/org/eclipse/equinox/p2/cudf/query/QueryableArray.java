@@ -35,7 +35,8 @@ public class QueryableArray implements IQueryable {
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof CapabilityQuery)
 			return queryCapability((CapabilityQuery) query, collector, monitor);
-		return query.perform(dataSet.iterator(), collector);
+		else
+			throw new IllegalArgumentException();
 	}
 
 	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {

@@ -46,15 +46,6 @@ public class ProvidedCapability implements IProvidedCapability {
 		return name.hashCode() * version.hashCode();
 	}
 
-	/**
-	 * Returns whether this provided capability satisfies the given required capability.
-	 * @return <code>true</code> if this capability satisfies the given required
-	 * capability, and <code>false</code> otherwise.
-	 */
-	public boolean satisfies(IRequiredCapability candidate) {
-		return candidate.satisfiedBy(this);
-	}
-
 	public String toString() {
 		return name + '/' + version;
 	}

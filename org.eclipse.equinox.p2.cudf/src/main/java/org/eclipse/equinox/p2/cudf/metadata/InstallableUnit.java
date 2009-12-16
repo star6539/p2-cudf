@@ -126,14 +126,6 @@ public class InstallableUnit implements Comparable {
 	public String toString() {
 		return id + ' ' + getVersion();
 	}
-
-	public boolean satisfies(IRequiredCapability candidate) {
-		IProvidedCapability[] provides = getProvidedCapabilities();
-		for (int i = 0; i < provides.length; i++)
-			if (provides[i].satisfies(candidate))
-				return true;
-		return false;
-	}
 	
 	public void setInstalled(boolean isInstalled) {
 		installed = isInstalled;
