@@ -19,23 +19,13 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
  * capabilities that match one or more required capabilities.
  */
 public class CapabilityQuery extends MatchQuery {
-	private IRequiredCapability[] required;
+	private IRequiredCapability required;
 
 	/**
 	 * Creates a new query on the given required capability.
 	 * @param required The required capability
 	 */
 	public CapabilityQuery(IRequiredCapability required) {
-		this.required = new IRequiredCapability[] {required};
-	}
-
-	/**
-	 * Creates a new query on the given required capabilities. The installable
-	 * unit must provide capabilities that match all of the given required capabilities
-	 * for this query to be satisfied.
-	 * @param required The required capabilities
-	 */
-	public CapabilityQuery(IRequiredCapability[] required) {
 		this.required = required;
 	}
 
@@ -43,7 +33,7 @@ public class CapabilityQuery extends MatchQuery {
 	 * Returns the required capability that this query is matching against.
 	 * @return the required capability that this query is matching against.
 	 */
-	public IRequiredCapability[] getRequiredCapabilities() {
+	public IRequiredCapability getRequiredCapabilities() {
 		return required;
 	}
 
@@ -54,8 +44,7 @@ public class CapabilityQuery extends MatchQuery {
 		if (!(object instanceof InstallableUnit))
 			return false;
 		InstallableUnit candidate = (InstallableUnit) object;
-		for (int i = 0; i < required.length; i++)
-			if (!candidate.satisfies(required[i]))
+			if (!candidate.satisfies(required))
 				return false;
 		return true;
 	}
