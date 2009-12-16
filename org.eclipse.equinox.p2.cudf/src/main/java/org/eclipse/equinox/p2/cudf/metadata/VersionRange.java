@@ -22,7 +22,7 @@ public class VersionRange {
 	 * An empty version range: "0.0.0".  The empty version range includes all valid versions
 	 * (any version greater than or equal to the version 0.0.0).
 	 */
-	public static final VersionRange emptyRange = new VersionRange(null);
+	public static final VersionRange emptyRange = new VersionRange((String) null);
 
 	private final Version minVersion;
 	private final boolean includeMin;
@@ -206,5 +206,12 @@ public class VersionRange {
 		result.append(maxVersion);
 		result.append(includeMax ? ']' : ')');
 		return result.toString();
+	}
+	
+	public VersionRange(Version version) {
+		minVersion = version;
+		maxVersion = version;
+		includeMax = true;
+		includeMin = true;
 	}
 }

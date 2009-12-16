@@ -28,12 +28,18 @@ package org.eclipse.equinox.p2.cudf.metadata;
 public class RequiredCapability implements IRequiredCapability {
 	private final String name;//never null
 	private final VersionRange range;//never null
+	private boolean optional;
 
 	public RequiredCapability( String name, VersionRange range) {
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
 	}
 
+	public RequiredCapability(String name, VersionRange range, boolean optional) {
+		this(name, range);
+		this.optional = optional;
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -92,5 +98,9 @@ public class RequiredCapability implements IRequiredCapability {
 
 	public boolean isNegation() {
 		return false;
+	}
+	
+	public boolean isOptional() {
+		return optional;
 	}
 }

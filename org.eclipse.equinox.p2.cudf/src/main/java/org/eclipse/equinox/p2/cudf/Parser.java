@@ -26,7 +26,8 @@ public class Parser {
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
 	private static QueryableArray query = null;
-
+	private static List preInstalled = new ArrayList(10000);
+	
 	static class Tuple {
 		String name;
 		String version;
@@ -147,6 +148,7 @@ public class Parser {
 					return;
 				}
 			currentIU.setInstalled(true);
+			preInstalled.add(new RequiredCapability(currentIU.getId(), new VersionRange(currentIU.getVersion()), true));
 		}
 	}
 
@@ -162,6 +164,7 @@ public class Parser {
 	private static void handleRequest(String line) {
 		initializeQueryableArray();
 		currentRequest = new ProfileChangeRequest(query);
+		currentRequest.setPreInstalledIUs(preInstalled);
 	}
 
 	private static void handleRemove(String line) {

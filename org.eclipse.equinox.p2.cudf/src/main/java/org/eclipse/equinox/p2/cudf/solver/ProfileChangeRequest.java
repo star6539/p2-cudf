@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
@@ -21,11 +22,15 @@ public class ProfileChangeRequest {
 	private ArrayList iusToRemove = new ArrayList(10); // list of ius to remove
 	private ArrayList iusToAdd = new ArrayList(10); // list of ius to add
 	private ArrayList iusToUpdate = new ArrayList(10); // list of ius to add
+	private List iusPreInstalled;
 	
 	public ProfileChangeRequest(QueryableArray initialState) {
 		this.initialState = initialState;
 	}
 	
+	public void setPreInstalledIUs(List list) {
+		iusPreInstalled = list;
+	}
 	public void addInstallableUnit(IRequiredCapability req) {
 		iusToAdd.add(req);
 	}
@@ -39,10 +44,11 @@ public class ProfileChangeRequest {
 	}
 	
 	public ArrayList getAllRequests() {
-		ArrayList result = new ArrayList(iusToAdd.size()  + iusToRemove.size() + iusToUpdate.size());
+		ArrayList result = new ArrayList(iusToAdd.size()  + iusToRemove.size() + iusToUpdate.size() + iusPreInstalled.size());
 		result.addAll(iusToAdd);
 		result.addAll(iusToRemove);
 		result.addAll(iusToUpdate);
+		result.addAll(iusPreInstalled);
 		return result;
 	}
 	

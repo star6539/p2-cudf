@@ -18,7 +18,7 @@ public class SimplePlanner {
 			Projector projector = new Projector(profile);
 			projector.encode(updatedPlan);
 			IStatus s = projector.invokeSolver();
-			if (s.getSeverity() != IStatus.OK) {
+			if (s.getSeverity() == IStatus.ERROR) {
 //				System.out.println(projector.getExplanation());
 				return s;
 			}

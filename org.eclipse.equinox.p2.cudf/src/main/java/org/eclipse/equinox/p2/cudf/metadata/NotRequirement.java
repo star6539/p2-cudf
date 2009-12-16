@@ -26,4 +26,8 @@ public class NotRequirement implements IRequiredCapability {
 	public String toString() {
 		return "NOT(" + negatedRequirement.toString() + ')'; //$NON-NLS-1$
 	}
+
+	public boolean isOptional() {
+		return negatedRequirement.isOptional();
+	}
 }

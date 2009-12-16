@@ -165,15 +165,15 @@ public class Projector {
 		long countOptional = 1;
 		List requestedPatches = new ArrayList();
 		IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
-//		for (int j = 0; j < reqs.length; j++) {
-//			if (!reqs[j].isOptional())
-//				continue;
-//			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-//			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-//				InstallableUnit match = (InstallableUnit) iterator.next();
-//					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
-//			}
-//		}
+		for (int j = 0; j < reqs.length; j++) {
+			if (!reqs[j].isOptional())
+				continue;
+			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+				InstallableUnit match = (InstallableUnit) iterator.next();
+					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
+			}
+		}
 
 		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
 		for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
@@ -238,26 +238,21 @@ public class Projector {
 			return;
 		}
 		List matches = getApplicableMatches(req);
-//		if (!req.isOptional()) {
+		if (!req.isOptional()) {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				InstallableUnit reqIu = (InstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
-				Explanation explanation;
-				if (isRootIu) {
-					explanation = new Explanation.IUToInstall(reqIu);
-				} else {
-					explanation = new Explanation.HardRequirement(iu, req);
-				}
+				InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
+				Explanation explanation = new Explanation.IUToInstall(reqIu);
 				createImplication(iu, matches, explanation);
 			}
-//		} else {
-//			if (!matches.isEmpty()) {
-//				AbstractVariable abs = getAbstractVariable();
-//				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-//				optionalAbstractRequirements.add(abs);
-//			}
-//		}
+		} else {
+			if (!matches.isEmpty()) {
+				AbstractVariable abs = getAbstractVariable();
+				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+				optionalAbstractRequirements.add(abs);
+			}
+		}
 	}
 
 	private void expandRequirements(IRequiredCapability[] reqs, InstallableUnit iu, boolean isRootIu) throws ContradictionException {
@@ -268,6 +263,7 @@ public class Projector {
 		for (int i = 0; i < reqs.length; i++) {
 			expandRequirement(reqs[i], iu, optionalAbstractRequirements, isRootIu);
 		}
+		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	public void processIU(InstallableUnit iu, boolean isRootIU) throws ContradictionException {
@@ -359,6 +355,39 @@ public class Projector {
 				}
 			}
 		}
+	}
+
+	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
+		AbstractVariable[] vars = {v1, v2};
+		if (DEBUG) {
+			StringBuffer b = new StringBuffer();
+			for (int i = 0; i < vars.length; i++) {
+				b.append(vars[i].toString());
+			}
+			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
+		}
+		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
+	}
+
+	private void createOptionalityExpression(InstallableUnit iu, List optionalRequirements) throws ContradictionException {
+		if (optionalRequirements.isEmpty())
+			return;
+		AbstractVariable noop = getNoOperationVariable(iu);
+		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
+			AbstractVariable abs = (AbstractVariable) i.next();
+			createIncompatibleValues(abs, noop);
+		}
+		optionalRequirements.add(noop);
+		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
+	}
+
+	private AbstractVariable getNoOperationVariable(InstallableUnit iu) {
+		AbstractVariable v = (AbstractVariable) noopVariables.get(iu);
+		if (v == null) {
+			v = new AbstractVariable();
+			noopVariables.put(iu, v);
+		}
+		return v;
 	}
 
 	private void createAtMostOne(InstallableUnit[] ius) throws ContradictionException {
