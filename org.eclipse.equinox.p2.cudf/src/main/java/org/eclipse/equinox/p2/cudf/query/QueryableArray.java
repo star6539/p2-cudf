@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.query;
 
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-
-import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.cudf.metadata.*;
@@ -54,16 +50,15 @@ public class QueryableArray implements IQueryable {
 				if (orMatches != null)
 					resultIUs.addAll(orMatches);
 			}
+		} else {
+			Collection matchingIUs = findMatchingIUs(iRequiredCapability);
+			if (matchingIUs == null)
+				return collector;
+			resultIUs.addAll(matchingIUs);
 		}
-		Collection matchingIUs = findMatchingIUs(iRequiredCapability);
-		if (matchingIUs == null)
-			return collector;
-		
-		resultIUs.addAll(matchingIUs);
 
-		if (resultIUs != null)
-			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
-				collector.accept(iterator.next());
+		for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
+			collector.accept(iterator.next());
 
 		return collector;
 	}
