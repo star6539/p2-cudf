@@ -19,7 +19,7 @@ public class SimplePlanner {
 			projector.encode(updatedPlan);
 			IStatus s = projector.invokeSolver();
 			if (s.getSeverity() != IStatus.OK) {
-				System.out.println(projector.getExplanation());
+//				System.out.println(projector.getExplanation());
 				return s;
 			}
 			
