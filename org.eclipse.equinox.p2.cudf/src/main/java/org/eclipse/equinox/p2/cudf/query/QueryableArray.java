@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.query;
 
+import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
+
+import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
+
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.cudf.metadata.*;
@@ -41,21 +45,21 @@ public class QueryableArray implements IQueryable {
 	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
-		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
-		Collection resultIUs = null;
-		for (int i = 0; i < requiredCapabilities.length; i++) {
-			if (requiredCapabilities[i] instanceof ORRequirement) {
-				query.perform(dataSet.iterator(), collector);
-				continue;
+		Collection resultIUs = new ArrayList();
+		IRequiredCapability iRequiredCapability = query.getRequiredCapabilities();
+		if (iRequiredCapability instanceof ORRequirement) {
+			IRequiredCapability[] ored = ((ORRequirement) iRequiredCapability).getRequirements();
+			for (int j = 0; j < ored.length; j++) {
+				Collection orMatches = findMatchingIUs(ored[j]);
+				if (orMatches != null)
+					resultIUs.addAll(orMatches);
 			}
-			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
-			if (matchingIUs == null)
-				return collector;
-			if (resultIUs == null)
-				resultIUs = matchingIUs;
-			else
-				resultIUs.retainAll(matchingIUs);
 		}
+		Collection matchingIUs = findMatchingIUs(iRequiredCapability);
+		if (matchingIUs == null)
+			return collector;
+		
+		resultIUs.addAll(matchingIUs);
 
 		if (resultIUs != null)
 			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
@@ -72,7 +76,7 @@ public class QueryableArray implements IQueryable {
 		Set matchingIUs = new HashSet();
 		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
 			IUCapability iuCapability = (IUCapability) iterator.next();
-			if (iuCapability.capability.satisfies(requiredCapability))
+			if (requiredCapability.getRange().isIncluded(iuCapability.capability.getVersion()))
 				matchingIUs.add(iuCapability.iu);
 		}
 		return matchingIUs;
@@ -98,7 +102,7 @@ public class QueryableArray implements IQueryable {
 			}
 		}
 	}
-	
+
 	public Iterator iterator() {
 		return dataSet.iterator();
 	}
