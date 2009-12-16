@@ -38,14 +38,11 @@ import java.util.StringTokenizer;
  * 
  * @since 1.3
  * @Immutable
- * @version $Revision: 6860 $
+ * @version $Revision: 1.1 $
  */
 
 public class Version implements Comparable {
 	private final int			major;
-	private final int			minor;
-	private final int			micro;
-	private final String		qualifier;
 	private static final String	SEPARATOR		= ".";					//$NON-NLS-1$
 
 	/**
@@ -87,10 +84,6 @@ public class Version implements Comparable {
 		}
 
 		this.major = major;
-		this.minor = minor;
-		this.micro = micro;
-		this.qualifier = qualifier;
-		validate();
 	}
 
 	/**
@@ -149,46 +142,6 @@ public class Version implements Comparable {
 		}
 
 		major = maj;
-		minor = min;
-		micro = mic;
-		qualifier = qual;
-		validate();
-	}
-
-	/**
-	 * Called by the Version constructors to validate the version components.
-	 * 
-	 * @throws IllegalArgumentException If the numerical components are negative
-	 *         or the qualifier string is invalid.
-	 */
-	private void validate() {
-		if (major < 0) {
-			throw new IllegalArgumentException("negative major"); //$NON-NLS-1$
-		}
-		if (minor < 0) {
-			throw new IllegalArgumentException("negative minor"); //$NON-NLS-1$
-		}
-		if (micro < 0) {
-			throw new IllegalArgumentException("negative micro"); //$NON-NLS-1$
-		}
-		char[] chars = qualifier.toCharArray();
-		for (int i = 0, length = chars.length; i < length; i++) {
-	        char ch = chars[i];
-			if (('A' <= ch) && (ch <= 'Z')) {
-				continue;
-			}
-			if (('a' <= ch) && (ch <= 'z')) {
-				continue;
-			}
-			if (('0' <= ch) && (ch <= '9')) {
-				continue;
-			}
-			if ((ch == '_') || (ch == '-')) {
-				continue;
-			}
-			throw new IllegalArgumentException(
-					"invalid qualifier: " + qualifier); //$NON-NLS-1$
-		}
 	}
 
 	/**
@@ -228,56 +181,8 @@ public class Version implements Comparable {
 		return major;
 	}
 
-	/**
-	 * Returns the minor component of this version identifier.
-	 * 
-	 * @return The minor component.
-	 */
-	public int getMinor() {
-		return minor;
-	}
-
-	/**
-	 * Returns the micro component of this version identifier.
-	 * 
-	 * @return The micro component.
-	 */
-	public int getMicro() {
-		return micro;
-	}
-
-	/**
-	 * Returns the qualifier component of this version identifier.
-	 * 
-	 * @return The qualifier component.
-	 */
-	public String getQualifier() {
-		return qualifier;
-	}
-
-	/**
-	 * Returns the string representation of this version identifier.
-	 * 
-	 * <p>
-	 * The format of the version string will be <code>major.minor.micro</code>
-	 * if qualifier is the empty string or
-	 * <code>major.minor.micro.qualifier</code> otherwise.
-	 * 
-	 * @return The string representation of this version identifier.
-	 */
 	public String toString() {
-		int q = qualifier.length();
-		StringBuffer result = new StringBuffer(20 + q);
-		result.append(major);
-		result.append(SEPARATOR);
-		result.append(minor);
-		result.append(SEPARATOR);
-		result.append(micro);
-		if (q > 0) {
-			result.append(SEPARATOR);
-			result.append(qualifier);
-		}
-		return result.toString();
+		return Integer.toString(major);
 	}
 
 	/**
@@ -286,8 +191,7 @@ public class Version implements Comparable {
 	 * @return An integer which is a hash code value for this object.
 	 */
 	public int hashCode() {
-		return (major << 24) + (minor << 16) + (micro << 8)
-				+ qualifier.hashCode();
+		return (major << 24);
 	}
 
 	/**
@@ -313,8 +217,7 @@ public class Version implements Comparable {
 		}
 
 		Version other = (Version) object;
-		return (major == other.major) && (minor == other.minor)
-				&& (micro == other.micro) && qualifier.equals(other.qualifier);
+		return (major == other.major);
 	}
 
 	/**
@@ -349,21 +252,6 @@ public class Version implements Comparable {
 
 		Version other = (Version) object;
 
-		int result = major - other.major;
-		if (result != 0) {
-			return result;
-		}
-
-		result = minor - other.minor;
-		if (result != 0) {
-			return result;
-		}
-
-		result = micro - other.micro;
-		if (result != 0) {
-			return result;
-		}
-
-		return qualifier.compareTo(other.qualifier);
+		return major - other.major;
 	}
 }
