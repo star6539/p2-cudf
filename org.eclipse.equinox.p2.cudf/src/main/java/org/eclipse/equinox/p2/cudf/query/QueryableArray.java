@@ -42,15 +42,10 @@ public class QueryableArray implements IQueryable {
 		generateNamedCapabilityIndex();
 
 		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
-		Collection resultIUs = new HashSet();
+		Collection resultIUs = null;
 		for (int i = 0; i < requiredCapabilities.length; i++) {
 			if (requiredCapabilities[i] instanceof ORRequirement) {
-				IRequiredCapability[] oredEntities = ((ORRequirement) requiredCapabilities[i]).getRequirements();
-				for (int j = 0; j < oredEntities.length; j++) {
-					Collection matches = findMatchingIUs(oredEntities[j]);
-					if (matches != null)
-						resultIUs.addAll(matches);
-				}
+				query.perform(dataSet.iterator(), collector);
 				continue;
 			}
 			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
@@ -103,7 +98,7 @@ public class QueryableArray implements IQueryable {
 			}
 		}
 	}
-
+	
 	public Iterator iterator() {
 		return dataSet.iterator();
 	}
