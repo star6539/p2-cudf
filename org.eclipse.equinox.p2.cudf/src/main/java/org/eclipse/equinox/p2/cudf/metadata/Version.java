@@ -38,7 +38,7 @@ import java.util.StringTokenizer;
  * 
  * @since 1.3
  * @Immutable
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 public class Version implements Comparable {
@@ -62,6 +62,11 @@ public class Version implements Comparable {
 	 * @throws IllegalArgumentException If the numerical components are
 	 *         negative.
 	 */
+	
+	
+	public Version(int major) {
+		this.major =major; 
+	}
 	public Version(int major, int minor, int micro) {
 		this(major, minor, micro, null);
 	}
