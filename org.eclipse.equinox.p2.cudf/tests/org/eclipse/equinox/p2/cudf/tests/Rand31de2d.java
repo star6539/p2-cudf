@@ -15,10 +15,10 @@ import org.eclipse.equinox.p2.cudf.solver.*;
 public class Rand31de2d extends TestCase {
 	public void testLibdmx1() {
 		ProfileChangeRequest pcr =  Parser.parse(new File("/Users/pascal/dev/competition/org.eclipse.equinox.p2.cudf/success/rand31de2d-sol.cudf"));
-		pcr.addInstallableUnit(new RequiredCapability("debconf-i18n", VersionRange.emptyRange));
+		pcr.addInstallableUnit(new RequiredCapability("libtext-wrapi18n-perl", VersionRange.emptyRange));
 		if (new SimplePlanner().getSolutionFor(pcr) instanceof Collection)
 			return;
-		String id = "debconf-i18n";
+		String id = "libtext-wrapi18n-perl";
 		Version v = new Version(1);
 		QueryableArray res = null;
 		res = slice(pcr.getInitialState(), id,v);
@@ -31,6 +31,7 @@ public class Rand31de2d extends TestCase {
 			ProfileChangeRequest pcr2 = new ProfileChangeRequest(res);
 			pcr2.addInstallableUnit(new RequiredCapability(iu.getId(), new VersionRange(iu.getVersion())));
 			if (!(new SimplePlanner().getSolutionFor(pcr2) instanceof Collection)) {
+				System.err.println(iu);
 				id = iu.getId();
 				v = iu.getVersion();
 				res = slice(pcr.getInitialState(), id, v);
@@ -41,5 +42,17 @@ public class Rand31de2d extends TestCase {
 	
 	private QueryableArray slice(QueryableArray input, String id, Version version) {
 		return new Slicer(input).slice(new InstallableUnit[] { (InstallableUnit) input.query(new CapabilityQuery(new RequiredCapability(id, new VersionRange(version))), new Collector(), null).iterator().next() });
+	}
+	
+	public void testValidateAll() {
+		ProfileChangeRequest pcr =  Parser.parse(new File("/Users/pascal/dev/competition/org.eclipse.equinox.p2.cudf/success/rand31de2d-sol.cudf"));
+		QueryableArray allIUs = pcr.getInitialState();
+		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
+			InstallableUnit iu = (InstallableUnit) iterator.next();
+			ProfileChangeRequest pcr2 = new ProfileChangeRequest(allIUs);
+			pcr2.addInstallableUnit(new RequiredCapability(iu.getId(), new VersionRange(iu.getVersion())));
+			if (!(new SimplePlanner().getSolutionFor(pcr2) instanceof Collection))
+				System.err.println(iu);
+		}
 	}
 }
