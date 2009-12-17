@@ -111,6 +111,8 @@ public class Main {
 			InstallableUnit iu = (InstallableUnit) iterator.next();
 			out.println("package: " + iu.getId());
 			out.println("version: " + iu.getVersion().getMajor());
+			out.println("installed: " + iu.isInstalled());
+			out.println();
 		}
 	}
 
