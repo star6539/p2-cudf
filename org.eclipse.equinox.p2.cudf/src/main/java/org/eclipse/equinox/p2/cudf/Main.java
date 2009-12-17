@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
@@ -20,19 +20,52 @@ public class Main {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
 
+	private static final void usage() {
+		System.out.println("Usage: p2cudf <cudfin> [<cudfout> [(paranoid | trendy)]] ");
+	}
+
+	private static final void log(String str) {
+		System.out.println("# " + str);
+	}
+
+	private static PrintStream out;
+
 	public static void main(String[] args) {
-		String filename = null;
-		if (args.length > 0)
-			filename = args[0];
-		else {
-			printFail("No input file specified.");
+		if (args.length == 0) {
+			usage();
 			return;
 		}
-		File input = new File(filename);
+		String cudfin = args[0];
+		File input = new File(cudfin);
 		if (!input.exists()) {
 			printFail("Input file does not exist.");
 			return;
 		}
+		log("Using input file " + cudfin);
+		if (args.length > 1) {
+			String cudfout = args[1];
+			File output = new File(cudfout);
+			try {
+				out = new PrintStream(new FileOutputStream(output));
+			} catch (FileNotFoundException e) {
+				printFail("Output file does not exist.");
+				return;
+			}
+			log("Using output file " + cudfout);
+		} else {
+			out = System.out;
+			log("Using standard output");
+		}
+
+		String criteria = "paranoid";
+		if (args.length == 3) {
+			if (!"paranoid".equalsIgnoreCase(args[2]) && !"trendy".equalsIgnoreCase(args[2])) {
+				printFail("Wrong Optimization criteria: " + args[2]);
+				return;
+			}
+			criteria = args[2].toLowerCase();
+		}
+		log("Using criteria " + criteria);
 		printResults(invokeSolver(parseCUDF(input)));
 	}
 
@@ -51,17 +84,25 @@ public class Main {
 	}
 
 	private static void printFail(String message) {
-		System.out.println("FAIL: " + message);
+		out.println("FAIL");
+		out.println(message);
 	}
 
 	private static Object invokeSolver(ProfileChangeRequest request) {
-		return new SimplePlanner().getSolutionFor(request);
+		log("Solving ...");
+		long begin = System.currentTimeMillis();
+		Object result = new SimplePlanner().getSolutionFor(request);
+		long end = System.currentTimeMillis();
+		log("Solving done (" + (end - begin) / 1000.0 + "s).");
+		return result;
 	}
 
 	private static ProfileChangeRequest parseCUDF(File file) {
-		long start = System.currentTimeMillis();
+		log("Parsing ...");
+		long begin = System.currentTimeMillis();
 		ProfileChangeRequest result = Parser.parse(file);
-		System.out.println("Parsing and creating objects took: " + (System.currentTimeMillis() - start));
+		long end = System.currentTimeMillis();
+		log("Parsing done (" + (end - begin) / 1000.0 + "s).");
 		return result;
 	}
 
@@ -69,8 +110,8 @@ public class Main {
 		ArrayList l = new ArrayList(state);
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
 			InstallableUnit iu = (InstallableUnit) iterator.next();
-			System.out.println("package: " + iu.getId());
-			System.out.println("version: " + iu.getVersion().getMajor());
+			out.println("package: " + iu.getId());
+			out.println("version: " + iu.getVersion().getMajor());
 		}
 	}
 
