@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
  */
 public class Parser {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static InstallableUnit currentIU = null;
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
@@ -269,45 +269,40 @@ public class Parser {
 		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
 			String andStmt = outer.nextToken().trim();
 
-			List ORs = new ArrayList();
-			for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
-				String orStmt = inner.nextToken();
-				Tuple tuple = new Tuple(orStmt);
-
-				// special code to handle not equals
-				if (tuple.operator != null && "!=".equals(tuple.operator)) {
-					// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
-					// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
-					ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
+			// note that #countTokens is n-1
+			if (andStmt.indexOf('|') == -1) {
+				Tuple tuple = new Tuple(andStmt);
+				// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
+				Tuple existing = (Tuple) map.get(tuple.name);
+				if (existing == null) {
+					map.put(tuple.name, tuple);
 				} else {
-					// note that #countTokens is n-1
-					if (inner.countTokens() == 0) {
-						// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
-						Tuple existing = (Tuple) map.get(tuple.name);
-						if (existing == null) {
-							map.put(tuple.name, tuple);
-						} else {
-							Set others = existing.extraData;
-							if (others == null)
-								existing.extraData = new HashSet();
-							existing.extraData.add(tuple);
-						}
-						continue;
-					}
-					ORs.add(createRequiredCapability(tuple));
+					Set others = existing.extraData;
+					if (others == null)
+						existing.extraData = new HashSet();
+					existing.extraData.add(tuple);
 				}
+				ANDs.add(createRequiredCapability(tuple));
+			} else {
+				List ORs = new ArrayList();
+				for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
+					String orStmt = inner.nextToken();
+					Tuple tuple = new Tuple(orStmt);
+
+					// special code to handle not equals
+					if (tuple.operator != null && "!=".equals(tuple.operator)) {
+						// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
+						// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
+						ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
+					} else {
+						ORs.add(createRequiredCapability(tuple));
+					}
+				}
+				if (ORs.size() == 1)
+					ANDs.add(ORs.get(0));
+				else
+					ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
 			}
-			if (ORs.size() == 0)
-				continue;
-			if (ORs.size() == 1)
-				ANDs.add(ORs.get(0));
-			else
-				ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
-		}
-		// process the leftovers
-		for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) map.get(iter.next());
-			ANDs.add(createRequiredCapability(tuple));
 		}
 		return ANDs;
 	}
