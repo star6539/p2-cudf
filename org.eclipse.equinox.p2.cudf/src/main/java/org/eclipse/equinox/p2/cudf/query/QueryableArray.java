@@ -140,4 +140,8 @@ public class QueryableArray implements IQueryable {
 		else
 			return null;
 	}
+	
+	public int getSize() {
+		return dataSet.size();
+	}
 }
