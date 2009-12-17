@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.cudf;
 
 import java.io.File;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
@@ -39,6 +40,12 @@ public class Main {
 		if (result instanceof Collection) {
 			printSolution((Collection) result);
 			System.exit(0);
+		} else if (result instanceof IStatus) {
+			IStatus status = (IStatus) result;
+			if (!status.isOK())
+				printFail("Resulting status not OK: " + status.getMessage());
+			System.exit(0);
+
 		}
 		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
 	}
@@ -53,8 +60,8 @@ public class Main {
 
 	private static ProfileChangeRequest parseCUDF(File file) {
 		long start = System.currentTimeMillis();
-		ProfileChangeRequest result =  Parser.parse(file);
-		System.out.println("Parsing and creating objects took: "  + (System.currentTimeMillis() - start));
+		ProfileChangeRequest result = Parser.parse(file);
+		System.out.println("Parsing and creating objects took: " + (System.currentTimeMillis() - start));
 		return result;
 	}
 
