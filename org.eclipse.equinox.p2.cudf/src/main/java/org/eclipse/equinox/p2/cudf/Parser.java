@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
  */
 public class Parser {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static InstallableUnit currentIU = null;
 	private static ProfileChangeRequest currentRequest = null;
 	private static List allIUs = new ArrayList();
