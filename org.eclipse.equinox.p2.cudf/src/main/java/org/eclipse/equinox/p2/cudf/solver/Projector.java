@@ -32,7 +32,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static final boolean DEBUG = false;
-	private static final boolean TIMING = true;
+	private static final boolean TIMING = false;
 	private static boolean DEBUG_ENCODING = false;
 	private QueryableArray picker;
 
@@ -79,7 +79,7 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
+			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new DependencyHelper(solver);
 
 			Iterator iusToEncode = picker.iterator();
@@ -171,7 +171,7 @@ public class Projector {
 			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
 			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 				InstallableUnit match = (InstallableUnit) iterator.next();
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
+				weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
 			}
 		}
 
@@ -225,7 +225,7 @@ public class Projector {
 		Explanation explanation;
 		if (isRootIu) {
 			InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
-				explanation = new Explanation.IUToInstall(reqIu);
+			explanation = new Explanation.IUToInstall(reqIu);
 		} else {
 			explanation = new Explanation.HardRequirement(iu, req);
 		}
@@ -289,7 +289,7 @@ public class Projector {
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			InstallableUnit match = (InstallableUnit) iterator.next();
-				target.add(match);
+			target.add(match);
 		}
 		return target;
 	}
@@ -470,7 +470,7 @@ public class Projector {
 			printSolution(solution);
 		return solution;
 	}
-	
+
 	public Set getExplanation() {
 		ExplanationJob job = new ExplanationJob(dependencyHelper);
 		job.schedule();
