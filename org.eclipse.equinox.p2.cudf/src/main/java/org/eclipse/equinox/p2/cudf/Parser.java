@@ -267,7 +267,7 @@ public class Parser {
 		// break the string into per-package instructions
 		List ANDs = new ArrayList();
 		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
-			String andStmt = outer.nextToken();
+			String andStmt = outer.nextToken().trim();
 
 			List ORs = new ArrayList();
 			for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
@@ -292,11 +292,13 @@ public class Parser {
 								existing.extraData = new HashSet();
 							existing.extraData.add(tuple);
 						}
-					} else {
-						ORs.add(createRequiredCapability(tuple));
+						continue;
 					}
+					ORs.add(createRequiredCapability(tuple));
 				}
 			}
+			if (ORs.size() == 0)
+				continue;
 			if (ORs.size() == 1)
 				ANDs.add(ORs.get(0));
 			else
