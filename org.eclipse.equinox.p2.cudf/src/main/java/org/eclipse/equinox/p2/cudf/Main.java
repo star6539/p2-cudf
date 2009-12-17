@@ -28,7 +28,7 @@ public class Main {
 		System.out.println("# " + str);
 	}
 
-	private static PrintStream out;
+	private static PrintStream out = System.out;
 
 	public static void main(String[] args) {
 		if (args.length == 0) {
@@ -53,7 +53,6 @@ public class Main {
 			}
 			log("Using output file " + cudfout);
 		} else {
-			out = System.out;
 			log("Using standard output");
 		}
 
