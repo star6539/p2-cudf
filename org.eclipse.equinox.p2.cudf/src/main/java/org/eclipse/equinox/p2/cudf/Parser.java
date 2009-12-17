@@ -262,6 +262,8 @@ public class Parser {
 	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
 	 */
 	private static List createRequires(String line) {
+		// map of name to tuple... save for later processing
+		Map map = new HashMap();
 		// break the string into per-package instructions
 		List ANDs = new ArrayList();
 		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
@@ -277,13 +279,33 @@ public class Parser {
 					// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
 					// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
 					ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
-				} else
-					ORs.add(createRequiredCapability(tuple));
+				} else {
+					// note that #countTokens is n-1
+					if (inner.countTokens() == 0) {
+						// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
+						Tuple existing = (Tuple) map.get(tuple.name);
+						if (existing == null) {
+							map.put(tuple.name, tuple);
+						} else {
+							Set others = existing.extraData;
+							if (others == null)
+								existing.extraData = new HashSet();
+							existing.extraData.add(tuple);
+						}
+					} else {
+						ORs.add(createRequiredCapability(tuple));
+					}
+				}
 			}
 			if (ORs.size() == 1)
 				ANDs.add(ORs.get(0));
 			else
 				ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
+		}
+		// process the leftovers
+		for (Iterator iter = map.keySet().iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) map.get(iter.next());
+			ANDs.add(createRequiredCapability(tuple));
 		}
 		return ANDs;
 	}
