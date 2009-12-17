@@ -27,11 +27,12 @@ public class Parser {
 	private static List allIUs = new ArrayList();
 	private static QueryableArray query = null;
 	private static List preInstalled = new ArrayList(10000);
-	
+
 	static class Tuple {
 		String name;
 		String version;
 		String operator;
+		Set extraData;
 
 		Tuple(String line) {
 			String[] tuple = new String[3];
@@ -132,7 +133,7 @@ public class Parser {
 		if (currentIU.getVersion() == null)
 			throw new IllegalStateException("Malformed \'package\' stanza. Package " + currentIU.getId() + " does not have a version.");
 		if (currentIU.getProvidedCapabilities().length == 0) {
-			currentIU.setCapabilities(new IProvidedCapability[] { new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true)) });
+			currentIU.setCapabilities(new IProvidedCapability[] {new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true))});
 		}
 		allIUs.add(currentIU);
 		// reset to be ready for the next stanza
@@ -235,11 +236,24 @@ public class Parser {
 		currentIU.setRequiredCapabilities((IRequiredCapability[]) requirements.toArray(new IRequiredCapability[requirements.size()]));
 	}
 
-	private static List createPackageList(String line) {
-		List result = new ArrayList();
+	/*
+	 * Returns a map where the key is the package name and the value is a Tuple.
+	 * If there is more than one entry for a particular package, the extra entries are included
+	 * in the extraData field of the Tuple. 
+	 */
+	private static Map createPackageList(String line) {
+		Map result = new HashMap();
 		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
 			Tuple tuple = new Tuple(outer.nextToken());
-			result.add(tuple);
+			Tuple existing = (Tuple) result.get(tuple.name);
+			if (existing == null) {
+				result.put(tuple.name, tuple);
+			} else {
+				Set others = existing.extraData;
+				if (others == null)
+					existing.extraData = new HashSet();
+				existing.extraData.add(tuple);
+			}
 		}
 		return result;
 	}
@@ -262,9 +276,9 @@ public class Parser {
 				if (tuple.operator != null && "!=".equals(tuple.operator)) {
 					// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
 					// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
-					ORs.add(new ORRequirement(new IRequiredCapability[] {createRequiredCapability(tuple.name, "<", tuple.version), createRequiredCapability(tuple.name, ">", tuple.version)}));
+					ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
 				} else
-					ORs.add(createRequiredCapability(tuple.name, tuple.operator, tuple.version));
+					ORs.add(createRequiredCapability(tuple));
 			}
 			if (ORs.size() == 1)
 				ANDs.add(ORs.get(0));
@@ -277,14 +291,53 @@ public class Parser {
 	/*
 	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
 	 */
-	private static IRequiredCapability createRequiredCapability(String name, String operator, String number) {
-		return new RequiredCapability(name, createVersionRange(operator, number));
+	private static IRequiredCapability createRequiredCapability(Tuple tuple) {
+		Set extraData = tuple.extraData;
+		// one constraint so simply return the capability
+		if (extraData == null)
+			return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
+		// 2 constraints (e.g. a>=1, a<4) so create a real range like a[1,4)
+		if (extraData.size() == 1)
+			return new RequiredCapability(tuple.name, createVersionRange(tuple, (Tuple) extraData.iterator().next()));
+		// TODO merge more than 2 requirements (a>2, a<4, a>3)
+		return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
 	}
 
-	private static IProvidedCapability createProvidedCapability(String name, String operator, String number) {
-		// TODO not quite right... we are ignoring the operator
-//		Version version = number == null ? Version.emptyVersion : Version.parseVersion(number);
-		return new ProvidedCapability(name, createVersionRange(operator, number));
+	private static IProvidedCapability createProvidedCapability(Tuple tuple) {
+		Set extraData = tuple.extraData;
+		// one constraint so simply return the capability
+		if (extraData == null)
+			return new ProvidedCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
+		// 2 constraints (e.g. a>=1, a<4) so create a real range like a[1,4)
+		if (extraData.size() == 1)
+			return new ProvidedCapability(tuple.name, createVersionRange(tuple, (Tuple) extraData.iterator().next()));
+		// TODO merge more than 2 requirements (a>2, a<4, a>3)
+		return new ProvidedCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
+	}
+
+	/*
+	 * Create and return a version range object which merges the 2 given versions and operators.
+	 * e.g  a>=1 and a<4 becomes a[1,4)
+	 */
+	private static VersionRange createVersionRange(Tuple t1, Tuple t2) {
+		Version one = Version.parseVersion(t1.version);
+		Version two = Version.parseVersion(t2.version);
+		if (one.compareTo(two) < 0) {
+			return new VersionRange(one, include(t1.operator), two, include(t2.operator));
+		} else if (one.compareTo(two) == 0) {
+			return new VersionRange(one, include(t1.operator), one, include(t1.operator));
+		} else if (one.compareTo(two) > 0) {
+			return new VersionRange(two, include(t2.operator), one, include(t1.operator));
+		}
+		// should never reach this. avoid compile error.
+		return null;
+	}
+
+	/*
+	 * Helper method for when we are creating version ranges and calculating "includeMin/Max".
+	 */
+	private static boolean include(String operator) {
+		return "=".equals(operator) || "<=".equals(operator) || ">=".equals(operator);
 	}
 
 	/*
@@ -315,12 +368,12 @@ public class Parser {
 
 	private static void handleProvides(String line) {
 		line = line.substring("provides: ".length());
-		List pkgs = createPackageList(line);
+		Map pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
 		int i = 0;
-		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) iter.next();
-			providedCapabilities[i++] = createProvidedCapability(tuple.name, tuple.operator, tuple.version);
+		for (Iterator iter = pkgs.keySet().iterator(); iter.hasNext();) {
+			Tuple tuple = (Tuple) pkgs.get(iter.next());
+			providedCapabilities[i++] = createProvidedCapability(tuple);
 		}
 		providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true));
 		currentIU.setCapabilities(providedCapabilities);

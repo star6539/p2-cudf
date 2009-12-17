@@ -3,17 +3,18 @@ property: installedsize: nat = [0], size: nat = [0], sourceversion: string, sour
 
 package: a
 version: 1
-depends: b >= 2 ,
+depends: b >= 2 , b < 5 ,
  c , d != 2 , e
 installed: true
 conflicts: f
 
 package: b
-installed: false
 version: 1
+installed: false
 depends: a >= 5 , 
  c | d > 2, f >= 5
 conflicts: g
+provides: a >= 1, a < 5
 
 request: SAMPLE-DATA
 install: a
