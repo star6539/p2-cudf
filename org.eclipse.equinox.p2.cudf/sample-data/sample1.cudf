@@ -9,8 +9,8 @@ installed: true
 conflicts: f
 
 package: b
-version: 1
 installed: false
+version: 1
 depends: a >= 5 , 
  c | d > 2, f >= 5
 conflicts: g
