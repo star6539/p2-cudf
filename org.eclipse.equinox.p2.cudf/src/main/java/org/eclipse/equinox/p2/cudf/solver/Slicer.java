@@ -34,7 +34,7 @@ public class Slicer {
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
-	public QueryableArray slice(InstallableUnit[] ius) {
+	public QueryableArray slice(InstallableUnit ius) {
 		try {
 			IProgressMonitor monitor = new NullProgressMonitor();
 			long start = 0;
@@ -43,7 +43,8 @@ public class Slicer {
 				System.out.println("Start slicing: " + start); //$NON-NLS-1$
 			}
 
-			considered = new HashSet(Arrays.asList(ius));
+			considered = new HashSet(possibilites.getSize());
+			considered.add(ius);
 			toProcess = new LinkedList(considered);
 			while (!toProcess.isEmpty()) {
 				if (monitor.isCanceled()) {
@@ -59,8 +60,8 @@ public class Slicer {
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
 		}
-//		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK)
-//			LogHelper.log(result);
+		//		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK)
+		//			LogHelper.log(result);
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
 		return new QueryableArray((InstallableUnit[]) considered.toArray(new InstallableUnit[considered.size()]));

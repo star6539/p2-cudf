@@ -21,7 +21,8 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
  */
 public class Parser {
 
-	private final boolean DEBUG = false;
+	private static final boolean FORCE_QUERY = true; //TO SET TO FALSE FOR COMPETITION
+	private final boolean DEBUG = false; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnit currentIU = null;
 	private ProfileChangeRequest currentRequest = null;
 	private List allIUs = new ArrayList();
@@ -124,9 +125,15 @@ public class Parser {
 					// ignore
 				}
 		}
-		for (Iterator iter = allIUs.iterator(); iter.hasNext();)
-			debug((InstallableUnit) iter.next());
-
+		if (DEBUG)
+			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
+				debug((InstallableUnit) iter.next());
+		if (FORCE_QUERY) {
+			if (query == null)
+				initializeQueryableArray();
+			if (currentRequest == null)
+				currentRequest = new ProfileChangeRequest(query);
+		}
 		debug(currentRequest);
 		return currentRequest;
 	}
