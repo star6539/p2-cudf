@@ -219,6 +219,7 @@ public class Projector {
 	private void expandNegatedRequirement(IRequiredCapability req, InstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
 		IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
 		List matches = getApplicableMatches(negatedReq);
+		matches.remove(iu);
 		if (matches.isEmpty()) {
 			return;
 		}
