@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Slicer {
-	private static boolean DEBUG = false;
+	private static boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
 	private QueryableArray possibilites;
 
 	private LinkedList toProcess;
@@ -38,7 +38,7 @@ public class Slicer {
 		try {
 			IProgressMonitor monitor = new NullProgressMonitor();
 			long start = 0;
-			if (DEBUG) {
+			if (TIMING) {
 				start = System.currentTimeMillis();
 				System.out.println("Start slicing: " + start); //$NON-NLS-1$
 			}
@@ -53,7 +53,7 @@ public class Slicer {
 				}
 				processIU((InstallableUnit) toProcess.removeFirst());
 			}
-			if (DEBUG) {
+			if (TIMING) {
 				long stop = System.currentTimeMillis();
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
 			}
@@ -101,7 +101,7 @@ public class Slicer {
 
 		if (validMatches == 0) {
 			if (req.isOptional()) {
-				if (DEBUG)
+				if (TIMING)
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
 			} else {
 				result.add(new Status(IStatus.WARNING, Main.PLUGIN_ID, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));

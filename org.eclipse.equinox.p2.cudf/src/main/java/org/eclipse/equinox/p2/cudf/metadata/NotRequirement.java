@@ -30,4 +30,12 @@ public class NotRequirement implements IRequiredCapability {
 	public boolean isOptional() {
 		return negatedRequirement.isOptional();
 	}
+
+	public int getArity() {
+		return -1;
+	}
+
+	public void setArity(int arity) {
+		throw new IllegalStateException();
+	}
 }

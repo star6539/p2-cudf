@@ -31,8 +31,8 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static final boolean DEBUG = false;
-	private static final boolean TIMING = false;
+	private static final boolean DEBUG = false; //SET THIS TO FALSE FOR THE COMPETITION
+	private static final boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
 	private static boolean DEBUG_ENCODING = false;
 	private QueryableArray picker;
 
@@ -243,6 +243,10 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
+				if (req.getArity() == 1) {
+					InstallableUnit[] array = new InstallableUnit[matches.size()];
+					dependencyHelper.atMost(new Explanation.Singleton(array), 1, array);
+				}
 				InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
 				Explanation explanation = new Explanation.IUToInstall(reqIu);
 				createImplication(iu, matches, explanation);

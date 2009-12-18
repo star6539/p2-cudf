@@ -71,4 +71,12 @@ public class ORRequirement implements IRequiredCapability {
 		}
 		return result + ")";
 	}
+
+	public int getArity() {
+		return -1;
+	}
+
+	public void setArity(int arity) {
+		throw new IllegalStateException();
+	}
 }

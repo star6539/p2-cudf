@@ -1,4 +1,5 @@
 package org.eclipse.equinox.p2.cudf.metadata;
+
 /******************************************************************************* 
 * Copyright (c) 2008, 2009 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
@@ -8,7 +9,6 @@ package org.eclipse.equinox.p2.cudf.metadata;
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -35,6 +35,10 @@ public interface IRequiredCapability {
 	public boolean equals(Object other);
 
 	public boolean isNegation();
-	
+
 	public boolean isOptional();
+
+	public int getArity();
+
+	public void setArity(int arity);
 }

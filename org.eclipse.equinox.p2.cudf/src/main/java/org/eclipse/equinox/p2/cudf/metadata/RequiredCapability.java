@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.metadata;
 
-
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
  * Each capability represents something an {@link IInstallableUnit} needs that
@@ -29,8 +28,9 @@ public class RequiredCapability implements IRequiredCapability {
 	private final String name;//never null
 	private final VersionRange range;//never null
 	private boolean optional;
+	private int arity;
 
-	public RequiredCapability( String name, VersionRange range) {
+	public RequiredCapability(String name, VersionRange range) {
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
 	}
@@ -39,7 +39,12 @@ public class RequiredCapability implements IRequiredCapability {
 		this(name, range);
 		this.optional = optional;
 	}
-	
+
+	public RequiredCapability(String name, VersionRange range, int arity) {
+		this(name, range);
+		this.arity = arity;
+	}
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -99,8 +104,16 @@ public class RequiredCapability implements IRequiredCapability {
 	public boolean isNegation() {
 		return false;
 	}
-	
+
 	public boolean isOptional() {
 		return optional;
+	}
+
+	public int getArity() {
+		return arity;
+	}
+
+	public void setArity(int arity) {
+		this.arity = arity;
 	}
 }

@@ -1,4 +1,5 @@
 package org.eclipse.equinox.p2.cudf.metadata;
+
 /*
  * Copyright (c) OSGi Alliance (2004, 2009). All Rights Reserved.
  * 
@@ -14,8 +15,6 @@ package org.eclipse.equinox.p2.cudf.metadata;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -38,17 +37,18 @@ import java.util.StringTokenizer;
  * 
  * @since 1.3
  * @Immutable
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 public class Version implements Comparable {
-	private final int			major;
-	private static final String	SEPARATOR		= ".";					//$NON-NLS-1$
+	private final int major;
+	private static final String SEPARATOR = "."; //$NON-NLS-1$
 
 	/**
 	 * The empty version "0.0.0".
 	 */
-	public static final Version	emptyVersion	= new Version(0, 0, 0);
+	public static final Version emptyVersion = new Version(0, 0, 0);
+	public static final Version maxVersion = new Version(Integer.MAX_VALUE);
 
 	/**
 	 * Creates a version identifier from the specified numerical components.
@@ -62,11 +62,11 @@ public class Version implements Comparable {
 	 * @throws IllegalArgumentException If the numerical components are
 	 *         negative.
 	 */
-	
-	
+
 	public Version(int major) {
-		this.major =major; 
+		this.major = major;
 	}
+
 	public Version(int major, int minor, int micro) {
 		this(major, minor, micro, null);
 	}
@@ -141,8 +141,7 @@ public class Version implements Comparable {
 					}
 				}
 			}
-		}
-		catch (NoSuchElementException e) {
+		} catch (NoSuchElementException e) {
 			throw new IllegalArgumentException("invalid format"); //$NON-NLS-1$
 		}
 

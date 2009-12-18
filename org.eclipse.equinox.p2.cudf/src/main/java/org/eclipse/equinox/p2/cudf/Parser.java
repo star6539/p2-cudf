@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.cudf;
 import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.*;
-import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
 /**
@@ -22,7 +22,8 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 public class Parser {
 
 	private static final boolean FORCE_QUERY = true; //TO SET TO FALSE FOR COMPETITION
-	private final boolean DEBUG = false; //TO SET TO FALSE FOR COMPETITION
+	private static final boolean DEBUG = false; //TO SET TO FALSE FOR COMPETITION
+	private static final boolean TIMING = true; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnit currentIU = null;
 	private ProfileChangeRequest currentRequest = null;
 	private List allIUs = new ArrayList();
@@ -56,6 +57,9 @@ public class Parser {
 	}
 
 	public ProfileChangeRequest parse(InputStream stream) {
+		long start;
+		if (TIMING)
+			start = System.currentTimeMillis();
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
@@ -125,6 +129,8 @@ public class Parser {
 					// ignore
 				}
 		}
+		if (TIMING)
+			System.out.println("Time to parse:" + (System.currentTimeMillis() - start));
 		if (DEBUG)
 			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 				debug((InstallableUnit) iter.next());
@@ -205,11 +211,29 @@ public class Parser {
 
 	private void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		List removeRequest = createRequires(line);
-		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
-			currentRequest.upgradeInstallableUnit((IRequiredCapability) iterator.next());
+		List updateRequest = createRequires(line);
+		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
+			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
+			requirement.setArity(1);
+			currentRequest.upgradeInstallableUnit(requirement);
+			requirement = getHighestInstalledVersion(requirement);
+			if (requirement != null)
+				currentRequest.upgradeInstallableUnit(requirement);
 		}
 		return;
+	}
+
+	private IRequiredCapability getHighestInstalledVersion(IRequiredCapability req) {
+		InstallableUnit highest = null;
+		Collector c = query.query(new CapabilityQuery(req), new Collector(), null);
+		if (c.size() == 1)
+			return null;
+		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
+			InstallableUnit candidate = (InstallableUnit) iterator.next();
+			if (candidate.isInstalled() && (highest == null || (candidate.getVersion().getMajor() > highest.getVersion().getMajor())))
+				highest = candidate;
+		}
+		return new RequiredCapability(highest.getId(), new VersionRange(highest.getVersion(), false, Version.maxVersion, true));
 	}
 
 	/*
