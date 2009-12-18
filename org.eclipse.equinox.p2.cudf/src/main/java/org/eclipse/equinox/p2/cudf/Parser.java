@@ -46,9 +46,18 @@ public class Parser {
 	}
 
 	public static ProfileChangeRequest parse(File file) {
+		try {
+			return parse(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static ProfileChangeRequest parse(InputStream stream) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
 			String next = reader.readLine();
 			while (true) {
 
