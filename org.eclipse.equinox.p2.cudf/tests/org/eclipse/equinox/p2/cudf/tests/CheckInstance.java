@@ -3,6 +3,7 @@ package org.eclipse.equinox.p2.cudf.tests;
 import java.io.*;
 import java.util.Collection;
 import junit.framework.TestCase;
+import org.apache.tools.bzip2.CBZip2InputStream;
 import org.eclipse.equinox.p2.cudf.Parser;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
@@ -21,14 +22,7 @@ public class CheckInstance extends TestCase {
 	}
 
 	protected void runTest() throws Throwable {
-		InputStream inputStream = null;
-		if (inputFile.getAbsolutePath().endsWith("bz2"))
-			return;
-		//			inputStream = new CBZip2InputStream(new FileInputStream(inputFile));
-		else
-			inputStream = new FileInputStream(inputFile);
-
-		ProfileChangeRequest req = new Parser().parse(inputStream);
+		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 
 		Object result = new SimplePlanner().getSolutionFor(req);
 		if (successExpected) {
@@ -47,4 +41,21 @@ public class CheckInstance extends TestCase {
 		System.gc();
 	}
 
+	private InputStream getStream(File file) throws IOException {
+		InputStream inputStream = null;
+		if (inputFile.getAbsolutePath().endsWith(".bz2")) {
+			inputStream = new FileInputStream(file);
+			int b = inputStream.read();
+			if (b != 'B') {
+				throw new IOException("not a bz2 file");
+			}
+			b = inputStream.read();
+			if (b != 'Z') {
+				throw new IOException("not a bz2 file");
+			}
+			inputStream = new CBZip2InputStream(inputStream);
+		} else
+			inputStream = new FileInputStream(inputFile);
+		return inputStream;
+	}
 }
