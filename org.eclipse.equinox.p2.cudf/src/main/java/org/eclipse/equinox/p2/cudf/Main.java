@@ -107,6 +107,7 @@ public class Main {
 
 	private static void printSolution(Collection state) {
 		ArrayList l = new ArrayList(state);
+		log("Solution contains:" + l.size());
 		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
 			InstallableUnit iu = (InstallableUnit) iterator.next();
 			out.println("package: " + iu.getId());
