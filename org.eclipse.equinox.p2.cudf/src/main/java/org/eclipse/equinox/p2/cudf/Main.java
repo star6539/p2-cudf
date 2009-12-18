@@ -99,7 +99,7 @@ public class Main {
 	private static ProfileChangeRequest parseCUDF(File file) {
 		log("Parsing ...");
 		long begin = System.currentTimeMillis();
-		ProfileChangeRequest result = Parser.parse(file);
+		ProfileChangeRequest result = new Parser().parse(file);
 		long end = System.currentTimeMillis();
 		log("Parsing done (" + (end - begin) / 1000.0 + "s).");
 		return result;

@@ -23,14 +23,16 @@ public class ProfileChangeRequest {
 	private ArrayList iusToAdd = new ArrayList(10); // list of ius to add
 	private ArrayList iusToUpdate = new ArrayList(10); // list of ius to add
 	private List iusPreInstalled = new ArrayList(1); //this will get overwritten
-	
+	private int expected = -10;
+
 	public ProfileChangeRequest(QueryableArray initialState) {
 		this.initialState = initialState;
 	}
-	
+
 	public void setPreInstalledIUs(List list) {
 		iusPreInstalled = list;
 	}
+
 	public void addInstallableUnit(IRequiredCapability req) {
 		iusToAdd.add(req);
 	}
@@ -42,17 +44,25 @@ public class ProfileChangeRequest {
 	public void upgradeInstallableUnit(IRequiredCapability toUpgrade) {
 		iusToUpdate.add(toUpgrade);
 	}
-	
+
 	public ArrayList getAllRequests() {
-		ArrayList result = new ArrayList(iusToAdd.size()  + iusToRemove.size() + iusToUpdate.size() + iusPreInstalled.size());
+		ArrayList result = new ArrayList(iusToAdd.size() + iusToRemove.size() + iusToUpdate.size() + iusPreInstalled.size());
 		result.addAll(iusToAdd);
 		result.addAll(iusToRemove);
 		result.addAll(iusToUpdate);
 		result.addAll(iusPreInstalled);
 		return result;
 	}
-	
+
 	public QueryableArray getInitialState() {
 		return initialState;
+	}
+
+	public int getExpected() {
+		return expected;
+	}
+
+	public void setExpected(int expected) {
+		this.expected = expected;
 	}
 }

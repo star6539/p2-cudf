@@ -21,14 +21,14 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
  */
 public class Parser {
 
-	private static final boolean DEBUG = false;
-	private static InstallableUnit currentIU = null;
-	private static ProfileChangeRequest currentRequest = null;
-	private static List allIUs = new ArrayList();
-	private static QueryableArray query = null;
-	private static List preInstalled = new ArrayList(10000);
+	private final boolean DEBUG = false;
+	private InstallableUnit currentIU = null;
+	private ProfileChangeRequest currentRequest = null;
+	private List allIUs = new ArrayList();
+	private QueryableArray query = null;
+	private List preInstalled = new ArrayList(10000);
 
-	static class Tuple {
+	class Tuple {
 		String name;
 		String version;
 		String operator;
@@ -45,7 +45,7 @@ public class Parser {
 		}
 	}
 
-	public static ProfileChangeRequest parse(File file) {
+	public ProfileChangeRequest parse(File file) {
 		try {
 			return parse(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
@@ -54,7 +54,7 @@ public class Parser {
 		}
 	}
 
-	public static ProfileChangeRequest parse(InputStream stream) {
+	public ProfileChangeRequest parse(InputStream stream) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
@@ -108,6 +108,8 @@ public class Parser {
 					handleConflicts(line);
 				} else if (line.startsWith("provides: ")) {
 					handleProvides(line);
+				} else if (line.startsWith("expected: ")) {
+					handleExpected(line);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -129,11 +131,15 @@ public class Parser {
 		return currentRequest;
 	}
 
+	private void handleExpected(String line) {
+		currentRequest.setExpected(Integer.decode(line.substring("expected: ".length()).trim()).intValue());
+	}
+
 	/*
 	 * Ensure that the current IU that we have been building is validate and if so, then
 	 * add it to our collected list of all converted IUs from the file.
 	 */
-	private static void validateAndAddIU() {
+	private void validateAndAddIU() {
 		if (currentIU == null)
 			return;
 		// For a package stanze, the id and version are the only mandatory elements
@@ -149,7 +155,7 @@ public class Parser {
 		currentIU = null;
 	}
 
-	private static void handleInstalled(String line) {
+	private void handleInstalled(String line) {
 		String value = line.substring("installed: ".length());
 		if (value.length() != 0) {
 			if (DEBUG)
@@ -162,7 +168,7 @@ public class Parser {
 		}
 	}
 
-	private static void handleInstall(String line) {
+	private void handleInstall(String line) {
 		line = line.substring("install: ".length());
 		List installRequest = createRequires(line);
 		for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
@@ -171,13 +177,13 @@ public class Parser {
 		return;
 	}
 
-	private static void handleRequest(String line) {
+	private void handleRequest(String line) {
 		initializeQueryableArray();
 		currentRequest = new ProfileChangeRequest(query);
 		currentRequest.setPreInstalledIUs(preInstalled);
 	}
 
-	private static void handleRemove(String line) {
+	private void handleRemove(String line) {
 		line = line.substring("remove: ".length());
 		List removeRequest = createRequires(line);
 		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
@@ -186,11 +192,11 @@ public class Parser {
 		return;
 	}
 
-	private static void initializeQueryableArray() {
+	private void initializeQueryableArray() {
 		query = new QueryableArray((InstallableUnit[]) allIUs.toArray(new InstallableUnit[allIUs.size()]));
 	}
 
-	private static void handleUpgrade(String line) {
+	private void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
 		List removeRequest = createRequires(line);
 		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
@@ -202,7 +208,7 @@ public class Parser {
 	/*
 	 * Convert the version string to a version object and set it on the IU
 	 */
-	private static void handleVersion(String line) {
+	private void handleVersion(String line) {
 		currentIU.setVersion(new Version(line.substring("version: ".length())));
 	}
 
@@ -212,14 +218,14 @@ public class Parser {
 	// Sp ::= U+0020 (i.e. space)
 	// | U+0009 (i.e. tab)
 	// Ver ::= PosInt
-	private static void handleDepends(String line) {
+	private void handleDepends(String line) {
 		mergeRequirements(createRequires(line.substring("depends: ".length())));
 	}
 
 	/*
 	 * Conflicts are like depends except NOT'd.
 	 */
-	private static void handleConflicts(String line) {
+	private void handleConflicts(String line) {
 		List reqs = createRequires(line.substring("conflicts: ".length()));
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
@@ -236,7 +242,7 @@ public class Parser {
 	/*
 	 * Set the given list of requirements on teh current IU. Merge if necessary.
 	 */
-	private static void mergeRequirements(List requirements) {
+	private void mergeRequirements(List requirements) {
 		if (currentIU.getRequiredCapabilities() != null) {
 			IRequiredCapability[] current = currentIU.getRequiredCapabilities();
 			for (int i = 0; i < current.length; i++)
@@ -250,7 +256,7 @@ public class Parser {
 	 * If there is more than one entry for a particular package, the extra entries are included
 	 * in the extraData field of the Tuple. 
 	 */
-	private static Map createPackageList(String line) {
+	private Map createPackageList(String line) {
 		Map result = new HashMap();
 		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
 			Tuple tuple = new Tuple(outer.nextToken());
@@ -270,7 +276,7 @@ public class Parser {
 	/*
 	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
 	 */
-	private static List createRequires(String line) {
+	private List createRequires(String line) {
 		// map of name to tuple... save for later processing
 		Map map = new HashMap();
 		// break the string into per-package instructions
@@ -319,7 +325,7 @@ public class Parser {
 	/*
 	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
 	 */
-	private static IRequiredCapability createRequiredCapability(Tuple tuple) {
+	private IRequiredCapability createRequiredCapability(Tuple tuple) {
 		Set extraData = tuple.extraData;
 		// one constraint so simply return the capability
 		if (extraData == null)
@@ -331,7 +337,7 @@ public class Parser {
 		return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
 	}
 
-	private static IProvidedCapability createProvidedCapability(Tuple tuple) {
+	private IProvidedCapability createProvidedCapability(Tuple tuple) {
 		Set extraData = tuple.extraData;
 		// one constraint so simply return the capability
 		if (extraData == null)
@@ -347,7 +353,7 @@ public class Parser {
 	 * Create and return a version range object which merges the 2 given versions and operators.
 	 * e.g  a>=1 and a<4 becomes a[1,4)
 	 */
-	private static VersionRange createVersionRange(Tuple t1, Tuple t2) {
+	private VersionRange createVersionRange(Tuple t1, Tuple t2) {
 		Version one = Version.parseVersion(t1.version);
 		Version two = Version.parseVersion(t2.version);
 		if (one.compareTo(two) < 0) {
@@ -364,7 +370,7 @@ public class Parser {
 	/*
 	 * Helper method for when we are creating version ranges and calculating "includeMin/Max".
 	 */
-	private static boolean include(String operator) {
+	private boolean include(String operator) {
 		return "=".equals(operator) || "<=".equals(operator) || ">=".equals(operator);
 	}
 
@@ -372,7 +378,7 @@ public class Parser {
 	 * Create and return a version range based on the given operator and number. Note that != is
 	 * handled elsewhere.
 	 */
-	private static VersionRange createVersionRange(String operator, String number) {
+	private VersionRange createVersionRange(String operator, String number) {
 		if (operator == null || number == null)
 			return VersionRange.emptyRange;
 		if ("=".equals(operator))
@@ -389,12 +395,12 @@ public class Parser {
 	}
 
 	// package name matches: "^[a-zA-Z0-9+./@()%-]+$"
-	private static void handlePackage(String readLine) {
+	private void handlePackage(String readLine) {
 		currentIU = new InstallableUnit();
 		currentIU.setId(readLine.substring("package: ".length()));
 	}
 
-	private static void handleProvides(String line) {
+	private void handleProvides(String line) {
 		line = line.substring("provides: ".length());
 		Map pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
@@ -408,7 +414,7 @@ public class Parser {
 	}
 
 	//	// copied from ProfileSynchronizer
-	private static void debug(ProfileChangeRequest request) {
+	private void debug(ProfileChangeRequest request) {
 		if (!DEBUG || request == null)
 			return;
 		//		System.out.println("\nProfile Change Request:");
@@ -448,7 +454,7 @@ public class Parser {
 	}
 
 	// dump info to console
-	private static void debug(InstallableUnit unit) {
+	private void debug(InstallableUnit unit) {
 		if (!DEBUG)
 			return;
 		System.out.println("\nInstallableUnit: " + unit.getId());

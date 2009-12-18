@@ -13,8 +13,4 @@ public class CheckAllPassingInstances extends TestCase {
 		}
 		return suite;
 	}
-
-	protected void tearDown() throws Exception {
-		System.gc();
-	}
 }
