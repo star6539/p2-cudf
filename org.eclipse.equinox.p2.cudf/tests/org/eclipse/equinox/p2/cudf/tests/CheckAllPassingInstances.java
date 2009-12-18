@@ -9,7 +9,7 @@ public class CheckAllPassingInstances extends TestCase {
 		File resourceDirectory = new File(CheckAllPassingInstances.class.getClassLoader().getResource("testData/instances/expectedSuccess/").toString().substring("file:".length()));
 		File[] resources = resourceDirectory.listFiles();
 		for (int i = 0; i < resources.length; i++) {
-			suite.addTest(new CheckInstance(resources[i]));
+			suite.addTest(new CheckInstance(resources[i], true));
 		}
 		return suite;
 	}

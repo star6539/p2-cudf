@@ -48,4 +48,5 @@ sourceversion: 4.4.2-3
 installedsize: 132
 
 request: 
-install: libbz2-1.0
+expected: 5
+

@@ -143,3 +143,4 @@ installedsize: 132
 
 request: 
 install: libtext-wrapi18n-perl
+expected: 14

@@ -9,9 +9,11 @@ import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
 
 public class CheckInstance extends TestCase {
 	private File inputFile = null;
+	private boolean successExpected = true;
 
-	public CheckInstance(File nextElement) {
+	public CheckInstance(File nextElement, boolean expected) {
 		inputFile = nextElement;
+		successExpected = expected;
 	}
 
 	public String getName() {
@@ -29,10 +31,16 @@ public class CheckInstance extends TestCase {
 		ProfileChangeRequest req = new Parser().parse(inputStream);
 
 		Object result = new SimplePlanner().getSolutionFor(req);
-		if (!(result instanceof Collection))
-			fail("Can not resolve: " + inputFile);
-		if (req.getExpected() != -10)
-			assertEquals(req.getExpected(), ((Collection) result).size());
+		if (successExpected) {
+			if (!(result instanceof Collection))
+				fail("Can not resolve: " + inputFile);
+			if (req.getExpected() != -10)
+				assertEquals(req.getExpected(), ((Collection) result).size());
+		} else {
+			if (result instanceof Collection)
+				fail("No solution was expected: " + inputFile);
+		}
+
 	}
 
 	protected void tearDown() throws Exception {
