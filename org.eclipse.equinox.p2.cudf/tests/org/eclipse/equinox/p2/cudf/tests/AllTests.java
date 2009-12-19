@@ -5,7 +5,7 @@ import junit.framework.*;
 public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(CheckAllPassingInstances.class);
+		suite.addTest(CheckAllPassingInstances.suite());
 		suite.addTestSuite(ParserTest.class);
 		//		suite.addTestSuite(TestAutomaticProvide.class);
 		suite.addTestSuite(TestInstall.class);

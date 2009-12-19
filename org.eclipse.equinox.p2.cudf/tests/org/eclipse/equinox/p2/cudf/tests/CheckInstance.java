@@ -13,12 +13,9 @@ public class CheckInstance extends TestCase {
 	private boolean successExpected = true;
 
 	public CheckInstance(File nextElement, boolean expected) {
+		super(nextElement.getAbsolutePath());
 		inputFile = nextElement;
 		successExpected = expected;
-	}
-
-	public String getName() {
-		return inputFile.getAbsolutePath();
 	}
 
 	protected void runTest() throws Throwable {
