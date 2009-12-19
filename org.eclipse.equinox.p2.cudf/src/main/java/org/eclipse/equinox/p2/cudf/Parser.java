@@ -183,7 +183,7 @@ public class Parser {
 
 	private void handleInstall(String line) {
 		line = line.substring("install: ".length());
-		List installRequest = createRequires(line);
+		List installRequest = createRequires(line, true);
 		for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
 			currentRequest.addInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -198,7 +198,7 @@ public class Parser {
 
 	private void handleRemove(String line) {
 		line = line.substring("remove: ".length());
-		List removeRequest = createRequires(line);
+		List removeRequest = createRequires(line, true);
 		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
 			currentRequest.removeInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -211,7 +211,7 @@ public class Parser {
 
 	private void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		List updateRequest = createRequires(line);
+		List updateRequest = createRequires(line, true);
 		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
 			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
 			requirement.setArity(1);
@@ -243,21 +243,15 @@ public class Parser {
 		currentIU.setVersion(new Version(line.substring("version: ".length())));
 	}
 
-	// VPkg ::= PkgName (Sp + VConstr)?
-	// VConstr ::= RelOp Sp + Ver
-	// RelOp ::= "=" | "!=" | ">=" | ">" | "<=" | "<"
-	// Sp ::= U+0020 (i.e. space)
-	// | U+0009 (i.e. tab)
-	// Ver ::= PosInt
 	private void handleDepends(String line) {
-		mergeRequirements(createRequires(line.substring("depends: ".length())));
+		mergeRequirements(createRequires(line.substring("depends: ".length()), true));
 	}
 
 	/*
 	 * Conflicts are like depends except NOT'd.
 	 */
 	private void handleConflicts(String line) {
-		List reqs = createRequires(line.substring("conflicts: ".length()));
+		List reqs = createRequires(line.substring("conflicts: ".length()), false);
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iter.next();
@@ -304,13 +298,13 @@ public class Parser {
 		return result;
 	}
 
-	public List createRequires(String line) {
+	public List createRequires(String line, boolean expandNotEquals) {
 		ArrayList ands = new ArrayList();
 		StringTokenizer s = new StringTokenizer(line, ",");
 		while (s.hasMoreElements()) {
 			StringTokenizer subTokenizer = new StringTokenizer(s.nextToken(), "|");
-			if (subTokenizer.countTokens() == 1) {
-				Object o = createRequire(subTokenizer.nextToken());
+			if (subTokenizer.countTokens() == 1) { //This token does not contain a |.
+				Object o = createRequire(subTokenizer.nextToken(), expandNotEquals);
 				if (o instanceof IRequiredCapability)
 					ands.add(o);
 				else
@@ -321,32 +315,37 @@ public class Parser {
 			IRequiredCapability[] ors = new RequiredCapability[subTokenizer.countTokens()];
 			int i = 0;
 			while (subTokenizer.hasMoreElements()) {
-				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken());
+				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken(), expandNotEquals);
 			}
 			ands.add(new ORRequirement(ors));
 		}
 		return ands;
 	}
 
-	private Object createRequire(String nextToken) {
+	private Object createRequire(String nextToken, boolean expandNotEquals) {
 		//>, >=, =, <, <=, !=
 		StringTokenizer expressionTokens = new StringTokenizer(nextToken.trim(), ">=!<", true);
 		int tokenCount = expressionTokens.countTokens();
-		if (tokenCount == 1)
+
+		if (tokenCount == 1) // a
 			return new RequiredCapability(expressionTokens.nextToken().trim(), VersionRange.emptyRange);
-		if (tokenCount == 3)
+
+		if (tokenCount == 3) // a > 2, a < 2, a = 2
 			return new RequiredCapability(expressionTokens.nextToken().trim(), createRange3(expressionTokens.nextToken(), expressionTokens.nextToken()));
-		if (tokenCount == 4) {
+
+		if (tokenCount == 4) { //a >= 2, a <=2, a != 2
 			String id = expressionTokens.nextToken().trim();
 			String signFirstChar = expressionTokens.nextToken();
 			expressionTokens.nextToken();//skip second char of the sign
 			String version = expressionTokens.nextToken().trim();
-			VersionRange range = createRange4(signFirstChar, version);
-			if (range != null)
-				return new RequiredCapability(id, range);
-			//Special case for !=
-			ArrayList res = new ArrayList(3);
-			res.add(new NotRequirement(new RequiredCapability(id, new VersionRange(new Version(version)))));
+			if (!("!".equals(signFirstChar))) // a >= 2 a <= 2
+				return new RequiredCapability(id, createRange4(signFirstChar, version));
+
+			//a != 2
+			if (expandNotEquals) {
+				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version)), new RequiredCapability(id, createRange3(">", version))});
+			}
+			ArrayList res = new ArrayList(2);
 			res.add(new RequiredCapability(id, createRange3("<", version)));
 			res.add(new RequiredCapability(id, createRange3(">", version)));
 			return res;
@@ -424,20 +423,20 @@ public class Parser {
 	//		return ANDs;
 	//	}
 
-	/*
-	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
-	 */
-	private IRequiredCapability createRequiredCapability(Tuple tuple) {
-		Set extraData = tuple.extraData;
-		// one constraint so simply return the capability
-		if (extraData == null)
-			return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
-		// 2 constraints (e.g. a>=1, a<4) so create a real range like a[1,4)
-		if (extraData.size() == 1)
-			return new RequiredCapability(tuple.name, createVersionRange(tuple, (Tuple) extraData.iterator().next()));
-		// TODO merge more than 2 requirements (a>2, a<4, a>3)
-		return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
-	}
+	//	/*
+	//	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
+	//	 */
+	//	private IRequiredCapability createRequiredCapability(Tuple tuple) {
+	//		Set extraData = tuple.extraData;
+	//		// one constraint so simply return the capability
+	//		if (extraData == null)
+	//			return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
+	//		// 2 constraints (e.g. a>=1, a<4) so create a real range like a[1,4)
+	//		if (extraData.size() == 1)
+	//			return new RequiredCapability(tuple.name, createVersionRange(tuple, (Tuple) extraData.iterator().next()));
+	//		// TODO merge more than 2 requirements (a>2, a<4, a>3)
+	//		return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
+	//	}
 
 	private IProvidedCapability createProvidedCapability(Tuple tuple) {
 		Set extraData = tuple.extraData;

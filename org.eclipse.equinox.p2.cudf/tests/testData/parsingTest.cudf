@@ -72,6 +72,10 @@ package: mergeDepends5
 version: 1
 depends: a >= 1, a < 3
 
+package: testExceptionInConflicts
+version: 1
+conflicts: a != 1
+
 request: SAMPLE-DATA
 install: a
 
