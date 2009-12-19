@@ -26,34 +26,36 @@ public class ParserTest extends TestCase {
 
 	public void testCheckPackageA() {
 		InstallableUnit iu = getIU("a");
-		assertRequirement(new RequiredCapability("b", new VersionRange(new Version(2), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("b", new VersionRange(new Version(2), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
 		assertRequirement(new RequiredCapability("c", VersionRange.emptyRange), iu.getRequiredCapabilities());
 		assertRequirement(new NotRequirement(new RequiredCapability("d", new VersionRange(new Version(2)))), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("d", new VersionRange(Version.emptyVersion, false, new Version(2), false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("d", new VersionRange(new Version(2), false, Version.maxVersion, false)), iu.getRequiredCapabilities());
 		assertRequirement(new RequiredCapability("e", VersionRange.emptyRange), iu.getRequiredCapabilities());
 		assertRequirement(new NotRequirement(new RequiredCapability("f", VersionRange.emptyRange)), iu.getRequiredCapabilities());
 	}
 
 	public void testCheckPackageB() {
 		InstallableUnit iu = getIU("b");
-		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(5), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(5), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
 		IRequiredCapability[] reqs = iu.getRequiredCapabilities();
 		for (int i = 0; i < reqs.length; i++) {
 			if (reqs[i] instanceof ORRequirement) {
 				assertRequirement(new RequiredCapability("c", VersionRange.emptyRange), ((ORRequirement) reqs[i]).getRequirements());
-				assertRequirement(new RequiredCapability("d", new VersionRange(new Version(2), false, Version.maxVersion, true)), ((ORRequirement) reqs[i]).getRequirements());
+				assertRequirement(new RequiredCapability("d", new VersionRange(new Version(2), false, Version.maxVersion, false)), ((ORRequirement) reqs[i]).getRequirements());
 			}
 		}
-		assertRequirement(new RequiredCapability("f", new VersionRange(new Version(5), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("f", new VersionRange(new Version(5), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
 		assertRequirement(new NotRequirement(new RequiredCapability("g", VersionRange.emptyRange)), iu.getRequiredCapabilities());
 	}
 
 	public void testCheckPackageLibcbin() {
 		InstallableUnit iu = getIU("libc-bin");
 		assertEquals(true, iu.isSingleton());
-		assertRequirement(new NotRequirement(new RequiredCapability("libc0.1", new VersionRange(Version.emptyVersion, true, new Version(1), false))), iu.getRequiredCapabilities());
-		assertRequirement(new NotRequirement(new RequiredCapability("libc0.3", new VersionRange(Version.emptyVersion, true, new Version(1), false))), iu.getRequiredCapabilities());
-		assertRequirement(new NotRequirement(new RequiredCapability("libc6", new VersionRange(Version.emptyVersion, true, new Version(17), false))), iu.getRequiredCapabilities());
-		assertRequirement(new NotRequirement(new RequiredCapability("libc6.1", new VersionRange(Version.emptyVersion, true, new Version(1), false))), iu.getRequiredCapabilities());
+		assertRequirement(new NotRequirement(new RequiredCapability("libc0.1", new VersionRange(Version.emptyVersion, false, new Version(1), false))), iu.getRequiredCapabilities());
+		assertRequirement(new NotRequirement(new RequiredCapability("libc0.3", new VersionRange(Version.emptyVersion, false, new Version(1), false))), iu.getRequiredCapabilities());
+		assertRequirement(new NotRequirement(new RequiredCapability("libc6", new VersionRange(Version.emptyVersion, false, new Version(17), false))), iu.getRequiredCapabilities());
+		assertRequirement(new NotRequirement(new RequiredCapability("libc6.1", new VersionRange(Version.emptyVersion, false, new Version(1), false))), iu.getRequiredCapabilities());
 	}
 
 	public void testCheckLibx11data() {
@@ -64,8 +66,8 @@ public class ParserTest extends TestCase {
 	public void testlibtextCharwidthPerl() {
 		InstallableUnit iu = getIU("libtext-charwidth-perl");
 		assertEquals(true, iu.isSingleton());
-		assertRequirement(new RequiredCapability("libc6", new VersionRange(new Version(1), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
-		assertRequirement(new RequiredCapability("perl-base", new VersionRange(new Version(12), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("libc6", new VersionRange(new Version(1), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("perl-base", new VersionRange(new Version(12), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
 		IRequiredCapability[] reqs = iu.getRequiredCapabilities();
 		for (int i = 0; i < reqs.length; i++) {
 			if (reqs[i] instanceof ORRequirement) {
@@ -101,16 +103,16 @@ public class ParserTest extends TestCase {
 		InstallableUnit iu = getIU("mergeDepends3");
 		assertEquals(false, iu.isSingleton());
 		assertEquals(2, iu.getRequiredCapabilities().length);
-		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, true, new Version(1), false)), iu.getRequiredCapabilities());
-		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(3), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, false, new Version(1), false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(3), true, Version.maxVersion, false)), iu.getRequiredCapabilities());
 	}
 
 	public void testmergeDepends4() {
 		InstallableUnit iu = getIU("mergeDepends4");
 		assertEquals(false, iu.isSingleton());
 		assertEquals(3, iu.getRequiredCapabilities().length);
-		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), false, Version.maxVersion, true)), iu.getRequiredCapabilities());
-		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, true, new Version(3), true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), false, Version.maxVersion, false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, false, new Version(3), true)), iu.getRequiredCapabilities());
 		assertRequirement(new RequiredCapability("b", new VersionRange(new Version(2))), iu.getRequiredCapabilities());
 	}
 
@@ -154,5 +156,7 @@ public class ParserTest extends TestCase {
 	public void testCheckPackageNegatedDepends() {
 		InstallableUnit iu = getIU("negatedDepends");
 		assertRequirement(new NotRequirement(new RequiredCapability("a", new VersionRange(new Version(2)))), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, false, new Version(2), false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(2), false, Version.maxVersion, false)), iu.getRequiredCapabilities());
 	}
 }

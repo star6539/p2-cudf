@@ -304,54 +304,125 @@ public class Parser {
 		return result;
 	}
 
-	/*
-	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
-	 */
-	private List createRequires(String line) {
-		// map of name to tuple... save for later processing
-		Map map = new HashMap();
-		// break the string into per-package instructions
-		List ANDs = new ArrayList();
-		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
-			String andStmt = outer.nextToken().trim();
-
-			// note that #countTokens is n-1
-			if (andStmt.indexOf('|') == -1) {
-				Tuple tuple = new Tuple(andStmt);
-				// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
-				Tuple existing = (Tuple) map.get(tuple.name);
-				if (existing == null) {
-					map.put(tuple.name, tuple);
-				} else {
-					Set others = existing.extraData;
-					if (others == null)
-						existing.extraData = new HashSet();
-					existing.extraData.add(tuple);
-				}
-				ANDs.add(createRequiredCapability(tuple));
-			} else {
-				List ORs = new ArrayList();
-				for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
-					String orStmt = inner.nextToken();
-					Tuple tuple = new Tuple(orStmt);
-
-					// special code to handle not equals
-					if (tuple.operator != null && "!=".equals(tuple.operator)) {
-						// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
-						// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
-						ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
-					} else {
-						ORs.add(createRequiredCapability(tuple));
-					}
-				}
-				if (ORs.size() == 1)
-					ANDs.add(ORs.get(0));
+	public List createRequires(String line) {
+		ArrayList ands = new ArrayList();
+		StringTokenizer s = new StringTokenizer(line, ",");
+		while (s.hasMoreElements()) {
+			StringTokenizer subTokenizer = new StringTokenizer(s.nextToken(), "|");
+			if (subTokenizer.countTokens() == 1) {
+				Object o = createRequire(subTokenizer.nextToken());
+				if (o instanceof IRequiredCapability)
+					ands.add(o);
 				else
-					ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
+					ands.addAll((Collection) o);
+				continue;
 			}
+
+			IRequiredCapability[] ors = new RequiredCapability[subTokenizer.countTokens()];
+			int i = 0;
+			while (subTokenizer.hasMoreElements()) {
+				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken());
+			}
+			ands.add(new ORRequirement(ors));
 		}
-		return ANDs;
+		return ands;
 	}
+
+	private Object createRequire(String nextToken) {
+		//>, >=, =, <, <=, !=
+		StringTokenizer expressionTokens = new StringTokenizer(nextToken.trim(), ">=!<", true);
+		int tokenCount = expressionTokens.countTokens();
+		if (tokenCount == 1)
+			return new RequiredCapability(expressionTokens.nextToken().trim(), VersionRange.emptyRange);
+		if (tokenCount == 3)
+			return new RequiredCapability(expressionTokens.nextToken().trim(), createRange3(expressionTokens.nextToken(), expressionTokens.nextToken()));
+		if (tokenCount == 4) {
+			String id = expressionTokens.nextToken().trim();
+			String signFirstChar = expressionTokens.nextToken();
+			expressionTokens.nextToken();//skip second char of the sign
+			String version = expressionTokens.nextToken().trim();
+			VersionRange range = createRange4(signFirstChar, version);
+			if (range != null)
+				return new RequiredCapability(id, range);
+			//Special case for !=
+			ArrayList res = new ArrayList(3);
+			res.add(new NotRequirement(new RequiredCapability(id, new VersionRange(new Version(version)))));
+			res.add(new RequiredCapability(id, createRange3("<", version)));
+			res.add(new RequiredCapability(id, createRange3(">", version)));
+			return res;
+		}
+		return null;
+	}
+
+	private VersionRange createRange3(String sign, String versionAsString) {
+		int version = Integer.decode(versionAsString.trim()).intValue();
+		sign = sign.trim();
+		if (">".equals(sign))
+			return new VersionRange(new Version(version), false, Version.maxVersion, false);
+		if ("<".equals(sign))
+			return new VersionRange(Version.emptyVersion, false, new Version(version), false);
+		if ("=".equals(sign))
+			return new VersionRange(new Version(version));
+		throw new IllegalArgumentException(sign);
+	}
+
+	private VersionRange createRange4(String sign, String versionAsString) {
+		int version = Integer.decode(versionAsString.trim()).intValue();
+		if (">".equals(sign)) //THIS IS FOR >=
+			return new VersionRange(new Version(version), true, Version.maxVersion, false);
+		if ("<".equals(sign)) //THIS IS FOR <=
+			return new VersionRange(Version.emptyVersion, false, new Version(version), true);
+		return null;
+	}
+
+	//	/*
+	//	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
+	//	 */
+	//	private List createRequires(String line) {
+	//		// map of name to tuple... save for later processing
+	//		Map map = new HashMap();
+	//		// break the string into per-package instructions
+	//		List ANDs = new ArrayList();
+	//		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
+	//			String andStmt = outer.nextToken().trim();
+	//
+	//			// note that #countTokens is n-1
+	//			if (andStmt.indexOf('|') == -1) {
+	//				Tuple tuple = new Tuple(andStmt);
+	//				// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
+	//				Tuple existing = (Tuple) map.get(tuple.name);
+	//				if (existing == null) {
+	//					map.put(tuple.name, tuple);
+	//				} else {
+	//					Set others = existing.extraData;
+	//					if (others == null)
+	//						existing.extraData = new HashSet();
+	//					existing.extraData.add(tuple);
+	//				}
+	//				ANDs.add(createRequiredCapability(tuple));
+	//			} else {
+	//				List ORs = new ArrayList();
+	//				for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
+	//					String orStmt = inner.nextToken();
+	//					Tuple tuple = new Tuple(orStmt);
+	//
+	//					// special code to handle not equals
+	//					if (tuple.operator != null && "!=".equals(tuple.operator)) {
+	//						// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
+	//						// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
+	//						ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
+	//					} else {
+	//						ORs.add(createRequiredCapability(tuple));
+	//					}
+	//				}
+	//				if (ORs.size() == 1)
+	//					ANDs.add(ORs.get(0));
+	//				else
+	//					ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
+	//			}
+	//		}
+	//		return ANDs;
+	//	}
 
 	/*
 	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
