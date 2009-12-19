@@ -243,10 +243,10 @@ public class Projector {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				//				if (req.getArity() == 1) {
-				//					InstallableUnit[] array = new InstallableUnit[matches.size()];
-				//					dependencyHelper.atMost(new Explanation.Singleton(array), 1, array);
-				//				}
+				if (req.getArity() == 1) {
+					createAtMostOne((InstallableUnit[]) matches.toArray(new InstallableUnit[matches.size()]));
+					return;
+				}
 				InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
 				Explanation explanation = new Explanation.IUToInstall(reqIu);
 				createImplication(iu, matches, explanation);
