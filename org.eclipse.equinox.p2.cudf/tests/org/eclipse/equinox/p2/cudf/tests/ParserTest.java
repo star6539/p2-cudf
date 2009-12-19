@@ -83,6 +83,44 @@ public class ParserTest extends TestCase {
 		assertRequirement(new NotRequirement(new RequiredCapability("x", VersionRange.emptyRange)), iu.getRequiredCapabilities());
 	}
 
+	public void testmergeDepends1() {
+		InstallableUnit iu = getIU("mergeDepends1");
+		assertEquals(false, iu.isSingleton());
+		assertEquals(1, iu.getRequiredCapabilities().length);
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), false, new Version(3), true)), iu.getRequiredCapabilities());
+	}
+
+	public void testmergeDepends2() {
+		InstallableUnit iu = getIU("mergeDepends2");
+		assertEquals(false, iu.isSingleton());
+		assertEquals(1, iu.getRequiredCapabilities().length);
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), false, new Version(3), true)), iu.getRequiredCapabilities());
+	}
+
+	public void testmergeDepends3() {
+		InstallableUnit iu = getIU("mergeDepends3");
+		assertEquals(false, iu.isSingleton());
+		assertEquals(2, iu.getRequiredCapabilities().length);
+		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, true, new Version(1), false)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(3), true, Version.maxVersion, true)), iu.getRequiredCapabilities());
+	}
+
+	public void testmergeDepends4() {
+		InstallableUnit iu = getIU("mergeDepends4");
+		assertEquals(false, iu.isSingleton());
+		assertEquals(3, iu.getRequiredCapabilities().length);
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), false, Version.maxVersion, true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("a", new VersionRange(Version.emptyVersion, true, new Version(3), true)), iu.getRequiredCapabilities());
+		assertRequirement(new RequiredCapability("b", new VersionRange(new Version(2))), iu.getRequiredCapabilities());
+	}
+
+	public void testmergeDepends5() {
+		InstallableUnit iu = getIU("mergeDepends5");
+		assertEquals(false, iu.isSingleton());
+		assertEquals(1, iu.getRequiredCapabilities().length);
+		assertRequirement(new RequiredCapability("a", new VersionRange(new Version(1), true, new Version(3), false)), iu.getRequiredCapabilities());
+	}
+
 	private void assertNotRequirement(IRequiredCapability asserted, IRequiredCapability[] reqs) {
 		for (int i = 0; i < reqs.length; i++) {
 			if (asserted.getName().equals(reqs[i].getName())) {
@@ -93,12 +131,11 @@ public class ParserTest extends TestCase {
 	}
 
 	private void assertRequirement(IRequiredCapability asserted, IRequiredCapability[] reqs) {
-		boolean found = true;
+		boolean found = false;
 		for (int i = 0; i < reqs.length; i++) {
 			if (asserted.getName().equals(reqs[i].getName())) {
-				assertEquals(asserted.getRange(), reqs[i].getRange());
-				assertEquals(asserted.getArity(), reqs[i].getArity());
-				assertEquals(asserted.isNegation(), reqs[i].isNegation());
+				if (asserted.getRange().equals(reqs[i].getRange()) && asserted.getArity() == reqs[i].getArity() && asserted.isNegation() == reqs[i].isNegation())
+					found = true;
 			}
 		}
 		assertEquals(true, found);

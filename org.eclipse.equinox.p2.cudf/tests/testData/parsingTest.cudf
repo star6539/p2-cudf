@@ -52,6 +52,26 @@ version: 1
 conflicts: x
 provides: x
 
+package: mergeDepends1
+version: 1
+depends: a > 1, a <= 3
+
+package: mergeDepends2
+version: 1
+depends: a <= 3, a > 1
+
+package: mergeDepends3
+version: 1
+depends: a < 1, a >= 3
+
+package: mergeDepends4
+version: 1
+depends: a > 1, b = 2, a <= 3
+
+package: mergeDepends5
+version: 1
+depends: a >= 1, a < 3
+
 request: SAMPLE-DATA
 install: a
 
