@@ -233,7 +233,7 @@ public class Parser {
 			if (candidate.isInstalled() && (highest == null || (candidate.getVersion().getMajor() > highest.getVersion().getMajor())))
 				highest = candidate;
 		}
-		return new RequiredCapability(highest.getId(), new VersionRange(highest.getVersion(), false, Version.maxVersion, true));
+		return new RequiredCapability(highest.getId(), new VersionRange(highest.getVersion(), true, Version.maxVersion, true));
 	}
 
 	/*
