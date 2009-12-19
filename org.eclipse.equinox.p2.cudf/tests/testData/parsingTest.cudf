@@ -47,6 +47,11 @@ source: libtext-charwidth-perl
 sourceversion: 0.04-6
 installedsize: 36
 
+package: foo
+version: 1
+conflicts: x
+provides: x
+
 request: SAMPLE-DATA
 install: a
 
