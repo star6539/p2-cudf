@@ -15,10 +15,6 @@ import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
-/**
- * TODO - if we have 2 versions in a row for the same bundle, convert it to a version range (e>2,e<4 should be e (2,4))
- * TODO - are the keys in the stanzas always lower-case?
- */
 public class Parser {
 
 	private static final boolean FORCE_QUERY = true; //TO SET TO FALSE FOR COMPETITION
@@ -213,10 +209,12 @@ public class Parser {
 		line = line.substring("upgrade: ".length());
 		List updateRequest = createRequires(line, true);
 		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
-			//Add a requirement forcing uniqueness of the upgraded package in the resulting solution
 			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
-			requirement.setArity(1);
 			currentRequest.upgradeInstallableUnit(requirement);
+
+			//Add a requirement forcing uniqueness of the upgraded package in the resulting solution
+			currentRequest.upgradeInstallableUnit(new RequiredCapability(requirement.getName(), VersionRange.emptyRange, 1));
+
 			//Add a requirement forcing the solution to be greater or equal to the highest installed version
 			requirement = getHighestInstalledVersion(requirement);
 			if (requirement != null)
@@ -225,7 +223,6 @@ public class Parser {
 		return;
 	}
 
-	//TODO verifier que la query est superieure a la versino requise. verifier l'identifiant du pakcage car on ne voudrait pas prendre
 	private IRequiredCapability getHighestInstalledVersion(IRequiredCapability req) {
 		InstallableUnit highest = null;
 		Collector c = query.query(new CapabilityQuery(req), new Collector(), null);
@@ -301,7 +298,7 @@ public class Parser {
 		return result;
 	}
 
-	public List createRequires(String line, boolean expandNotEquals) {
+	private List createRequires(String line, boolean expandNotEquals) {
 		ArrayList ands = new ArrayList();
 		StringTokenizer s = new StringTokenizer(line, ",");
 		while (s.hasMoreElements()) {
@@ -376,70 +373,6 @@ public class Parser {
 			return new VersionRange(Version.emptyVersion, false, new Version(version), true);
 		return null;
 	}
-
-	//	/*
-	//	 * Create and return a generic list of required capabilities. This list can be from a depends or conflicts entry.
-	//	 */
-	//	private List createRequires(String line) {
-	//		// map of name to tuple... save for later processing
-	//		Map map = new HashMap();
-	//		// break the string into per-package instructions
-	//		List ANDs = new ArrayList();
-	//		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
-	//			String andStmt = outer.nextToken().trim();
-	//
-	//			// note that #countTokens is n-1
-	//			if (andStmt.indexOf('|') == -1) {
-	//				Tuple tuple = new Tuple(andStmt);
-	//				// save the tuple for later processing so we can convert b>=1,b<3 into b[1,3)
-	//				Tuple existing = (Tuple) map.get(tuple.name);
-	//				if (existing == null) {
-	//					map.put(tuple.name, tuple);
-	//				} else {
-	//					Set others = existing.extraData;
-	//					if (others == null)
-	//						existing.extraData = new HashSet();
-	//					existing.extraData.add(tuple);
-	//				}
-	//				ANDs.add(createRequiredCapability(tuple));
-	//			} else {
-	//				List ORs = new ArrayList();
-	//				for (StringTokenizer inner = new StringTokenizer(andStmt, "|"); inner.hasMoreTokens();) {
-	//					String orStmt = inner.nextToken();
-	//					Tuple tuple = new Tuple(orStmt);
-	//
-	//					// special code to handle not equals
-	//					if (tuple.operator != null && "!=".equals(tuple.operator)) {
-	//						// TODO Pascal to get an explanation on this but if you have "depends: a != 1" does that mean
-	//						// you require at least one version of "a" and it can't be 1? Or is it ok to not have a requirement on "a"?
-	//						ORs.add(new ORRequirement(new IRequiredCapability[] {new RequiredCapability(tuple.name, createVersionRange("<", tuple.version)), new RequiredCapability(tuple.name, createVersionRange(">", tuple.version))}));
-	//					} else {
-	//						ORs.add(createRequiredCapability(tuple));
-	//					}
-	//				}
-	//				if (ORs.size() == 1)
-	//					ANDs.add(ORs.get(0));
-	//				else
-	//					ANDs.add(new ORRequirement((IRequiredCapability[]) ORs.toArray(new IRequiredCapability[ORs.size()])));
-	//			}
-	//		}
-	//		return ANDs;
-	//	}
-
-	//	/*
-	//	 * Create and return a required capability for the given info. operator and number can be null which means any version. (0.0.0)
-	//	 */
-	//	private IRequiredCapability createRequiredCapability(Tuple tuple) {
-	//		Set extraData = tuple.extraData;
-	//		// one constraint so simply return the capability
-	//		if (extraData == null)
-	//			return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
-	//		// 2 constraints (e.g. a>=1, a<4) so create a real range like a[1,4)
-	//		if (extraData.size() == 1)
-	//			return new RequiredCapability(tuple.name, createVersionRange(tuple, (Tuple) extraData.iterator().next()));
-	//		// TODO merge more than 2 requirements (a>2, a<4, a>3)
-	//		return new RequiredCapability(tuple.name, createVersionRange(tuple.operator, tuple.version));
-	//	}
 
 	private IProvidedCapability createProvidedCapability(Tuple tuple) {
 		Set extraData = tuple.extraData;
