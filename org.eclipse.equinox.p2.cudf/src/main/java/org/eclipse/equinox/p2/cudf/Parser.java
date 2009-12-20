@@ -213,9 +213,11 @@ public class Parser {
 		line = line.substring("upgrade: ".length());
 		List updateRequest = createRequires(line, true);
 		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
+			//Add a requirement forcing uniqueness of the upgraded package in the resulting solution
 			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
 			requirement.setArity(1);
 			currentRequest.upgradeInstallableUnit(requirement);
+			//Add a requirement forcing the solution to be greater or equal to the highest installed version
 			requirement = getHighestInstalledVersion(requirement);
 			if (requirement != null)
 				currentRequest.upgradeInstallableUnit(requirement);
@@ -223,6 +225,7 @@ public class Parser {
 		return;
 	}
 
+	//TODO verifier que la query est superieure a la versino requise. verifier l'identifiant du pakcage car on ne voudrait pas prendre
 	private IRequiredCapability getHighestInstalledVersion(IRequiredCapability req) {
 		InstallableUnit highest = null;
 		Collector c = query.query(new CapabilityQuery(req), new Collector(), null);

@@ -9,5 +9,8 @@ depends: B != 1
 package: B
 version: 1
 
+package: B
+version: 2
+
 request: 
 install: X, Y
