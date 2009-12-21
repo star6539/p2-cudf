@@ -17,9 +17,9 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 
 public class Parser {
 
-	private static final boolean FORCE_QUERY = true; //TO SET TO FALSE FOR COMPETITION
+	private static final boolean FORCE_QUERY = false; //TO SET TO FALSE FOR COMPETITION
 	private static final boolean DEBUG = false; //TO SET TO FALSE FOR COMPETITION
-	private static final boolean TIMING = true; //TO SET TO FALSE FOR COMPETITION
+	private static final boolean TIMING = false; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnit currentIU = null;
 	private ProfileChangeRequest currentRequest = null;
 	private List allIUs = new ArrayList();
@@ -126,7 +126,7 @@ public class Parser {
 				}
 		}
 		if (TIMING)
-			System.out.println("Time to parse:" + (System.currentTimeMillis() - start));
+			System.out.println("# Time to parse:" + (System.currentTimeMillis() - start));
 		if (DEBUG)
 			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 				debug((InstallableUnit) iter.next());
