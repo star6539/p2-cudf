@@ -27,11 +27,12 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
 		Collection ius = slice.values();
+		int weight = slice.size() + 1;
 		for (Iterator it = ius.iterator(); it.hasNext();) {
 			InstallableUnit iu = (InstallableUnit) it.next();
 			if (iu == metaIu)
 				continue;
-			removed(weightedObjects, iu, slice.size());
+			removed(weightedObjects, iu, weight);
 			changed(weightedObjects, iu, 1);
 		}
 		if (!weightedObjects.isEmpty()) {

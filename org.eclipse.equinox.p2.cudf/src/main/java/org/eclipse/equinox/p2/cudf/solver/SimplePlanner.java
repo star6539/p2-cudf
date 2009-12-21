@@ -28,7 +28,7 @@ public class SimplePlanner {
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
 			if (explain)
-				System.out.println(projector.getExplanation());
+				System.out.println("# " + projector.getExplanation());
 			return s;
 		}
 

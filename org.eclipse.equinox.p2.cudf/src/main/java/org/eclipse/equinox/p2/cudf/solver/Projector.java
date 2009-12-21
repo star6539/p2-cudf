@@ -69,7 +69,7 @@ public class Projector {
 			long start = 0;
 			if (TIMING) {
 				start = System.currentTimeMillis();
-				Tracing.debug("Start projection: " + start); //$NON-NLS-1$
+				Tracing.debug("Starting projection ... "); //$NON-NLS-1$
 			}
 			IPBSolver solver;
 			if (DEBUG_ENCODING) {
@@ -77,7 +77,10 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			solver.setTimeoutOnConflicts(1000);
+			// solver.setTimeoutOnConflicts(1000);
+			solver.setTimeout(250);
+			solver.setVerbose(true);
+			solver.setLogPrefix("# ");
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new DependencyHelper(solver);
 
@@ -103,7 +106,7 @@ public class Projector {
 			setObjectiveFunction(getOptimizationFactory(optFunction).createOptimizationFunction(entryPointIU));
 			if (TIMING) {
 				long stop = System.currentTimeMillis();
-				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
+				Tracing.debug("Projection completed: " + (stop - start) + "ms."); //$NON-NLS-1$
 			}
 			if (DEBUG_ENCODING) {
 				System.out.println(solver.toString());
@@ -370,7 +373,7 @@ public class Projector {
 		// CNF filename is given on the command line
 		long start = System.currentTimeMillis();
 		if (TIMING)
-			Tracing.debug("Invoking solver: " + start); //$NON-NLS-1$
+			Tracing.debug("Invoking solver ..."); //$NON-NLS-1$
 		try {
 			if (dependencyHelper.hasASolution(assumptions)) {
 				if (DEBUG) {
@@ -379,7 +382,7 @@ public class Projector {
 				backToIU();
 				long stop = System.currentTimeMillis();
 				if (TIMING)
-					Tracing.debug("Solver solution found: " + (stop - start)); //$NON-NLS-1$
+					Tracing.debug("Solver solution found: " + (stop - start) + "ms."); //$NON-NLS-1$
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {

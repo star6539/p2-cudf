@@ -31,14 +31,15 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
 		Collection ius = slice.values();
+		int weight = slice.size() + 1;
 		for (Iterator it = ius.iterator(); it.hasNext();) {
 			InstallableUnit iu = (InstallableUnit) it.next();
 			if (iu == metaIu)
 				continue;
-			removed(weightedObjects, iu, slice.size() * slice.size());
+			removed(weightedObjects, iu, weight * weight);
 			niou(weightedObjects, iu, 1);
 		}
-		uptodate(weightedObjects, -slice.size());
+		uptodate(weightedObjects, -weight);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}
