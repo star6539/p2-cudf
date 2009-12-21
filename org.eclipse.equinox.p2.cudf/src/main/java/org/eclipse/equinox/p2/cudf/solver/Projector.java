@@ -18,8 +18,7 @@ import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
-import org.sat4j.pb.IPBSolver;
-import org.sat4j.pb.SolverFactory;
+import org.sat4j.pb.*;
 import org.sat4j.pb.tools.DependencyHelper;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.*;
@@ -73,17 +72,19 @@ public class Projector {
 			}
 			IPBSolver solver;
 			if (DEBUG_ENCODING) {
-				solver = SolverFactory.newOPBStringSolver();
+				solver = new UserFriendlyPBStringSolver(); //.newOPBStringSolver();
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			// solver.setTimeoutOnConflicts(1000);
-			solver.setTimeout(250);
+			solver.setTimeoutOnConflicts(1000);
+			// solver.setTimeout(250);
 			solver.setVerbose(true);
 			solver.setLogPrefix("# ");
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new DependencyHelper(solver);
-
+			if (DEBUG_ENCODING) {
+				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
+			}
 			Iterator iusToEncode = picker.iterator();
 			if (DEBUG) {
 				List iusToOrder = new ArrayList();
@@ -109,6 +110,7 @@ public class Projector {
 				Tracing.debug("Projection completed: " + (stop - start) + "ms."); //$NON-NLS-1$
 			}
 			if (DEBUG_ENCODING) {
+				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 				System.out.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
@@ -134,6 +136,7 @@ public class Projector {
 		function.noopVariables = noopVariables;
 		function.abstractVariables = abstractVariables;
 		function.picker = picker;
+		function.dependencyHelper = dependencyHelper;
 		return function;
 	}
 

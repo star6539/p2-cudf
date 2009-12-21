@@ -8,7 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
 //	PARANOID: we want to answer the user request, minimizing the number
@@ -26,15 +27,9 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
-		Collection ius = slice.values();
 		int weight = slice.size() + 1;
-		for (Iterator it = ius.iterator(); it.hasNext();) {
-			InstallableUnit iu = (InstallableUnit) it.next();
-			if (iu == metaIu)
-				continue;
-			removed(weightedObjects, iu, weight);
-			changed(weightedObjects, iu, 1);
-		}
+		removed(weightedObjects, weight);
+		changed(weightedObjects, 1);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}

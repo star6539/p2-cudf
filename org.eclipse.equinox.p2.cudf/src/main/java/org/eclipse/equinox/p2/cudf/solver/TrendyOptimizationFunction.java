@@ -36,10 +36,11 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 			InstallableUnit iu = (InstallableUnit) it.next();
 			if (iu == metaIu)
 				continue;
-			removed(weightedObjects, iu, weight * weight);
-			niou(weightedObjects, iu, 1);
+
 		}
+		removed(weightedObjects, weight * weight);
 		uptodate(weightedObjects, -weight);
+		niou(weightedObjects, 1);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}
