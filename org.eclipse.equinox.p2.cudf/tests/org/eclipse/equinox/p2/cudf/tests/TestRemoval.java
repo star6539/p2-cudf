@@ -1,9 +1,5 @@
 package org.eclipse.equinox.p2.cudf.tests;
 
-import org.eclipse.equinox.p2.cudf.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.cudf.metadata.RequiredCapability;
-
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.cudf.metadata.*;
@@ -25,7 +21,7 @@ public class TestRemoval extends TestCase {
 		InstallableUnit iu2 = new InstallableUnit();
 		iu2.setId("A");
 		iu2.setVersion(new Version(2, 0, 0));
-		iu.setInstalled(true);
+		iu2.setInstalled(true);
 		iu2.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("A", new VersionRange(new Version(2, 0, 0), true, new Version(2, 0, 0), true))});
 
 		InstallableUnit iu3 = new InstallableUnit();
