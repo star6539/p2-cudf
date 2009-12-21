@@ -55,4 +55,6 @@ public abstract class OptimizationFunction {
 			weightedObjects.add(WeightedObject.newWO(iu, weight));
 		}
 	}
+
+	public abstract String getName();
 }

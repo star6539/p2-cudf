@@ -44,4 +44,8 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 		}
 		return null;
 	}
+
+	public String getName() {
+		return "misc 2010, trendy";
+	}
 }

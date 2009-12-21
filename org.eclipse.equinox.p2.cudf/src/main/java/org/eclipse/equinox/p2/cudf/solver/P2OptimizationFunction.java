@@ -19,7 +19,6 @@ import org.sat4j.pb.tools.WeightedObject;
 public class P2OptimizationFunction extends OptimizationFunction {
 
 	public List createOptimizationFunction(InstallableUnit metaIu) {
-
 		List weightedObjects = new ArrayList();
 
 		Set s = slice.entrySet();
@@ -84,5 +83,9 @@ public class P2OptimizationFunction extends OptimizationFunction {
 			return weightedObjects;
 		}
 		return null;
+	}
+
+	public String getName() {
+		return "p2";
 	}
 }

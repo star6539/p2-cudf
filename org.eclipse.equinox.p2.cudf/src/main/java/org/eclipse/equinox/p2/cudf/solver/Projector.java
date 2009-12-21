@@ -117,10 +117,10 @@ public class Projector {
 
 	private OptimizationFunction getOptimizationFactory() {
 		OptimizationFunction function = null;
-		//	function =  new P2OptimizationFunction(); //p2
+		//		function = new P2OptimizationFunction(); //p2
 		function = new ParanoidOptimizationFunction(); //paranoid
-		//function = new TrendyOptimizationFunction(); // trendy
-
+		//				function = new TrendyOptimizationFunction(); // trendy
+		System.out.println("# Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
 		function.abstractVariables = abstractVariables;

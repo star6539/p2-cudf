@@ -39,4 +39,8 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 		}
 		return null;
 	}
+
+	public String getName() {
+		return "misc 2010 paranoid";
+	}
 }
