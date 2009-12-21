@@ -29,7 +29,7 @@ public class CheckInstance extends TestCase {
 
 	protected void runTest() throws Throwable {
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
-
+		SimplePlanner.explain = successExpected;
 		Object result = new SimplePlanner().getSolutionFor(req, "paranoid");
 		if (successExpected) {
 			if (!(result instanceof Collection))
