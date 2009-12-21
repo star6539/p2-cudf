@@ -72,10 +72,11 @@ public abstract class OptimizationFunction {
 			}
 			try {
 				Projector.AbstractVariable abs = new Projector.AbstractVariable();
-				// a => not iuv1 and ... and  not iuvn
+				// a <= iuv1 or not iuv2 or ... or  not iuvn
 				for (Iterator iterator2 = changed.iterator(); iterator2.hasNext();) {
 					dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT3");
 				}
+				// a => iuv1 or not iuv2 or ... or  not iuvn
 				Object[] clause = new Object[changed.size()];
 				changed.toArray(clause);
 				dependencyHelper.implication(new Object[] {abs}).implies(clause).named("OPT3");
@@ -111,10 +112,11 @@ public abstract class OptimizationFunction {
 			if (!installed) {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable();
-					// a => not iuv1 and ... and  not iuvn
+					// a => iuv1 or ... or iuvn
 					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 						dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT2");
 					}
+					// a <= iuv1 or ... or iuvn
 					Object[] clause = new Object[versions.size()];
 					versions.toArray(clause);
 					dependencyHelper.implication(new Object[] {abs}).implies(clause).named("OPT2");
