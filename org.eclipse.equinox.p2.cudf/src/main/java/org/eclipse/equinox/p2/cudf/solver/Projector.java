@@ -11,7 +11,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
-import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
@@ -101,7 +100,7 @@ public class Projector {
 
 			createMustHave(entryPointIU);
 
-			optimizationFunction.createOptimizationFunction(entryPointIU);
+			setObjectiveFunction(getOptimizationFactory().createOptimizationFunction(entryPointIU));
 			if (TIMING) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
@@ -116,185 +115,22 @@ public class Projector {
 		}
 	}
 
-	private static interface IOptimizationFunction {
-		void createOptimizationFunction(InstallableUnit metaIu);
+	private OptimizationFunction getOptimizationFactory() {
+		OptimizationFunction function = null;
+		//	function =  new P2OptimizationFunction(); //p2
+		function = new ParanoidOptimizationFunction(); //paranoid
+		//function = new TrendyOptimizationFunction(); // trendy
+
+		function.slice = slice;
+		function.noopVariables = noopVariables;
+		function.abstractVariables = abstractVariables;
+		function.picker = picker;
+		return function;
 	}
 
-	//Create an optimization function favoring the highest version of each IU
-	public final IOptimizationFunction p2DefaultOptimizationFunction = new IOptimizationFunction() {
-
-		public void createOptimizationFunction(InstallableUnit metaIu) {
-
-			List weightedObjects = new ArrayList();
-
-			Set s = slice.entrySet();
-			final BigInteger POWER = BigInteger.valueOf(2);
-
-			BigInteger maxWeight = POWER;
-			for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-				Map.Entry entry = (Map.Entry) iterator.next();
-				HashMap conflictingEntries = (HashMap) entry.getValue();
-				if (conflictingEntries.size() == 1) {
-					continue;
-				}
-				List toSort = new ArrayList(conflictingEntries.values());
-				Collections.sort(toSort, Collections.reverseOrder());
-				BigInteger weight = POWER;
-				int count = toSort.size();
-				for (int i = 0; i < count; i++) {
-					InstallableUnit iu = (InstallableUnit) toSort.get(i);
-					weightedObjects.add(WeightedObject.newWO(iu, iu.isInstalled() ? BigInteger.ONE : weight));
-					weight = weight.multiply(POWER);
-				}
-				if (weight.compareTo(maxWeight) > 0)
-					maxWeight = weight;
-			}
-
-			maxWeight = maxWeight.multiply(POWER);
-
-			// Weight the no-op variables beneath the abstract variables
-			for (Iterator iterator = noopVariables.values().iterator(); iterator.hasNext();) {
-				weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
-			}
-
-			maxWeight = maxWeight.multiply(POWER);
-
-			// Add the abstract variables
-			BigInteger abstractWeight = maxWeight.negate();
-			for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
-				weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
-			}
-
-			maxWeight = maxWeight.multiply(POWER);
-
-			BigInteger optionalWeight = maxWeight.negate();
-			long countOptional = 1;
-			List requestedPatches = new ArrayList();
-			IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
-			for (int j = 0; j < reqs.length; j++) {
-				if (!reqs[j].isOptional())
-					continue;
-				Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-				for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-					InstallableUnit match = (InstallableUnit) iterator.next();
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
-				}
-			}
-
-			BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
-			for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
-				weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));
-			}
-			if (!weightedObjects.isEmpty()) {
-				createObjectiveFunction(weightedObjects);
-			}
-		}
-	};
-
-	private static void removed(List weightedObjects, InstallableUnit iu, int weight) {
-		if (iu.isInstalled()) {
-			// IU was installed in CUDF, got a penalty if removed from the solution.
-			weightedObjects.add(WeightedObject.newWO(iu, -weight));
-		}
-	}
-
-	private static void changed(List weightedObjects, InstallableUnit iu, int weight) {
-		if (iu.isInstalled()) {
-			// IU was installed in CUDF, got a penalty if removed from the solution.
-			weightedObjects.add(WeightedObject.newWO(iu, -weight));
-		} else {
-			// IU was not installed in CUDF, got a penalty if added to the solution.
-			weightedObjects.add(WeightedObject.newWO(iu, weight));
-		}
-	}
-
-	private static void niou(List weightedObjects, InstallableUnit iu, int weight) {
-		if (!iu.isInstalled()) {
-			// IU was not installed in CUDF, got a penalty if added to the solution.
-			weightedObjects.add(WeightedObject.newWO(iu, weight));
-		}
-	}
-
-	private static void uptodate(List weightedObjects, int weight, TwoTierMap slice) {
-		Set s = slice.entrySet();
-		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			HashMap versions = (HashMap) entry.getValue();
-			List toSort = new ArrayList(versions.values());
-			Collections.sort(toSort, Collections.reverseOrder());
-			weightedObjects.add(WeightedObject.newWO(toSort.get(0), weight));
-		}
-	}
-
-	//	PARANOID: we want to answer the user request, minimizing the number
-	//    of packages removed in the solution, and also the packages
-	//    changed by the solution; the optimization criterion is
-	//
-	//         lex( min #removed, min #changed)
-	//
-	//    Hence, two solutions S1 and S2 will be compared as follows:
-	//
-	//    i) compute ri = #removed(U,Si), ci = #changed(U,Si)
-	//
-	//    ii) S1 is better than S2 iff r1 < r2 or (r1=r2 and c1<c2)
-
-	public final IOptimizationFunction misc2010Paranoid = new IOptimizationFunction() {
-
-		public void createOptimizationFunction(InstallableUnit metaIu) {
-			List weightedObjects = new ArrayList();
-			Collection ius = slice.values();
-			for (Iterator it = ius.iterator(); it.hasNext();) {
-				InstallableUnit iu = (InstallableUnit) it.next();
-				if (iu == metaIu)
-					continue;
-				removed(weightedObjects, iu, slice.size());
-				changed(weightedObjects, iu, 1);
-			}
-			if (!weightedObjects.isEmpty()) {
-				createObjectiveFunction(weightedObjects);
-			}
-		}
-	};
-
-	//	TRENDY:   we want to answer the user request, minimizing the number
-	//    of packages removed in the solution, maximizing the number
-	//    of packages at their most recent version in the solution, and
-	//    minimizing the number of extra packages installed;
-	//    the optimization criterion is
-	//
-	//         lex( min #removed, max #uptodate, min #new)
-	//
-	//    Hence, two solutions S1 and S2 will be compared as follows:
-	//
-	//    i) compute ri = #removed(U,Si), ui = #uptodate(U,Si), ni = #new(U,Si)
-	//
-	//    ii) S1 is better than S2 iff
-	//        r1 < r2 or (r1=r2 and (u1>u2 or (u1=u2 and n1<n2)))
-
-	private final IOptimizationFunction misc2010Trendy = new IOptimizationFunction() {
-
-		public void createOptimizationFunction(InstallableUnit metaIu) {
-			List weightedObjects = new ArrayList();
-			Collection ius = slice.values();
-			for (Iterator it = ius.iterator(); it.hasNext();) {
-				InstallableUnit iu = (InstallableUnit) it.next();
-				if (iu == metaIu)
-					continue;
-				removed(weightedObjects, iu, slice.size() * slice.size());
-				niou(weightedObjects, iu, 1);
-			}
-			uptodate(weightedObjects, -slice.size(), slice);
-			if (!weightedObjects.isEmpty()) {
-				createObjectiveFunction(weightedObjects);
-			}
-
-		}
-	};
-	// private IOptimizationFunction optimizationFunction = misc2010Trendy; 
-	// private IOptimizationFunction optimizationFunction = misc2010Paranoid; 
-	private IOptimizationFunction optimizationFunction = p2DefaultOptimizationFunction;
-
-	private void createObjectiveFunction(List weightedObjects) {
+	private void setObjectiveFunction(List weightedObjects) {
+		if (weightedObjects == null)
+			return;
 		if (DEBUG) {
 			StringBuffer b = new StringBuffer();
 			for (Iterator i = weightedObjects.iterator(); i.hasNext();) {
