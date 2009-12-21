@@ -14,7 +14,7 @@ import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
-	public static boolean explain = false;
+	public static boolean explain = false; //SET THIS TO FALSE FOR THE COMPETITION
 
 	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction) {
 		QueryableArray profile = profileChangeRequest.getInitialState();

@@ -40,7 +40,6 @@ public class Slicer {
 			long start = 0;
 			if (TIMING) {
 				start = System.currentTimeMillis();
-				System.out.println("Start slicing: " + start); //$NON-NLS-1$
 			}
 
 			considered = new HashSet(possibilites.getSize());
@@ -55,7 +54,7 @@ public class Slicer {
 			}
 			if (TIMING) {
 				long stop = System.currentTimeMillis();
-				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
+				System.out.println("# Slicing complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
