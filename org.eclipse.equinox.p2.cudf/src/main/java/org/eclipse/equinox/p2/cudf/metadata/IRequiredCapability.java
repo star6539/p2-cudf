@@ -1,5 +1,3 @@
-package org.eclipse.equinox.p2.cudf.metadata;
-
 /******************************************************************************* 
 * Copyright (c) 2008, 2009 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
@@ -9,6 +7,7 @@ package org.eclipse.equinox.p2.cudf.metadata;
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
+package org.eclipse.equinox.p2.cudf.metadata;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.

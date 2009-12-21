@@ -1,4 +1,3 @@
-package org.eclipse.equinox.p2.cudf.metadata;
 /******************************************************************************* 
 * Copyright (c) 2008, 2009 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
@@ -9,9 +8,7 @@ package org.eclipse.equinox.p2.cudf.metadata;
 *   EclipseSource - initial API and implementation
  *   IBM - ongoing development
 ******************************************************************************/
-
-
-
+package org.eclipse.equinox.p2.cudf.metadata;
 
 /**
  * Describes a capability as exposed or required by an installable unit

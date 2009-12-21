@@ -1,4 +1,3 @@
-package org.eclipse.equinox.p2.cudf.metadata;
 /*******************************************************************************
  *  Copyright (c) 2007, 2009 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
@@ -10,14 +9,14 @@ package org.eclipse.equinox.p2.cudf.metadata;
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
  *******************************************************************************/
-
+package org.eclipse.equinox.p2.cudf.metadata;
 
 public class InstallableUnit implements Comparable {
 
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
 	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
-	
+
 	private String id;
 	private Version version;
 
@@ -126,11 +125,11 @@ public class InstallableUnit implements Comparable {
 	public String toString() {
 		return id + ' ' + getVersion();
 	}
-	
+
 	public void setInstalled(boolean isInstalled) {
 		installed = isInstalled;
 	}
-	
+
 	public boolean isInstalled() {
 		return installed;
 	}

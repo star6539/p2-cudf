@@ -1,4 +1,3 @@
-package org.eclipse.equinox.p2.cudf.metadata;
 /*******************************************************************************
  * Copyright (c) 2003, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
@@ -9,7 +8,7 @@ package org.eclipse.equinox.p2.cudf.metadata;
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
+package org.eclipse.equinox.p2.cudf.metadata;
 
 /**
  * This class represents a version range.
@@ -205,7 +204,7 @@ public class VersionRange {
 		result.append(includeMax ? ']' : ')');
 		return result.toString();
 	}
-	
+
 	public VersionRange(Version version) {
 		minVersion = version;
 		maxVersion = version;
