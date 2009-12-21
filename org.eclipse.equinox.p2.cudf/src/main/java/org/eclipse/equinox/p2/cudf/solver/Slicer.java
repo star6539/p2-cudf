@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Slicer {
-	private static boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
+	private static boolean TIMING = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private QueryableArray possibilites;
 
 	private LinkedList toProcess;
