@@ -44,7 +44,7 @@ public class TestOptional extends TestCase {
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[3.0.0, 3.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[2.0.0, 2.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[1.0.0, 1.0.0]")));
-		Object result = new SimplePlanner().getSolutionFor(pcr);
+		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid");
 		assertEquals(false, result instanceof Collection);
 	}
 
@@ -53,7 +53,7 @@ public class TestOptional extends TestCase {
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[3.0.0, 3.0.0]"), true));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[2.0.0, 2.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[1.0.0, 1.0.0]")));
-		Object result = new SimplePlanner().getSolutionFor(pcr);
+		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid");
 		assertEquals(true, result instanceof Collection);
 		assertEquals(2, ((Collection) result).size());
 	}

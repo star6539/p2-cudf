@@ -30,7 +30,7 @@ public class CheckInstance extends TestCase {
 	protected void runTest() throws Throwable {
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 
-		Object result = new SimplePlanner().getSolutionFor(req);
+		Object result = new SimplePlanner().getSolutionFor(req, "paranoid");
 		if (successExpected) {
 			if (!(result instanceof Collection))
 				fail("Can not resolve: " + inputFile);

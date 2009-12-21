@@ -58,14 +58,14 @@ public class Main {
 
 		String criteria = "paranoid";
 		if (args.length == 3) {
-			if (!"paranoid".equalsIgnoreCase(args[2]) && !"trendy".equalsIgnoreCase(args[2])) {
+			if (!"paranoid".equalsIgnoreCase(args[2]) && !"trendy".equalsIgnoreCase(args[2]) && !"p2".equalsIgnoreCase(args[2])) {
 				printFail("Wrong Optimization criteria: " + args[2]);
 				return;
 			}
 			criteria = args[2].toLowerCase();
 		}
 		log("Using criteria " + criteria);
-		printResults(invokeSolver(parseCUDF(input)));
+		printResults(invokeSolver(parseCUDF(input), criteria));
 	}
 
 	private static void printResults(Object result) {
@@ -87,10 +87,10 @@ public class Main {
 		out.println(message);
 	}
 
-	private static Object invokeSolver(ProfileChangeRequest request) {
+	private static Object invokeSolver(ProfileChangeRequest request, String criteria) {
 		log("Solving ...");
 		long begin = System.currentTimeMillis();
-		Object result = new SimplePlanner().getSolutionFor(request);
+		Object result = new SimplePlanner().getSolutionFor(request, criteria);
 		long end = System.currentTimeMillis();
 		log("Solving done (" + (end - begin) / 1000.0 + "s).");
 		return result;

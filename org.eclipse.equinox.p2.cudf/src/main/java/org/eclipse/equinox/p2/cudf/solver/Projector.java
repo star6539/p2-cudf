@@ -63,7 +63,7 @@ public class Projector {
 		assumptions = new ArrayList();
 	}
 
-	public void encode(InstallableUnit entryPointIU) {
+	public void encode(InstallableUnit entryPointIU, String optFunction) {
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
@@ -100,7 +100,7 @@ public class Projector {
 
 			createMustHave(entryPointIU);
 
-			setObjectiveFunction(getOptimizationFactory().createOptimizationFunction(entryPointIU));
+			setObjectiveFunction(getOptimizationFactory(optFunction).createOptimizationFunction(entryPointIU));
 			if (TIMING) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
@@ -115,11 +115,17 @@ public class Projector {
 		}
 	}
 
-	private OptimizationFunction getOptimizationFactory() {
+	private OptimizationFunction getOptimizationFactory(String optFunction) {
 		OptimizationFunction function = null;
-		//		function = new P2OptimizationFunction(); //p2
-		function = new ParanoidOptimizationFunction(); //paranoid
-		//				function = new TrendyOptimizationFunction(); // trendy
+		if ("p2".equalsIgnoreCase(optFunction)) {
+			function = new P2OptimizationFunction(); //p2
+		} else if ("paranoid".equalsIgnoreCase(optFunction)) {
+			function = new ParanoidOptimizationFunction(); //paranoid
+		} else if ("trendy".equalsIgnoreCase(optFunction)) {
+			function = new TrendyOptimizationFunction(); // trendy
+		} else {
+			throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
+		}
 		System.out.println("# Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;

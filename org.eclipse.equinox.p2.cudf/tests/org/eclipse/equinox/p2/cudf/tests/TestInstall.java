@@ -41,7 +41,7 @@ public class TestInstall extends TestCase {
 	public void testRemoveEverything() {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(dataSet);
 		pcr.addInstallableUnit(new RequiredCapability("A", VersionRange.emptyRange));
-		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr);
+		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, "paranoid");
 		System.out.println(result);
 	}
 }

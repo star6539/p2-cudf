@@ -14,7 +14,7 @@ import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
-	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest) {
+	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction) {
 		QueryableArray profile = profileChangeRequest.getInitialState();
 
 		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
@@ -22,7 +22,7 @@ public class SimplePlanner {
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan);
 		Projector projector = new Projector(profile);
-		projector.encode(updatedPlan);
+		projector.encode(updatedPlan, optFunction);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
 			System.out.println(projector.getExplanation());
