@@ -41,6 +41,7 @@ public abstract class OptimizationFunction {
 					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 						dependencyHelper.implication(new Object[] {abs}).impliesNot(iterator2.next()).named("OPT1");
 					}
+					// a <= not iuv1 and ... and  not iuvn
 					Object[] clause = new Object[versions.size() + 1];
 					versions.toArray(clause);
 					clause[clause.length - 1] = abs;
