@@ -224,16 +224,27 @@ public class Parser {
 	}
 
 	private IRequiredCapability getHighestInstalledVersion(IRequiredCapability req) {
-		InstallableUnit highest = null;
+		Version highestVersion = null;
 		Collector c = query.query(new CapabilityQuery(req), new Collector(), null);
-		if (c.size() == 1)
-			return null;
 		for (Iterator iterator = c.iterator(); iterator.hasNext();) {
 			InstallableUnit candidate = (InstallableUnit) iterator.next();
-			if (candidate.isInstalled() && (highest == null || (candidate.getVersion().getMajor() > highest.getVersion().getMajor())))
-				highest = candidate;
+			if (!candidate.isInstalled())
+				continue;
+			if (candidate.getId().equals(req.getName())) {
+				if (highestVersion == null || candidate.getVersion().getMajor() > highestVersion.getMajor())
+					highestVersion = candidate.getVersion();
+			} else {
+				//Requesting the upgrade of a virtual package
+				IProvidedCapability[] prov = candidate.getProvidedCapabilities();
+				for (int i = 0; i < prov.length; i++) {
+					if (prov[i].getVersion().equals(VersionRange.emptyRange))
+						continue;
+					if (prov[i].getName().equals(req.getName()) && (highestVersion == null || prov[i].getVersion().getMinimum().getMajor() > highestVersion.getMajor()))
+						highestVersion = prov[i].getVersion().getMinimum();
+				}
+			}
 		}
-		return new RequiredCapability(highest.getId(), new VersionRange(highest.getVersion(), true, Version.maxVersion, true));
+		return new RequiredCapability(req.getName(), new VersionRange(highestVersion, true, Version.maxVersion, true));
 	}
 
 	/*
