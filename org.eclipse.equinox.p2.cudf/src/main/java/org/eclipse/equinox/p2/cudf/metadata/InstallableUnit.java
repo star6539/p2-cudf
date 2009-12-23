@@ -13,8 +13,8 @@ package org.eclipse.equinox.p2.cudf.metadata;
 
 public class InstallableUnit implements Comparable {
 
-	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
-	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
+	public static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
+	public static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
 
 	private String id;

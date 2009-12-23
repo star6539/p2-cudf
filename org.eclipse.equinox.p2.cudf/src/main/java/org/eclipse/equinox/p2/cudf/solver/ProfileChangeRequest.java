@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class ProfileChangeRequest {
 
-	private final QueryableArray initialState;
+	private QueryableArray initialState;
 	private ArrayList iusToRemove = new ArrayList(10); // list of ius to remove
 	private ArrayList iusToAdd = new ArrayList(10); // list of ius to add
 	private ArrayList iusToUpdate = new ArrayList(10); // list of ius to add
@@ -64,5 +64,13 @@ public class ProfileChangeRequest {
 
 	public void setExpected(int expected) {
 		this.expected = expected;
+	}
+
+	public void purge() {
+		iusPreInstalled = null;
+		iusToAdd = null;
+		iusToRemove = null;
+		iusToUpdate = null;
+		initialState = null;
 	}
 }

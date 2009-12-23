@@ -15,6 +15,7 @@ import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
 	public static boolean explain = false; //SET THIS TO FALSE FOR THE COMPETITION
+	private final static boolean PURGE = true;
 
 	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction) {
 		QueryableArray profile = profileChangeRequest.getInitialState();
@@ -23,6 +24,8 @@ public class SimplePlanner {
 
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan);
+		if (PURGE)
+			profileChangeRequest.purge();
 		Projector projector = new Projector(profile);
 		projector.encode(updatedPlan, optFunction);
 		IStatus s = projector.invokeSolver();

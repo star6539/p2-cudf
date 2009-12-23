@@ -31,7 +31,9 @@ import org.sat4j.specs.*;
 public class Projector {
 	private static final boolean DEBUG = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private static final boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
-	private static boolean DEBUG_ENCODING = false;
+	private static final boolean DEBUG_ENCODING = false; //SET THIS TO FALSE FOR THE COMPETITION
+	private static final boolean PURGE = true;
+
 	private QueryableArray picker;
 
 	private Map noopVariables; //key IU, value AbstractVariable
@@ -60,6 +62,13 @@ public class Projector {
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
+	}
+
+	private void purgeIU(InstallableUnit iu) {
+		if (PURGE) {
+			iu.setCapabilities(InstallableUnit.NO_PROVIDES);
+			iu.setRequiredCapabilities(InstallableUnit.NO_REQUIRES);
+		}
 	}
 
 	public void encode(InstallableUnit entryPointIU, String optFunction) {
@@ -370,7 +379,23 @@ public class Projector {
 		return abstractVariable;
 	}
 
+	private void purge() {
+		if (PURGE) {
+			Iterator iusToEncode = picker.iterator();
+			while (iusToEncode.hasNext()) {
+				purgeIU((InstallableUnit) iusToEncode.next());
+			}
+
+			picker = null;
+			noopVariables = null;
+			abstractVariables = null;
+			slice = null;
+			//		assumptions = null;
+		}
+	}
+
 	public IStatus invokeSolver() {
+		purge();
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
 		// CNF filename is given on the command line
