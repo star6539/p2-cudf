@@ -21,7 +21,7 @@ public class Main {
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
 
 	private static final void usage() {
-		System.out.println("Usage: p2cudf <cudfin> [<cudfout> [(paranoid | trendy)]] ");
+		System.out.println("Usage: p2cudf <cudfin> [(paranoid | trendy | p2)  [<cudfout>]] ");
 	}
 
 	private static final void log(String str) {
@@ -42,8 +42,20 @@ public class Main {
 			return;
 		}
 		log("Using input file " + cudfin);
+		String criteria = "paranoid";
 		if (args.length > 1) {
-			String cudfout = args[1];
+			if (!"paranoid".equalsIgnoreCase(args[1]) && !"trendy".equalsIgnoreCase(args[1]) && !"p2".equalsIgnoreCase(args[1])) {
+				printFail("Wrong Optimization criteria: " + args[1]);
+				return;
+			}
+			criteria = args[1].toLowerCase();
+
+		} else {
+			log("Using standard output");
+		}
+
+		if (args.length == 3) {
+			String cudfout = args[2];
 			File output = new File(cudfout);
 			try {
 				out = new PrintStream(new FileOutputStream(output));
@@ -52,17 +64,6 @@ public class Main {
 				return;
 			}
 			log("Using output file " + cudfout);
-		} else {
-			log("Using standard output");
-		}
-
-		String criteria = "paranoid";
-		if (args.length == 3) {
-			if (!"paranoid".equalsIgnoreCase(args[2]) && !"trendy".equalsIgnoreCase(args[2]) && !"p2".equalsIgnoreCase(args[2])) {
-				printFail("Wrong Optimization criteria: " + args[2]);
-				return;
-			}
-			criteria = args[2].toLowerCase();
 		}
 		log("Using criteria " + criteria);
 		printResults(invokeSolver(parseCUDF(input), criteria));
