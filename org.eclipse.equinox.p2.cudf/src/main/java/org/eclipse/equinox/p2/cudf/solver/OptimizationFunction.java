@@ -99,6 +99,19 @@ public abstract class OptimizationFunction {
 		}
 	}
 
+	protected void notuptodate(List weightedObjects, int weight) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			HashMap versions = (HashMap) entry.getValue();
+			List toSort = new ArrayList(versions.values());
+			Collections.sort(toSort, Collections.reverseOrder());
+			for (int i = 1; i < toSort.size(); i++) {
+				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
+			}
+		}
+	}
+
 	protected void niou(List weightedObjects, int weight) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
