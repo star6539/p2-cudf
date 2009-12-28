@@ -39,7 +39,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 
 		}
 		removed(weightedObjects, weight * weight);
-		uptodate(weightedObjects, -weight);
+		notuptodate(weightedObjects, weight);
 		niou(weightedObjects, 1);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
