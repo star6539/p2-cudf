@@ -85,10 +85,15 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			solver.setTimeoutOnConflicts(1000);
-			// solver.setTimeout(250);
+			if ("p2".equalsIgnoreCase(optFunction)) {
+				solver.setTimeoutOnConflicts(1000);
+			} else {
+				solver.setTimeout(270);
+			}
 			solver.setVerbose(true);
 			solver.setLogPrefix("# ");
+			System.out.println(solver.toString("# "));
+			// System.out.println("# Solver timeout: " + solver.getTimeout());
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new DependencyHelper(solver);
 			if (DEBUG_ENCODING) {
