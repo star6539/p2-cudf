@@ -20,5 +20,5 @@ version: 1
 package: C
 version: 2
 
-request: install B
+request: 
 upgrade: A
