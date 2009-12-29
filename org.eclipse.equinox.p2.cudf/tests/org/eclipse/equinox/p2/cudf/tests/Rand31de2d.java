@@ -46,7 +46,7 @@ public class Rand31de2d extends TestCase {
 	}
 
 	private QueryableArray slice(QueryableArray input, String id, Version version) {
-		return new Slicer(input).slice((InstallableUnit) input.query(new CapabilityQuery(new RequiredCapability(id, new VersionRange(version))), new Collector(), null).iterator().next());
+		return new Slicer(input).slice((InstallableUnit) input.query(new CapabilityQuery(new RequiredCapability(id, new VersionRange(version))), new Collector(), null).iterator().next(), null);
 	}
 
 	public void testValidateAll() {

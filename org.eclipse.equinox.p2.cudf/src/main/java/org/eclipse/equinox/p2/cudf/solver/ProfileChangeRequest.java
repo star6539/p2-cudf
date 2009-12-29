@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.NotRequirement;
+import java.util.*;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class ProfileChangeRequest {
@@ -72,5 +70,14 @@ public class ProfileChangeRequest {
 		iusToRemove = null;
 		iusToUpdate = null;
 		initialState = null;
+	}
+
+	public List getExtraRequirements() {
+		List result = new ArrayList(iusPreInstalled.size());
+		for (Iterator iterator = iusPreInstalled.iterator(); iterator.hasNext();) {
+			IRequiredCapability type = (IRequiredCapability) iterator.next();
+			result.add(new RequiredCapability(type.getName(), VersionRange.emptyRange, false));
+		}
+		return result;
 	}
 }

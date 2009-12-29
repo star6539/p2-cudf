@@ -34,7 +34,14 @@ public class Slicer {
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
-	public QueryableArray slice(InstallableUnit ius) {
+	private void handleExtraRequirements(List extraRequirements) {
+		if (extraRequirements != null)
+			for (Iterator iterator = extraRequirements.iterator(); iterator.hasNext();) {
+				expandRequirement(null, (IRequiredCapability) iterator.next());
+			}
+	}
+
+	public QueryableArray slice(InstallableUnit ius, List extraRequirements) {
 		try {
 			IProgressMonitor monitor = new NullProgressMonitor();
 			long start = 0;
@@ -45,6 +52,7 @@ public class Slicer {
 			considered = new HashSet(possibilites.getSize());
 			considered.add(ius);
 			toProcess = new LinkedList(considered);
+			handleExtraRequirements(extraRequirements);
 			while (!toProcess.isEmpty()) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);

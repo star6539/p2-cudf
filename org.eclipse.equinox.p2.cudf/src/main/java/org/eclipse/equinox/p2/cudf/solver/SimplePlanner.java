@@ -23,7 +23,7 @@ public class SimplePlanner {
 		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
 
 		Slicer slice = new Slicer(profile);
-		profile = slice.slice(updatedPlan);
+		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
 		if (PURGE)
 			profileChangeRequest.purge();
 		Projector projector = new Projector(profile);
