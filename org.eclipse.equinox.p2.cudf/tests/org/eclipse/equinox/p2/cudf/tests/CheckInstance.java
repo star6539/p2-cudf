@@ -35,7 +35,7 @@ public class CheckInstance extends TestCase {
 			if (!(result instanceof Collection))
 				fail("Can not resolve: " + inputFile);
 			if (req.getExpected() != -10)
-				assertEquals(req.getExpected(), ((Collection) result).size());
+				assertEquals(result.toString(), req.getExpected(), ((Collection) result).size());
 		} else {
 			if (result instanceof Collection)
 				fail("No solution was expected: " + inputFile);
