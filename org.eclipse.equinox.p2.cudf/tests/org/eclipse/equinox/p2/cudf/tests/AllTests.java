@@ -21,6 +21,8 @@ public class AllTests extends TestCase {
 		//		suite.addTestSuite(TestInstallUpdateConflict.class);
 		//		suite.addTestSuite(TestNegationInDepends.class);
 		//		suite.addTestSuite(TestNegationInRequest.class);
+		suite.addTestSuite(TestJosepExample.class);
+		suite.addTestSuite(TestPascalExample.class);
 		suite.addTestSuite(TestOptional.class);
 		suite.addTestSuite(TestRemoval.class);
 		return suite;
