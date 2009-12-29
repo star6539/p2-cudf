@@ -24,8 +24,11 @@ public class SimplePlanner {
 
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
-		if (PURGE)
+		if (PURGE) {
+			//			System.out.println("# Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
 			profileChangeRequest.purge();
+
+		}
 		Projector projector = new Projector(profile);
 		projector.encode(updatedPlan, optFunction);
 		IStatus s = projector.invokeSolver();
