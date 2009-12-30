@@ -412,10 +412,14 @@ public class Projector {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
 				}
+				if (TIMING)
+					Tracing.debug("Solver first solution found: " + (System.currentTimeMillis() - start) + "ms."); //$NON-NLS-1$
 				backToIU();
 				long stop = System.currentTimeMillis();
 				if (TIMING)
-					Tracing.debug("Solver solution found: " + (stop - start) + "ms."); //$NON-NLS-1$
+					Tracing.debug("Solver best solution decoded: " + (stop - start) + "ms."); //$NON-NLS-1$
+				System.out.println("# p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
+				dependencyHelper.getSolver().printStat(System.out, "# ");
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
