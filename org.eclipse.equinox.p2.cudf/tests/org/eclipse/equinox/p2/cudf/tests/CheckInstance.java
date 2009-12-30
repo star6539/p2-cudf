@@ -28,9 +28,10 @@ public class CheckInstance extends TestCase {
 	}
 
 	protected void runTest() throws Throwable {
+		System.out.println("# " + inputFile);
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 		SimplePlanner.explain = successExpected;
-		Object result = new SimplePlanner().getSolutionFor(req, "paranoid");
+		Object result = new SimplePlanner().getSolutionFor(req, "trendy");
 		if (successExpected) {
 			if (!(result instanceof Collection))
 				fail("Can not resolve: " + inputFile);
@@ -40,7 +41,8 @@ public class CheckInstance extends TestCase {
 			if (result instanceof Collection)
 				fail("No solution was expected: " + inputFile);
 		}
-
+		System.out.println();
+		System.out.println();
 	}
 
 	protected void tearDown() throws Exception {
