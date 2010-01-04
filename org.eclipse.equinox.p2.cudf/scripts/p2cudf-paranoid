@@ -1,2 +1,2 @@
 #!/bin/bash
-./p2cudf $1 paranoid $3
+./p2cudf $1 paranoid $2
