@@ -21,7 +21,7 @@ public class Main {
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
 
 	private static final void usage() {
-		System.out.println("Usage: p2cudf <cudfin> [(paranoid | trendy | p2)  [<cudfout>]] ");
+		System.out.println("Usage: p2cudf <cudfin> [(paranoid | trendy | p2)  [<cudfout> [<number>(s|c)]] ");
 	}
 
 	private static final void log(String str) {
@@ -66,7 +66,7 @@ public class Main {
 			log("Using standard output");
 		}
 
-		if (args.length == 3) {
+		if (args.length >= 3) {
 			String cudfout = args[2];
 			File output = new File(cudfout);
 			try {
@@ -77,8 +77,16 @@ public class Main {
 			}
 			log("Using output file " + cudfout);
 		}
+		String timeout = "default";
+		if (args.length == 4) {
+			timeout = args[3];
+			if (!timeout.endsWith("c") && !timeout.endsWith("s")) {
+				printFail("Timeout should be either <number>s (100s) or <number>c (100c)");
+				return;
+			}
+		}
 		log("Using criteria " + criteria);
-		printResults(invokeSolver(parseCUDF(input), criteria));
+		printResults(invokeSolver(parseCUDF(input), criteria, timeout));
 	}
 
 	private static void printResults(Object result) {
@@ -100,10 +108,10 @@ public class Main {
 		out.println(message);
 	}
 
-	private static Object invokeSolver(ProfileChangeRequest request, String criteria) {
+	private static Object invokeSolver(ProfileChangeRequest request, String criteria, String timeout) {
 		log("Solving ...");
 		long begin = System.currentTimeMillis();
-		Object result = new SimplePlanner().getSolutionFor(request, criteria);
+		Object result = new SimplePlanner().getSolutionFor(request, criteria, timeout);
 		long end = System.currentTimeMillis();
 		log("Solving done (" + (end - begin) / 1000.0 + "s).");
 		return result;

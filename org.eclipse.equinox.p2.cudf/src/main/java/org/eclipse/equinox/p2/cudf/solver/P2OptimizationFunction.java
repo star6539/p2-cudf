@@ -44,12 +44,12 @@ public class P2OptimizationFunction extends OptimizationFunction {
 				maxWeight = weight;
 		}
 
-		maxWeight = maxWeight.multiply(POWER);
-
-		// Weight the no-op variables beneath the abstract variables
-		for (Iterator iterator = noopVariables.values().iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
-		}
+		//		maxWeight = maxWeight.multiply(POWER);
+		//
+		//		// Weight the no-op variables beneath the abstract variables
+		//		for (Iterator iterator = noopVariables.values().iterator(); iterator.hasNext();) {
+		//			weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
+		//		}
 
 		maxWeight = maxWeight.multiply(POWER);
 

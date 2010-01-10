@@ -17,20 +17,17 @@ public class SimplePlanner {
 	public static boolean explain = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private final static boolean PURGE = true;
 
-	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction) {
+	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction, String timeout) {
 		QueryableArray profile = profileChangeRequest.getInitialState();
 
 		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
 
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
-		if (PURGE) {
-			//			System.out.println("# Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
+		if (PURGE)
 			profileChangeRequest.purge();
-
-		}
 		Projector projector = new Projector(profile);
-		projector.encode(updatedPlan, optFunction);
+		projector.encode(updatedPlan, optFunction, timeout);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
 			if (explain)

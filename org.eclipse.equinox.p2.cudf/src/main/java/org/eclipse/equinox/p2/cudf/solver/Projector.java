@@ -71,7 +71,7 @@ public class Projector {
 		}
 	}
 
-	public void encode(InstallableUnit entryPointIU, String optFunction) {
+	public void encode(InstallableUnit entryPointIU, String optFunction, String timeout) {
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
@@ -85,10 +85,20 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			if ("p2".equalsIgnoreCase(optFunction)) {
-				solver.setTimeoutOnConflicts(1000);
+			if ("default".equals(timeout)) {
+				if ("p2".equalsIgnoreCase(optFunction)) {
+					solver.setTimeoutOnConflicts(200);
+				} else {
+					solver.setTimeoutOnConflicts(2000);
+					// solver.setTimeout(270);
+				}
 			} else {
-				solver.setTimeout(270);
+				int number = Integer.valueOf(timeout.substring(0, timeout.length() - 1)).intValue();
+				if (timeout.endsWith("s")) {
+					solver.setTimeout(number);
+				} else {
+					solver.setTimeoutOnConflicts(number);
+				}
 			}
 			solver.setVerbose(true);
 			solver.setLogPrefix("# ");
@@ -120,6 +130,7 @@ public class Projector {
 
 			setObjectiveFunction(getOptimizationFactory(optFunction).createOptimizationFunction(entryPointIU));
 			if (TIMING) {
+				Tracing.debug("Objective function contains " + solver.getObjectiveFunction().getVars().size() + " literals");
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection completed: " + (stop - start) + "ms."); //$NON-NLS-1$
 			}
