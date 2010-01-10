@@ -28,6 +28,8 @@ public class CheckInstance extends TestCase {
 	}
 
 	protected void runTest() throws Throwable {
+		System.out.println();
+		System.out.println();
 		System.out.println("# " + inputFile);
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 		SimplePlanner.explain = successExpected;
@@ -41,8 +43,6 @@ public class CheckInstance extends TestCase {
 			if (result instanceof Collection)
 				fail("No solution was expected: " + inputFile);
 		}
-		System.out.println();
-		System.out.println();
 	}
 
 	protected void tearDown() throws Exception {
