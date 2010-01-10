@@ -244,6 +244,8 @@ public class Parser {
 				}
 			}
 		}
+		if (highestVersion == null)
+			return null;
 		return new RequiredCapability(req.getName(), new VersionRange(highestVersion, true, Version.maxVersion, true));
 	}
 
