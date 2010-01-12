@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Cdf
+Bundle-Name: Equinox p2 CUDF resolver
 Bundle-SymbolicName: org.eclipse.equinox.p2.cudf;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.junit;bundle-version="3.8.2";resolution:=optional,
