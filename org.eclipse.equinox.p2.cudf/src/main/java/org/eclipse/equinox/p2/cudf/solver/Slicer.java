@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
@@ -62,7 +63,7 @@ public class Slicer {
 			}
 			if (TIMING) {
 				long stop = System.currentTimeMillis();
-				System.out.println("# Slicing complete: " + (stop - start)); //$NON-NLS-1$
+				Log.println("# Slicing complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
@@ -109,7 +110,7 @@ public class Slicer {
 		if (validMatches == 0) {
 			if (req.isOptional()) {
 				if (TIMING)
-					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
+					Log.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
 			} else {
 				result.add(new Status(IStatus.WARNING, Main.PLUGIN_ID, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			}

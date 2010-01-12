@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
@@ -102,8 +103,8 @@ public class Projector {
 			}
 			solver.setVerbose(true);
 			solver.setLogPrefix("# ");
-			System.out.println(solver.toString("# "));
-			// System.out.println("# Solver timeout: " + solver.getTimeout());
+			Log.println(solver.toString("# "));
+			// Log.println("# Solver timeout: " + solver.getTimeout());
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new DependencyHelper(solver);
 			if (DEBUG_ENCODING) {
@@ -136,7 +137,7 @@ public class Projector {
 			}
 			if (DEBUG_ENCODING) {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
-				System.out.println(solver.toString());
+				Log.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
@@ -156,7 +157,7 @@ public class Projector {
 		} else {
 			throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
 		}
-		System.out.println("# Optimization function: " + function.getName());
+		Log.println("# Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
 		function.abstractVariables = abstractVariables;
@@ -429,7 +430,7 @@ public class Projector {
 				long stop = System.currentTimeMillis();
 				if (TIMING)
 					Tracing.debug("Solver best solution decoded: " + (stop - start) + "ms."); //$NON-NLS-1$
-				System.out.println("# p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
+				Log.println("# p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 				dependencyHelper.getSolver().printStat(System.out, "# ");
 			} else {
 				long stop = System.currentTimeMillis();
@@ -444,8 +445,6 @@ public class Projector {
 		} catch (Exception e) {
 			result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unexpected_problem, e));
 		}
-		if (DEBUG)
-			System.out.println();
 		return result;
 	}
 

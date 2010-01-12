@@ -17,88 +17,127 @@ import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
 import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
 
 public class Main {
-	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
+	private static final String VERBOSE = "-verbose";
+	private static final String OBJECTIVE = "-obj";
+	private static final String TIMEOUT = "-timeout";
+	private static final String SORT = "-sort";
 
 	private static final void usage() {
-		System.out.println("Usage: p2cudf <cudfin> [(paranoid | trendy | p2)  [<cudfout> [<number>(s|c)]] ");
-	}
-
-	private static final void log(String str) {
-		System.out.println("# " + str);
+		System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
+		System.out.println("-obj (paranoid | trendy | p2)     The objective function to be used to resolve the problem. p2 is used by default.");
+		System.out.println("-timeout <number>(c|s)            The time out after which the solver will stop. e.g. 10s stops after 10 seconds, 10c stops after 10 conflicts. Default is set to 200c for p2 and 2000c for other objective functions.");
+		System.out.println("-sort                             Sort the output.");
+		System.out.println("-verbose");
 	}
 
 	private static PrintStream out = System.out;
+
+	public static Options processArguments(String[] args) {
+		Options result = new Options();
+		if (args == null)
+			return result;
+
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equalsIgnoreCase(VERBOSE)) {
+				result.verbose = true;
+				continue;
+			}
+
+			if (args[i].equalsIgnoreCase(OBJECTIVE)) {
+				result.objective = args[++i];
+				continue;
+			}
+
+			if (args[i].equalsIgnoreCase(TIMEOUT)) {
+				result.timeout = args[++i];
+				continue;
+			}
+
+			if (args[i].equalsIgnoreCase(SORT)) {
+				result.sort = true;
+				continue;
+			}
+			if (result.input == null)
+				result.input = new File(args[i]);
+			else
+				result.output = new File(args[i]);
+		}
+		return result;
+	}
+
+	private static boolean validateOptions(Options options) {
+		boolean error = false;
+		if (!"paranoid".equalsIgnoreCase(options.objective) && !"trendy".equalsIgnoreCase(options.objective) && !"p2".equalsIgnoreCase(options.objective)) {
+			printFail("Wrong Optimization criteria: " + options.objective);
+			error = true;
+		}
+		if (options.input == null || !options.input.exists()) {
+			printFail("Missing input file.");
+			error = true;
+		}
+		if (options.timeout != null && !options.timeout.equals("default") && !options.timeout.endsWith("c") && !options.timeout.endsWith("s")) {
+			printFail("Timeout should be either <number>s (100s) or <number>c (100c)");
+			error = true;
+		}
+		return error;
+	}
 
 	public static void main(String[] args) {
 		if (args.length == 0) {
 			usage();
 			return;
 		}
-		Properties prop = System.getProperties();
-		String[] infoskeys = {"java.runtime.name", "java.vm.name", "java.vm.version", "java.vm.vendor", "sun.arch.data.model", "java.version", "os.name", "os.version", "os.arch"}; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$
-		for (int i = 0; i < infoskeys.length; i++) {
-			String key = infoskeys[i];
-			log(key + ((key.length() < 14) ? "\t\t" : "\t") + prop.getProperty(key)); //$NON-NLS-1$
-		}
-		Runtime runtime = Runtime.getRuntime();
-		log("Free memory \t\t" + runtime.freeMemory()); //$NON-NLS-1$
-		log("Max memory \t\t" + runtime.maxMemory()); //$NON-NLS-1$
-		log("Total memory \t\t" + runtime.totalMemory()); //$NON-NLS-1$
-		log("Number of processors \t" + runtime.availableProcessors()); //$NON-NLS-1$
+		Options options = processArguments(args);
+		validateOptions(options);
+		Log.verbose = options.verbose;
+		logOptions(options);
+		logVmDetails();
 
-		String cudfin = args[0];
-		File input = new File(cudfin);
-		if (!input.exists()) {
-			printFail("Input file does not exist.");
-			return;
-		}
-		log("Using input file " + cudfin);
-		String criteria = "paranoid";
-		if (args.length > 1) {
-			if (!"paranoid".equalsIgnoreCase(args[1]) && !"trendy".equalsIgnoreCase(args[1]) && !"p2".equalsIgnoreCase(args[1])) {
-				printFail("Wrong Optimization criteria: " + args[1]);
-				return;
-			}
-			criteria = args[1].toLowerCase();
-
-		} else {
-			log("Using standard output");
-		}
-
-		if (args.length >= 3) {
-			String cudfout = args[2];
-			File output = new File(cudfout);
+		if (options.output != null) {
 			try {
-				out = new PrintStream(new FileOutputStream(output));
+				out = new PrintStream(new FileOutputStream(options.output));
 			} catch (FileNotFoundException e) {
 				printFail("Output file does not exist.");
 				return;
 			}
-			log("Using output file " + cudfout);
 		}
-		String timeout = "default";
-		if (args.length == 4) {
-			timeout = args[3];
-			if (!timeout.endsWith("c") && !timeout.endsWith("s")) {
-				printFail("Timeout should be either <number>s (100s) or <number>c (100c)");
-				return;
-			}
-		}
-		log("Using criteria " + criteria);
-		printResults(invokeSolver(parseCUDF(input), criteria, timeout));
+		printResults(invokeSolver(parseCUDF(options.input), options.objective, options.timeout), options);
+		if (options.output != null)
+			out.close();
+		System.exit(0);
 	}
 
-	private static void printResults(Object result) {
+	private static void logOptions(Options options) {
+		if (!options.verbose)
+			return;
+		Log.println("Using input file " + options.input.getAbsolutePath());
+		Log.println("Using ouput file " + (options.output == null ? "STDOUT" : options.output.getAbsolutePath()));
+		Log.println("Objective function " + options.objective);
+		Log.println("Timeout " + options.timeout);
+	}
+
+	private static void logVmDetails() {
+		Properties prop = System.getProperties();
+		String[] infoskeys = {"java.runtime.name", "java.vm.name", "java.vm.version", "java.vm.vendor", "sun.arch.data.model", "java.version", "os.name", "os.version", "os.arch"}; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$
+		for (int i = 0; i < infoskeys.length; i++) {
+			String key = infoskeys[i];
+			Log.println((key + ((key.length() < 14) ? "\t\t" : "\t") + prop.getProperty(key))); //$NON-NLS-1$
+		}
+		Runtime runtime = Runtime.getRuntime();
+		Log.println(("Free memory \t\t" + runtime.freeMemory())); //$NON-NLS-1$
+		Log.println(("Max memory \t\t" + runtime.maxMemory())); //$NON-NLS-1$
+		Log.println(("Total memory \t\t" + runtime.totalMemory())); //$NON-NLS-1$
+		Log.println(("Number of processors \t" + runtime.availableProcessors())); //$NON-NLS-1$
+	}
+
+	private static void printResults(Object result, Options options) {
 		if (result instanceof Collection) {
-			printSolution((Collection) result);
-			System.exit(0);
+			printSolution((Collection) result, options);
 		} else if (result instanceof IStatus) {
 			IStatus status = (IStatus) result;
 			if (!status.isOK())
 				printFail("Resulting status not OK: " + status.getMessage());
-			System.exit(0);
-
 		}
 		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
 	}
@@ -109,27 +148,31 @@ public class Main {
 	}
 
 	private static Object invokeSolver(ProfileChangeRequest request, String criteria, String timeout) {
-		log("Solving ...");
+		Log.println("Solving ...");
 		long begin = System.currentTimeMillis();
 		Object result = new SimplePlanner().getSolutionFor(request, criteria, timeout);
 		long end = System.currentTimeMillis();
-		log("Solving done (" + (end - begin) / 1000.0 + "s).");
+		Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
 		return result;
 	}
 
 	private static ProfileChangeRequest parseCUDF(File file) {
-		log("Parsing ...");
+		Log.println("Parsing ...");
 		long begin = System.currentTimeMillis();
 		ProfileChangeRequest result = new Parser().parse(file);
 		long end = System.currentTimeMillis();
-		log("Parsing done (" + (end - begin) / 1000.0 + "s).");
+		Log.println(("Parsing done (" + (end - begin) / 1000.0 + "s)."));
 		return result;
 	}
 
-	private static void printSolution(Collection state) {
-		ArrayList l = new ArrayList(state);
-		log("Solution contains:" + l.size());
-		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
+	private static void printSolution(Collection state, Options options) {
+		if (options.sort) {
+			ArrayList tmp = new ArrayList(state);
+			Collections.sort(tmp);
+			state = tmp;
+		}
+		Log.println(("Solution contains:" + state.size()));
+		for (Iterator iterator = state.iterator(); iterator.hasNext();) {
 			InstallableUnit iu = (InstallableUnit) iterator.next();
 			out.println("package: " + iu.getId());
 			out.println("version: " + iu.getVersion().getMajor());

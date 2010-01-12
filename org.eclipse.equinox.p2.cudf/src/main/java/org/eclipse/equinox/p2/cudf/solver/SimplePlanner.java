@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.cudf.solver;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
@@ -24,14 +25,19 @@ public class SimplePlanner {
 
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
-		if (PURGE)
+		if (PURGE) {
+			//			Log.println("# Number of  packages after slice: " + profile.getSize());
+			//			if (profileChangeRequest.getInitialState().getSize() != 0)
+			//				Log.println("# Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
 			profileChangeRequest.purge();
+
+		}
 		Projector projector = new Projector(profile);
 		projector.encode(updatedPlan, optFunction, timeout);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
-			if (explain)
-				System.out.println("# " + projector.getExplanation());
+			//			if (explain)
+			//				Log.println("# " + projector.getExplanation());
 			return s;
 		}
 
@@ -48,6 +54,7 @@ public class SimplePlanner {
 		iud.setId(time);
 		iud.setVersion(new Version(0, 0, 0, time));
 		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
+		Log.println("# Request size: " + iud.getRequiredCapabilities().length);
 		return iud;
 	}
 }

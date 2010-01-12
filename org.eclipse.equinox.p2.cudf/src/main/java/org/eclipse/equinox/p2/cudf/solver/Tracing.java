@@ -13,7 +13,6 @@ public class Tracing {
 
 	public static void debug(String string) {
 		System.out.println("# " + string);
-
 	}
 
 }

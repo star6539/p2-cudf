@@ -126,7 +126,7 @@ public class Parser {
 				}
 		}
 		if (TIMING)
-			System.out.println("# Time to parse:" + (System.currentTimeMillis() - start));
+			Log.println("# Time to parse:" + (System.currentTimeMillis() - start));
 		if (DEBUG)
 			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 				debug((InstallableUnit) iter.next());
@@ -467,38 +467,38 @@ public class Parser {
 	private void debug(ProfileChangeRequest request) {
 		if (!DEBUG || request == null)
 			return;
-		//		System.out.println("\nProfile Change Request:");
+		//		Log.println("\nProfile Change Request:");
 		//		InstallableUnit[] toAdd = request.getAddedInstallableUnit();
 		//		if (toAdd == null || toAdd.length == 0) {
-		//			System.out.println("No installable units to add.");
+		//			Log.println("No installable units to add.");
 		//		} else {
 		//			for (int i = 0; i < toAdd.length; i++)
-		//				System.out.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
+		//				Log.println("Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion());
 		//		}
 		//		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
 		//		if (propsToAdd == null || propsToAdd.isEmpty()) {
-		//			System.out.println("No IU properties to add.");
+		//			Log.println("No IU properties to add.");
 		//		} else {
 		//			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
 		//				Object key = iter.next();
-		//				System.out.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
+		//				Log.println("Adding IU property: " + key + "->" + propsToAdd.get(key));
 		//			}
 		//		}
 		//
 		//		InstallableUnit[] toRemove = request.getRemovedInstallableUnits();
 		//		if (toRemove == null || toRemove.length == 0) {
-		//			System.out.println("No installable units to remove.");
+		//			Log.println("No installable units to remove.");
 		//		} else {
 		//			for (int i = 0; i < toRemove.length; i++)
-		//				System.out.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
+		//				Log.println("Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion());
 		//		}
 		//		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
 		//		if (propsToRemove == null || propsToRemove.isEmpty()) {
-		//			System.out.println("No IU properties to remove.");
+		//			Log.println("No IU properties to remove.");
 		//		} else {
 		//			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
 		//				Object key = iter.next();
-		//				System.out.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
+		//				Log.println("Removing IU property: " + key + "->" + propsToRemove.get(key));
 		//			}
 		//		}
 	}
@@ -507,13 +507,13 @@ public class Parser {
 	private void debug(InstallableUnit unit) {
 		if (!DEBUG)
 			return;
-		System.out.println("\nInstallableUnit: " + unit.getId());
-		System.out.println("Version: " + unit.getVersion());
+		Log.println("\nInstallableUnit: " + unit.getId());
+		Log.println("Version: " + unit.getVersion());
 		if (unit.isInstalled())
-			System.out.println("Installed: true");
+			Log.println("Installed: true");
 		IRequiredCapability[] reqs = unit.getRequiredCapabilities();
 		for (int i = 0; i < reqs.length; i++) {
-			System.out.println("Requirement: " + reqs[i]);
+			Log.println("Requirement: " + reqs[i]);
 		}
 	}
 
