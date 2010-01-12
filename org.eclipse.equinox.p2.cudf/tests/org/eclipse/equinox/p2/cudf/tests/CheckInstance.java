@@ -33,7 +33,7 @@ public class CheckInstance extends TestCase {
 		System.out.println("# " + inputFile);
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 		SimplePlanner.explain = successExpected;
-		Object result = new SimplePlanner().getSolutionFor(req, "trendy");
+		Object result = new SimplePlanner().getSolutionFor(req, "trendy", "1000c");
 		if (successExpected) {
 			if (!(result instanceof Collection))
 				fail("Can not resolve: " + inputFile);

@@ -16,7 +16,7 @@ public class TestJosepExample extends TestCase {
 	}
 
 	public void testParanoid() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid");
+		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c");
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 2, col.size());
@@ -30,7 +30,7 @@ public class TestJosepExample extends TestCase {
 	}
 
 	public void testP2() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "p2");
+		Object result = new SimplePlanner().getSolutionFor(pcr, "p2", "1000c");
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 2, col.size());
@@ -43,7 +43,7 @@ public class TestJosepExample extends TestCase {
 	}
 
 	public void testTrendy() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "trendy");
+		Object result = new SimplePlanner().getSolutionFor(pcr, "trendy", "1000c");
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 2, col.size());
