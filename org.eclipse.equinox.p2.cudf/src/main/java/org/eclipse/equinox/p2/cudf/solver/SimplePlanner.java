@@ -18,7 +18,7 @@ public class SimplePlanner {
 	public static boolean explain = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private final static boolean PURGE = true;
 
-	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, String optFunction, String timeout) {
+	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, SolverConfiguration configuration) {
 		QueryableArray profile = profileChangeRequest.getInitialState();
 
 		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
@@ -33,7 +33,7 @@ public class SimplePlanner {
 
 		}
 		Projector projector = new Projector(profile);
-		projector.encode(updatedPlan, optFunction, timeout);
+		projector.encode(updatedPlan, configuration);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
 			//			if (explain)

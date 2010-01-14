@@ -31,7 +31,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static final boolean DEBUG = false; //SET THIS TO FALSE FOR THE COMPETITION
-	private static final boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
+	private static final boolean TIMING = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private static final boolean DEBUG_ENCODING = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private static final boolean PURGE = true;
 
@@ -72,7 +72,7 @@ public class Projector {
 		}
 	}
 
-	public void encode(InstallableUnit entryPointIU, String optFunction, String timeout) {
+	public void encode(InstallableUnit entryPointIU, SolverConfiguration configuration) {
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
@@ -86,22 +86,22 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			if ("default".equals(timeout)) {
-				if ("p2".equalsIgnoreCase(optFunction)) {
+			if ("default".equals(configuration.timeout)) {
+				if ("p2".equalsIgnoreCase(configuration.objective)) {
 					solver.setTimeoutOnConflicts(200);
 				} else {
 					solver.setTimeoutOnConflicts(2000);
 					// solver.setTimeout(270);
 				}
 			} else {
-				int number = Integer.valueOf(timeout.substring(0, timeout.length() - 1)).intValue();
-				if (timeout.endsWith("s")) {
+				int number = Integer.valueOf(configuration.timeout.substring(0, configuration.timeout.length() - 1)).intValue();
+				if (configuration.timeout.endsWith("s")) {
 					solver.setTimeout(number);
 				} else {
 					solver.setTimeoutOnConflicts(number);
 				}
 			}
-			solver.setVerbose(true);
+			solver.setVerbose(configuration.verbose);
 			solver.setLogPrefix("# ");
 			Log.println(solver.toString("# "));
 			// Log.println("# Solver timeout: " + solver.getTimeout());
@@ -129,7 +129,7 @@ public class Projector {
 
 			createMustHave(entryPointIU);
 
-			setObjectiveFunction(getOptimizationFactory(optFunction).createOptimizationFunction(entryPointIU));
+			setObjectiveFunction(getOptimizationFactory(configuration.objective).createOptimizationFunction(entryPointIU));
 			if (TIMING) {
 				Tracing.debug("Objective function contains " + solver.getObjectiveFunction().getVars().size() + " literals");
 				long stop = System.currentTimeMillis();

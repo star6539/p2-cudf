@@ -13,8 +13,7 @@ import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
-import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
+import org.eclipse.equinox.p2.cudf.solver.*;
 
 public class Main {
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.cudf"; //$NON-NLS-1$
@@ -45,11 +44,19 @@ public class Main {
 			}
 
 			if (args[i].equalsIgnoreCase(OBJECTIVE)) {
+				if (args[i + 1].startsWith("-")) {
+					printFail("-obj should be followed by the name of the objective function.");
+					System.exit(1);
+				}
 				result.objective = args[++i];
 				continue;
 			}
 
 			if (args[i].equalsIgnoreCase(TIMEOUT)) {
+				if (args[i + 1].startsWith("-")) {
+					printFail("-" + TIMEOUT + " should be followed by a time in seconds or a number of conflicts.");
+					System.exit(1);
+				}
 				result.timeout = args[++i];
 				continue;
 			}
@@ -89,7 +96,9 @@ public class Main {
 			return;
 		}
 		Options options = processArguments(args);
-		validateOptions(options);
+		if (validateOptions(options)) {
+			System.exit(1);
+		}
 		Log.verbose = options.verbose;
 		logOptions(options);
 		logVmDetails();
@@ -102,10 +111,14 @@ public class Main {
 				return;
 			}
 		}
-		printResults(invokeSolver(parseCUDF(options.input), options.objective, options.timeout), options);
+		SolverConfiguration configuration = new SolverConfiguration();
+		configuration.verbose = options.verbose;
+		configuration.objective = options.objective;
+		configuration.timeout = options.timeout;
+		boolean result = printResults(invokeSolver(parseCUDF(options.input), configuration), options);
 		if (options.output != null)
 			out.close();
-		System.exit(0);
+		System.exit(result ? 0 : 1);
 	}
 
 	private static void logOptions(Options options) {
@@ -131,15 +144,17 @@ public class Main {
 		Log.println(("Number of processors \t" + runtime.availableProcessors())); //$NON-NLS-1$
 	}
 
-	private static void printResults(Object result, Options options) {
+	private static boolean printResults(Object result, Options options) {
 		if (result instanceof Collection) {
 			printSolution((Collection) result, options);
+			return true;
 		} else if (result instanceof IStatus) {
 			IStatus status = (IStatus) result;
 			if (!status.isOK())
 				printFail("Resulting status not OK: " + status.getMessage());
 		}
 		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
+		return false;
 	}
 
 	private static void printFail(String message) {
@@ -147,10 +162,10 @@ public class Main {
 		out.println(message);
 	}
 
-	private static Object invokeSolver(ProfileChangeRequest request, String criteria, String timeout) {
+	private static Object invokeSolver(ProfileChangeRequest request, SolverConfiguration configuration) {
 		Log.println("Solving ...");
 		long begin = System.currentTimeMillis();
-		Object result = new SimplePlanner().getSolutionFor(request, criteria, timeout);
+		Object result = new SimplePlanner().getSolutionFor(request, configuration);
 		long end = System.currentTimeMillis();
 		Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
 		return result;
