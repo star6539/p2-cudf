@@ -13,8 +13,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
-import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
-import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
+import org.eclipse.equinox.p2.cudf.solver.*;
 
 public class TestOptional extends TestCase {
 	private QueryableArray dataSet;
@@ -44,7 +43,7 @@ public class TestOptional extends TestCase {
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[3.0.0, 3.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[2.0.0, 2.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[1.0.0, 1.0.0]")));
-		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c");
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
 		assertEquals(false, result instanceof Collection);
 	}
 
@@ -53,7 +52,7 @@ public class TestOptional extends TestCase {
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[3.0.0, 3.0.0]"), true));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[2.0.0, 2.0.0]")));
 		pcr.addInstallableUnit(new RequiredCapability("A", new VersionRange("[1.0.0, 1.0.0]")));
-		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c");
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
 		assertEquals(true, result instanceof Collection);
 		assertEquals(2, ((Collection) result).size());
 	}

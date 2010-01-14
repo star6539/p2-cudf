@@ -13,8 +13,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
-import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
-import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
+import org.eclipse.equinox.p2.cudf.solver.*;
 
 public class TestInstall extends TestCase {
 	private QueryableArray dataSet;
@@ -41,7 +40,8 @@ public class TestInstall extends TestCase {
 	public void testRemoveEverything() {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(dataSet);
 		pcr.addInstallableUnit(new RequiredCapability("A", VersionRange.emptyRange));
-		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c");
+		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true);
+		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, configuration);
 		System.out.println(result);
 	}
 }

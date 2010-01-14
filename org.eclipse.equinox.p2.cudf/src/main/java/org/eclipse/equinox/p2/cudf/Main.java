@@ -111,11 +111,7 @@ public class Main {
 				return;
 			}
 		}
-		SolverConfiguration configuration = new SolverConfiguration();
-		configuration.verbose = options.verbose;
-		configuration.objective = options.objective;
-		configuration.timeout = options.timeout;
-		boolean result = printResults(invokeSolver(parseCUDF(options.input), configuration), options);
+		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose)), options);
 		if (options.output != null)
 			out.close();
 		System.exit(result ? 0 : 1);

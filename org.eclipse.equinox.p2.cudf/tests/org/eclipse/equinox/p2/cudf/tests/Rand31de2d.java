@@ -22,7 +22,8 @@ public class Rand31de2d extends TestCase {
 	public void testLibdmx1() {
 		ProfileChangeRequest pcr = new Parser().parse(new File("/Users/pascal/dev/competition/org.eclipse.equinox.p2.cudf/success/rand31de2d-sol.cudf"));
 		pcr.addInstallableUnit(new RequiredCapability("libtext-wrapi18n-perl", VersionRange.emptyRange));
-		if (new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c") instanceof Collection)
+		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true);
+		if (new SimplePlanner().getSolutionFor(pcr, configuration) instanceof Collection)
 			return;
 		String id = "libtext-wrapi18n-perl";
 		Version v = new Version(1);
@@ -35,7 +36,7 @@ public class Rand31de2d extends TestCase {
 			System.out.println("Trying out: " + iu.getId());
 			ProfileChangeRequest pcr2 = new ProfileChangeRequest(res);
 			pcr2.addInstallableUnit(new RequiredCapability(iu.getId(), new VersionRange(iu.getVersion())));
-			if (!(new SimplePlanner().getSolutionFor(pcr2, "paranoid", "1000c") instanceof Collection)) {
+			if (!(new SimplePlanner().getSolutionFor(pcr2, configuration) instanceof Collection)) {
 				System.err.println(iu);
 				id = iu.getId();
 				v = iu.getVersion();
@@ -56,7 +57,8 @@ public class Rand31de2d extends TestCase {
 			InstallableUnit iu = (InstallableUnit) iterator.next();
 			ProfileChangeRequest pcr2 = new ProfileChangeRequest(allIUs);
 			pcr2.addInstallableUnit(new RequiredCapability(iu.getId(), new VersionRange(iu.getVersion())));
-			if (!(new SimplePlanner().getSolutionFor(pcr2, "paranoid", "1000c") instanceof Collection))
+			SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true);
+			if (!(new SimplePlanner().getSolutionFor(pcr2, configuration) instanceof Collection))
 				System.err.println(iu);
 		}
 	}

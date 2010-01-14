@@ -5,8 +5,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.cudf.Parser;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
-import org.eclipse.equinox.p2.cudf.solver.SimplePlanner;
+import org.eclipse.equinox.p2.cudf.solver.*;
 
 public class TestPascalExample extends TestCase {
 	private ProfileChangeRequest pcr = null;
@@ -16,7 +15,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testParanoid() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "paranoid", "1000c");
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());
@@ -27,7 +26,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testP2() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "p2", "1000c");
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("p2", "1000c", true));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());
@@ -38,7 +37,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testTrendy() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, "trendy", "1000c");
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("trendy", "1000c", true));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());
