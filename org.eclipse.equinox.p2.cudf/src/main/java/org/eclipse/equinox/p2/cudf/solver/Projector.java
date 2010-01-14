@@ -31,7 +31,7 @@ import org.sat4j.specs.*;
  */
 public class Projector {
 	private static final boolean DEBUG = false; //SET THIS TO FALSE FOR THE COMPETITION
-	private static final boolean TIMING = true; //SET THIS TO FALSE FOR THE COMPETITION
+	private static final boolean TIMING = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private static final boolean DEBUG_ENCODING = false; //SET THIS TO FALSE FOR THE COMPETITION
 	private static final boolean PURGE = true;
 

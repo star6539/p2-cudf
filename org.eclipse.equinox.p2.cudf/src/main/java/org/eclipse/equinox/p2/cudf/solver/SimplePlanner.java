@@ -35,8 +35,9 @@ public class SimplePlanner {
 		projector.encode(updatedPlan, configuration);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
-			if (configuration.explain)
-				Log.println(projector.getExplanation().toString());
+			if (configuration.explain) {
+				System.out.println("#" + projector.getExplanation().toString());
+			}
 			return s;
 		}
 
