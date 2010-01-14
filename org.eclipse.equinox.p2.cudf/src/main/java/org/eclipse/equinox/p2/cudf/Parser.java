@@ -294,19 +294,11 @@ public class Parser {
 	 * If there is more than one entry for a particular package, the extra entries are included
 	 * in the extraData field of the Tuple. 
 	 */
-	private Map createPackageList(String line) {
-		Map result = new HashMap();
-		for (StringTokenizer outer = new StringTokenizer(line, ","); outer.hasMoreTokens();) {
-			Tuple tuple = new Tuple(outer.nextToken());
-			Tuple existing = (Tuple) result.get(tuple.name);
-			if (existing == null) {
-				result.put(tuple.name, tuple);
-			} else {
-				Set others = existing.extraData;
-				if (others == null)
-					existing.extraData = new HashSet();
-				existing.extraData.add(tuple);
-			}
+	private List createPackageList(String line) {
+		StringTokenizer tokenizer = new StringTokenizer(line, ",");
+		List result = new ArrayList(tokenizer.countTokens());
+		while (tokenizer.hasMoreElements()) {
+			result.add(new Tuple(tokenizer.nextToken()));
 		}
 		return result;
 	}
@@ -452,12 +444,11 @@ public class Parser {
 
 	private void handleProvides(String line) {
 		line = line.substring("provides: ".length());
-		Map pkgs = createPackageList(line);
+		List pkgs = createPackageList(line);
 		IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
 		int i = 0;
-		for (Iterator iter = pkgs.keySet().iterator(); iter.hasNext();) {
-			Tuple tuple = (Tuple) pkgs.get(iter.next());
-			providedCapabilities[i++] = createProvidedCapability(tuple);
+		for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
+			providedCapabilities[i++] = createProvidedCapability((Tuple) iter.next());
 		}
 		providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true));
 		currentIU.setCapabilities(providedCapabilities);
