@@ -12,5 +12,6 @@ public class SolverConfiguration {
 		if (timeout != null)
 			this.timeout = timeout;
 		this.verbose = verbose;
+		this.explain = explain;
 	}
 }

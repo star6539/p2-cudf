@@ -160,7 +160,7 @@ public class Projector {
 		} else {
 			throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
 		}
-		Log.println("# Optimization function: " + function.getName());
+		Log.println(" Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
 		function.abstractVariables = abstractVariables;
@@ -423,6 +423,7 @@ public class Projector {
 		if (TIMING)
 			Tracing.debug("Invoking solver ..."); //$NON-NLS-1$
 		try {
+			Log.println("p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 			if (dependencyHelper.hasASolution(assumptions)) {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
@@ -433,7 +434,6 @@ public class Projector {
 				long stop = System.currentTimeMillis();
 				if (TIMING)
 					Tracing.debug("Solver best solution decoded: " + (stop - start) + "ms."); //$NON-NLS-1$
-				Log.println("# p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 				if (configuration.verbose)
 					dependencyHelper.getSolver().printStat(System.out, "# ");
 			} else {

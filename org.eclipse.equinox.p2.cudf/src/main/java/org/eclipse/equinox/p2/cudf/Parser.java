@@ -126,7 +126,7 @@ public class Parser {
 				}
 		}
 		if (TIMING)
-			Log.println("# Time to parse:" + (System.currentTimeMillis() - start));
+			Log.println("Time to parse:" + (System.currentTimeMillis() - start));
 		if (DEBUG)
 			for (Iterator iter = allIUs.iterator(); iter.hasNext();)
 				debug((InstallableUnit) iter.next());
