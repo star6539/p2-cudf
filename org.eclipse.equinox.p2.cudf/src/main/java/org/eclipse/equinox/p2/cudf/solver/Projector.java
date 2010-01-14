@@ -50,6 +50,8 @@ public class Projector {
 
 	private InstallableUnit entryPoint;
 
+	private SolverConfiguration configuration;
+
 	static class AbstractVariable {
 		public String toString() {
 			return "AbstractVariable: " + hashCode(); //$NON-NLS-1$
@@ -72,7 +74,8 @@ public class Projector {
 		}
 	}
 
-	public void encode(InstallableUnit entryPointIU, SolverConfiguration configuration) {
+	public void encode(InstallableUnit entryPointIU, SolverConfiguration conf) {
+		this.configuration = conf;
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
@@ -431,7 +434,8 @@ public class Projector {
 				if (TIMING)
 					Tracing.debug("Solver best solution decoded: " + (stop - start) + "ms."); //$NON-NLS-1$
 				Log.println("# p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
-				dependencyHelper.getSolver().printStat(System.out, "# ");
+				if (configuration.verbose)
+					dependencyHelper.getSolver().printStat(System.out, "# ");
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
