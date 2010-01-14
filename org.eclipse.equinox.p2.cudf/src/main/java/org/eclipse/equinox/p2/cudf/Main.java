@@ -21,6 +21,7 @@ public class Main {
 	private static final String OBJECTIVE = "-obj";
 	private static final String TIMEOUT = "-timeout";
 	private static final String SORT = "-sort";
+	private static final String EXPLAIN = "-explain";
 
 	private static final void usage() {
 		System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
@@ -40,6 +41,11 @@ public class Main {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equalsIgnoreCase(VERBOSE)) {
 				result.verbose = true;
+				continue;
+			}
+
+			if (args[i].equalsIgnoreCase(EXPLAIN)) {
+				result.explain = true;
 				continue;
 			}
 
@@ -111,7 +117,7 @@ public class Main {
 				return;
 			}
 		}
-		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose)), options);
+		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain)), options);
 		if (options.output != null)
 			out.close();
 		System.exit(result ? 0 : 1);

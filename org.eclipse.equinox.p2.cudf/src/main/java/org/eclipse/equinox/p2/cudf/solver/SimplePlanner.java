@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
-	public static boolean explain = false; //SET THIS TO FALSE FOR THE COMPETITION
+	public static boolean explain = true; //SET THIS TO FALSE FOR THE COMPETITION
 	private final static boolean PURGE = true;
 
 	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, SolverConfiguration configuration) {
@@ -26,9 +26,9 @@ public class SimplePlanner {
 		Slicer slice = new Slicer(profile);
 		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
 		if (PURGE) {
-			//			Log.println("# Number of  packages after slice: " + profile.getSize());
-			//			if (profileChangeRequest.getInitialState().getSize() != 0)
-			//				Log.println("# Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
+			Log.println("# Number of  packages after slice: " + profile.getSize());
+			if (profileChangeRequest.getInitialState().getSize() != 0)
+				Log.println("# Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
 			profileChangeRequest.purge();
 
 		}
@@ -36,8 +36,10 @@ public class SimplePlanner {
 		projector.encode(updatedPlan, configuration);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
-			//			if (explain)
-			//				Log.println("# " + projector.getExplanation());
+			if (explain) {
+				if (configuration.explain)
+					Log.println("# " + projector.getExplanation());
+			}
 			return s;
 		}
 

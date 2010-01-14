@@ -1,7 +1,7 @@
 package org.eclipse.equinox.p2.cudf;
 
 public class Log {
-	static boolean verbose = false;
+	static boolean verbose = true;
 
 	public static void println(String s) {
 		if (verbose)

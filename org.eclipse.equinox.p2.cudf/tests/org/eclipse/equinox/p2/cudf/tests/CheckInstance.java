@@ -32,7 +32,7 @@ public class CheckInstance extends TestCase {
 		System.out.println("# " + inputFile);
 		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
 		SimplePlanner.explain = successExpected;
-		SolverConfiguration configuration = new SolverConfiguration("trendy", "1000c", true);
+		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true, false);
 		Object result = new SimplePlanner().getSolutionFor(req, configuration);
 		if (successExpected) {
 			if (!(result instanceof Collection))

@@ -15,7 +15,7 @@ public class TestInstallRequestExample extends TestCase {
 	}
 
 	public void testParanoid() {
-		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true);
+		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true, false);
 		Object result = new SimplePlanner().getSolutionFor(pcr, configuration);
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
@@ -26,7 +26,7 @@ public class TestInstallRequestExample extends TestCase {
 	}
 
 	public void testP2() {
-		SolverConfiguration configuration = new SolverConfiguration("p2", "1000c", true);
+		SolverConfiguration configuration = new SolverConfiguration("p2", "1000c", true, false);
 		Object result = new SimplePlanner().getSolutionFor(pcr, configuration);
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
@@ -37,7 +37,7 @@ public class TestInstallRequestExample extends TestCase {
 	}
 
 	public void testTrendy() {
-		SolverConfiguration configuration = new SolverConfiguration("trndy", "1000c", true);
+		SolverConfiguration configuration = new SolverConfiguration("trndy", "1000c", true, false);
 		Object result = new SimplePlanner().getSolutionFor(pcr, configuration);
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;

@@ -47,7 +47,7 @@ public class TestRemoval extends TestCase {
 	public void testRemoveEverything() {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(dataSet);
 		pcr.removeInstallableUnit(new RequiredCapability("A", VersionRange.emptyRange));
-		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
+		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true, false));
 		assertEquals(0, result.size());
 	}
 
@@ -55,7 +55,7 @@ public class TestRemoval extends TestCase {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(dataSet);
 		pcr.removeInstallableUnit(new RequiredCapability("A", new VersionRange("[3.0.0, 3.0.0]")));
 		pcr.setPreInstalledIUs(alreadyInstalled);
-		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
+		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true, false));
 		assertEquals(2, result.size());
 	}
 

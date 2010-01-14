@@ -40,7 +40,7 @@ public class TestInstall extends TestCase {
 	public void testRemoveEverything() {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(dataSet);
 		pcr.addInstallableUnit(new RequiredCapability("A", VersionRange.emptyRange));
-		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true);
+		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true, false);
 		Collection result = (Collection) new SimplePlanner().getSolutionFor(pcr, configuration);
 		System.out.println(result);
 	}

@@ -15,7 +15,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testParanoid() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true));
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("paranoid", "1000c", true, false));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());
@@ -26,7 +26,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testP2() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("p2", "1000c", true));
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("p2", "1000c", true, false));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());
@@ -37,7 +37,7 @@ public class TestPascalExample extends TestCase {
 	}
 
 	public void testTrendy() {
-		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("trendy", "1000c", true));
+		Object result = new SimplePlanner().getSolutionFor(pcr, new SolverConfiguration("trendy", "1000c", true, false));
 		if (result instanceof Collection) {
 			Collection col = (Collection) result;
 			assertEquals(col.toString(), 1, col.size());

@@ -10,5 +10,6 @@ public class Options {
 	public File input;
 	public File output;
 	public boolean sort = false;
+	public boolean explain = false;
 
 }

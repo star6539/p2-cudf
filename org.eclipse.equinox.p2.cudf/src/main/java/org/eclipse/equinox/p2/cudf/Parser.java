@@ -19,7 +19,7 @@ public class Parser {
 
 	private static final boolean FORCE_QUERY = false; //TO SET TO FALSE FOR COMPETITION
 	private static final boolean DEBUG = false; //TO SET TO FALSE FOR COMPETITION
-	private static final boolean TIMING = false; //TO SET TO FALSE FOR COMPETITION
+	private static final boolean TIMING = true; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnit currentIU = null;
 	private ProfileChangeRequest currentRequest = null;
 	private List allIUs = new ArrayList();
