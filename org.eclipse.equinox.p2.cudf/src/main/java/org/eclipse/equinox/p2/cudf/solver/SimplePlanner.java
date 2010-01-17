@@ -23,7 +23,7 @@ public class SimplePlanner {
 		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
 
 		Slicer slice = new Slicer(profile);
-		profile = slice.slice(updatedPlan, profileChangeRequest.getExtraRequirements());
+		profile = slice.slice(updatedPlan, configuration.objective.equals("p2") ? null : profileChangeRequest.getExtraRequirements());
 		if (PURGE) {
 			Log.println("Number of  packages after slice: " + profile.getSize());
 			if (profileChangeRequest.getInitialState().getSize() != 0)
