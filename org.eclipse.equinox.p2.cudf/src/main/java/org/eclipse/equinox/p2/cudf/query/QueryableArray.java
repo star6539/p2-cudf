@@ -32,6 +32,10 @@ public class QueryableArray implements IQueryable {
 		dataSet = Arrays.asList(ius);
 	}
 
+	public List getList() {
+		return dataSet;
+	}
+
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		if (query instanceof CapabilityQuery)
 			return queryCapability((CapabilityQuery) query, collector, monitor);
@@ -140,7 +144,7 @@ public class QueryableArray implements IQueryable {
 		else
 			return null;
 	}
-	
+
 	public int getSize() {
 		return dataSet.size();
 	}

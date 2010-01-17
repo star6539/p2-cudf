@@ -9,10 +9,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import org.eclipse.equinox.p2.cudf.Log;
+
 public class Tracing {
 
 	public static void debug(String string) {
-		System.out.println("# " + string);
+		Log.println("# " + string);
 	}
 
 }
