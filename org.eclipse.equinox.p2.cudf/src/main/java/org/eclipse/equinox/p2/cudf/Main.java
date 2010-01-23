@@ -26,22 +26,25 @@ public class Main {
 	protected static transient Thread shutdownHook = new Thread() {
 		public void run() {
 			if (planner != null) {
-				planner.stopSolver();
-				long end = System.currentTimeMillis();
-				Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
-				Collection col = planner.getBestSolutionFoundSoFar();
-				if (col.isEmpty()) {
-					printFail("Cannot find a solution");
-					if (options.explain) {
-						out.println(planner.getExplanation());
-					}
+				if (options.encoding) {
+					out.println(planner.getSolver().toString());
 				} else {
-					printSolution(col, options);
+					planner.stopSolver();
+					long end = System.currentTimeMillis();
+					Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
+					Collection col = planner.getBestSolutionFoundSoFar();
+					if (col.isEmpty()) {
+						printFail("Cannot find a solution");
+						if (options.explain) {
+							out.println(planner.getExplanation());
+						}
+					} else {
+						printSolution(col, options);
+					}
+					if (options.output != null)
+						out.close();
 				}
-				if (options.output != null)
-					out.close();
 			}
-
 		}
 	};
 
@@ -152,7 +155,7 @@ public class Main {
 				return;
 			}
 		}
-		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain)), options);
+		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain, options.encoding)), options);
 		System.exit(result ? 0 : 1);
 	}
 

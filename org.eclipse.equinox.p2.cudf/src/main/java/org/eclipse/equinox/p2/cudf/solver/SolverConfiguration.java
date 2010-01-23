@@ -5,13 +5,15 @@ public class SolverConfiguration {
 	public String objective = "p2";
 	public String timeout = "default";
 	public boolean explain = false;
+	public boolean encoding = false;
 
-	public SolverConfiguration(String objective, String timeout, boolean verbose, boolean explain) {
+	public SolverConfiguration(String objective, String timeout, boolean verbose, boolean explain, boolean encoding) {
 		if (objective != null)
 			this.objective = objective;
 		if (timeout != null)
 			this.timeout = timeout;
 		this.verbose = verbose;
 		this.explain = explain;
+		this.encoding = encoding;
 	}
 }

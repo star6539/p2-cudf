@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.sat4j.pb.IPBSolver;
 
 public class SimplePlanner {
 	private final static boolean PURGE = true;
@@ -38,7 +39,6 @@ public class SimplePlanner {
 		if (s.getSeverity() == IStatus.ERROR) {
 			return s;
 		}
-
 		return projector.extractSolution();
 	}
 
@@ -68,5 +68,9 @@ public class SimplePlanner {
 
 	public Set getExplanation() {
 		return projector.getExplanation();
+	}
+
+	public IPBSolver getSolver() {
+		return projector.dependencyHelper.getSolver();
 	}
 }

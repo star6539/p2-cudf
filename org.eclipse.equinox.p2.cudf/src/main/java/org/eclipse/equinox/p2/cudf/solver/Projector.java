@@ -86,6 +86,8 @@ public class Projector {
 			IPBSolver solver;
 			if (DEBUG_ENCODING) {
 				solver = new UserFriendlyPBStringSolver(); //.newOPBStringSolver();
+			} else if (conf.encoding) {
+				solver = SolverFactory.newOPBStringSolver();
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
@@ -109,7 +111,7 @@ public class Projector {
 			Log.println(solver.toString("# "));
 			// Log.println("# Solver timeout: " + solver.getTimeout());
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
-			dependencyHelper = new DependencyHelper(solver);
+			dependencyHelper = new DependencyHelper(solver, conf.explain);
 			if (DEBUG_ENCODING) {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 			}
