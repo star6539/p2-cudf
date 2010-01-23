@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.metadata.*;
@@ -16,6 +16,7 @@ import org.eclipse.equinox.p2.cudf.query.QueryableArray;
 
 public class SimplePlanner {
 	private final static boolean PURGE = true;
+	private Projector projector;
 
 	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, SolverConfiguration configuration) {
 		QueryableArray profile = profileChangeRequest.getInitialState();
@@ -31,13 +32,10 @@ public class SimplePlanner {
 			profileChangeRequest.purge();
 
 		}
-		Projector projector = new Projector(profile);
+		projector = new Projector(profile);
 		projector.encode(updatedPlan, configuration);
 		IStatus s = projector.invokeSolver();
 		if (s.getSeverity() == IStatus.ERROR) {
-			if (configuration.explain) {
-				System.out.println("#" + projector.getExplanation().toString());
-			}
 			return s;
 		}
 
@@ -56,5 +54,19 @@ public class SimplePlanner {
 		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
 		Log.println("Request size: " + iud.getRequiredCapabilities().length);
 		return iud;
+	}
+
+	public void stopSolver() {
+		if (projector != null) {
+			projector.stopSolver();
+		}
+	}
+
+	public Collection getBestSolutionFoundSoFar() {
+		return projector.getBestSolutionFoundSoFar();
+	}
+
+	public Set getExplanation() {
+		return projector.getExplanation();
 	}
 }

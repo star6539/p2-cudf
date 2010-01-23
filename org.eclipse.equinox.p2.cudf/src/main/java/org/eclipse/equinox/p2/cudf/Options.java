@@ -11,4 +11,5 @@ public class Options {
 	public File input;
 	public File output;
 	public boolean sort = false;
+	boolean encoding = false;
 }

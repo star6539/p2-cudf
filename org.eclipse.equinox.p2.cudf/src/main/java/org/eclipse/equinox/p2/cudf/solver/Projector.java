@@ -509,4 +509,12 @@ public class Projector {
 		return job.getExplanationResult();
 	}
 
+	public void stopSolver() {
+		dependencyHelper.stopSolver();
+	}
+
+	public Collection getBestSolutionFoundSoFar() {
+		backToIU();
+		return extractSolution();
+	}
 }

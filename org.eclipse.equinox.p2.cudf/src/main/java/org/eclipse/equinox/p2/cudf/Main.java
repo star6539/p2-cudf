@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.cudf;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.*;
 
@@ -22,6 +21,33 @@ public class Main {
 	private static final String TIMEOUT = "-timeout";
 	private static final String SORT = "-sort";
 	private static final String EXPLAIN = "-explain";
+	private static final String ENCODING = "-encoding";
+
+	protected static transient Thread shutdownHook = new Thread() {
+		public void run() {
+			if (planner != null) {
+				planner.stopSolver();
+				long end = System.currentTimeMillis();
+				Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
+				Collection col = planner.getBestSolutionFoundSoFar();
+				if (col.isEmpty()) {
+					printFail("Cannot find a solution");
+					if (options.explain) {
+						out.println(planner.getExplanation());
+					}
+				} else {
+					printSolution(col, options);
+				}
+				if (options.output != null)
+					out.close();
+			}
+
+		}
+	};
+
+	static {
+		Runtime.getRuntime().addShutdownHook(shutdownHook);
+	}
 
 	private static final void usage() {
 		System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
@@ -29,10 +55,14 @@ public class Main {
 		System.out.println("-timeout <number>(c|s)            The time out after which the solver will stop. e.g. 10s stops after 10 seconds, 10c stops after 10 conflicts. Default is set to 200c for p2 and 2000c for other objective functions.");
 		System.out.println("-sort                             Sort the output.");
 		System.out.println("-explain                          Provides one reason of the unability to fullfil the request");
-		System.out.println("-verbose");
+		System.out.println("-verbose                          Display details on the platform, internal SAT solver and steps reached");
+		System.out.println("-encoding                         Output the original cudf request into an OPB problem");
 	}
 
 	private static PrintStream out = System.out;
+	private static SimplePlanner planner;
+	private static Options options;
+	private static long begin;
 
 	public static Options processArguments(String[] args) {
 		Options result = new Options();
@@ -45,6 +75,10 @@ public class Main {
 				continue;
 			}
 
+			if (args[i].equalsIgnoreCase(ENCODING)) {
+				result.encoding = true;
+				continue;
+			}
 			if (args[i].equalsIgnoreCase(EXPLAIN)) {
 				result.explain = true;
 				continue;
@@ -102,7 +136,7 @@ public class Main {
 			usage();
 			return;
 		}
-		Options options = processArguments(args);
+		options = processArguments(args);
 		if (validateOptions(options)) {
 			System.exit(1);
 		}
@@ -119,8 +153,6 @@ public class Main {
 			}
 		}
 		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain)), options);
-		if (options.output != null)
-			out.close();
 		System.exit(result ? 0 : 1);
 	}
 
@@ -149,16 +181,16 @@ public class Main {
 
 	private static boolean printResults(Object result, Options options) {
 		if (result instanceof Collection) {
-			printSolution((Collection) result, options);
+			// printSolution((Collection) result, options);
 			return true;
-		} else if (result instanceof IStatus) {
-			IStatus status = (IStatus) result;
-			if (!status.isOK()) {
-				printFail("Resulting status not OK: " + status.getMessage());
-				return false;
-			}
+			//		} else if (result instanceof IStatus) {
+			//			IStatus status = (IStatus) result;
+			//			if (!status.isOK()) {
+			//				printFail("Resulting status not OK: " + status.getMessage());
+			//				return false;
+			//			}
 		}
-		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
+		//		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
 		return false;
 	}
 
@@ -169,10 +201,9 @@ public class Main {
 
 	private static Object invokeSolver(ProfileChangeRequest request, SolverConfiguration configuration) {
 		Log.println("Solving ...");
-		long begin = System.currentTimeMillis();
-		Object result = new SimplePlanner().getSolutionFor(request, configuration);
-		long end = System.currentTimeMillis();
-		Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
+		begin = System.currentTimeMillis();
+		planner = new SimplePlanner();
+		Object result = planner.getSolutionFor(request, configuration);
 		return result;
 	}
 
