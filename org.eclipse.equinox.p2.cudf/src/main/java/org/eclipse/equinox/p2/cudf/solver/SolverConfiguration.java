@@ -16,4 +16,8 @@ public class SolverConfiguration {
 		this.explain = explain;
 		this.encoding = encoding;
 	}
+
+	public SolverConfiguration(String objective, String timeout, boolean verbose, boolean explain) {
+		this(objective, timeout, verbose, explain, false);
+	}
 }
