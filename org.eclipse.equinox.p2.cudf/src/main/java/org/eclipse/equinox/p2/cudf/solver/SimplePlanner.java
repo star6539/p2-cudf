@@ -73,4 +73,8 @@ public class SimplePlanner {
 	public IPBSolver getSolver() {
 		return projector.dependencyHelper.getSolver();
 	}
+
+	public Map getMappingToDomain() {
+		return projector.dependencyHelper.getMappingToDomain();
+	}
 }
