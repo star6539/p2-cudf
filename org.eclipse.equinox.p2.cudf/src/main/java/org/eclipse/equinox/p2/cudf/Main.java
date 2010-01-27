@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.cudf;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.*;
 
@@ -28,6 +29,28 @@ public class Main {
 			if (planner != null) {
 				if (options.encoding) {
 					out.println(planner.getSolver().toString());
+					PrintWriter outMapping = null;
+					try {
+						String mappingFilename;
+						if (options.output == null) {
+							mappingFilename = "stdout.mapping";
+						} else {
+							mappingFilename = options.output + ".mapping";
+						}
+						outMapping = new PrintWriter(new FileWriter(mappingFilename));
+						Map mapping = planner.getMappingToDomain();
+						Set entries = mapping.entrySet();
+						for (Iterator it = entries.iterator(); it.hasNext();) {
+							Map.Entry entry = (Entry) it.next();
+							outMapping.println(entry.getKey() + "=" + entry.getValue());
+						}
+					} catch (IOException e) {
+						System.out.println("# cannot write mapping: " + e.getMessage());
+					} finally {
+						if (outMapping != null) {
+							outMapping.close();
+						}
+					}
 				} else {
 					planner.stopSolver();
 					long end = System.currentTimeMillis();
