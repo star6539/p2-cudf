@@ -61,7 +61,7 @@ public class Projector {
 	public Projector(QueryableArray q) {
 		picker = q;
 		noopVariables = new HashMap();
-		slice = new TwoTierMap();
+		slice = new TwoTierMap(q.getSize(),TwoTierMap.POLICY_BOTH_MAPS_PRESERVE_ORDERING);
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
@@ -89,7 +89,7 @@ public class Projector {
 			} else if (conf.encoding) {
 				solver = SolverFactory.newOPBStringSolver();
 			} else {
-				solver = SolverFactory.newEclipseP2();
+				solver = new OptToPBSATAdapter(new PseudoOptDecorator(SolverFactory.newDefault()));// SolverFactory.newEclipseP2();
 			}
 			if ("default".equals(configuration.timeout)) {
 				if ("p2".equalsIgnoreCase(configuration.objective)) {
@@ -116,14 +116,12 @@ public class Projector {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 			}
 			Iterator iusToEncode = picker.iterator();
-			if (DEBUG) {
-				List iusToOrder = new ArrayList();
+				List iusToOrder = new ArrayList(picker.getSize());
 				while (iusToEncode.hasNext()) {
 					iusToOrder.add(iusToEncode.next());
 				}
 				Collections.sort(iusToOrder);
 				iusToEncode = iusToOrder.iterator();
-			}
 			while (iusToEncode.hasNext()) {
 				InstallableUnit iuToEncode = (InstallableUnit) iusToEncode.next();
 				if (iuToEncode != entryPointIU) {
