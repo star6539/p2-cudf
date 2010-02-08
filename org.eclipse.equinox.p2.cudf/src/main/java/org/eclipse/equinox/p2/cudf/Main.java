@@ -175,16 +175,17 @@ public class Main {
 				out = new PrintStream(new FileOutputStream(options.output));
 			} catch (FileNotFoundException e) {
 				printFail("Output file does not exist.");
-				return;
+				System.exit(1);
 			}
 		}
-		boolean result = printResults(invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain, options.encoding)), options);
-		System.exit(result ? 0 : 1);
+		invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain, options.encoding));
+		System.exit(0);
 	}
 
 	private static void logOptions(Options options) {
 		if (!options.verbose)
 			return;
+		Log.println("Solver launched on " + new Date());
 		Log.println("Using input file " + options.input.getAbsolutePath());
 		Log.println("Using ouput file " + (options.output == null ? "STDOUT" : options.output.getAbsolutePath()));
 		Log.println("Objective function " + options.objective);
@@ -203,21 +204,6 @@ public class Main {
 		Log.println(("Max memory \t\t" + runtime.maxMemory())); //$NON-NLS-1$
 		Log.println(("Total memory \t\t" + runtime.totalMemory())); //$NON-NLS-1$
 		Log.println(("Number of processors \t" + runtime.availableProcessors())); //$NON-NLS-1$
-	}
-
-	private static boolean printResults(Object result, Options options) {
-		if (result instanceof Collection) {
-			// printSolution((Collection) result, options);
-			return true;
-			//		} else if (result instanceof IStatus) {
-			//			IStatus status = (IStatus) result;
-			//			if (!status.isOK()) {
-			//				printFail("Resulting status not OK: " + status.getMessage());
-			//				return false;
-			//			}
-		}
-		//		printFail("Result not correct type. Expected Collection but was: " + result.getClass().getName());
-		return false;
 	}
 
 	private static void printFail(String message) {
