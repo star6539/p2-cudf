@@ -51,17 +51,28 @@ public class Projector {
 	private InstallableUnit entryPoint;
 
 	private SolverConfiguration configuration;
+	private OptimizationFunction optFunction;
 
 	static class AbstractVariable {
+		private String str;
+
+		AbstractVariable() {
+			// no value for str
+		}
+
+		AbstractVariable(String str) {
+			this.str = str;
+		}
+
 		public String toString() {
-			return "AbstractVariable: " + hashCode(); //$NON-NLS-1$
+			return "AbstractVariable: " + (str == null ? "" + hashCode() : str); //$NON-NLS-1$
 		}
 	}
 
 	public Projector(QueryableArray q) {
 		picker = q;
 		noopVariables = new HashMap();
-		slice = new TwoTierMap(q.getSize(),TwoTierMap.POLICY_BOTH_MAPS_PRESERVE_ORDERING);
+		slice = new TwoTierMap(q.getSize(), TwoTierMap.POLICY_BOTH_MAPS_PRESERVE_ORDERING);
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
@@ -77,6 +88,7 @@ public class Projector {
 	public void encode(InstallableUnit entryPointIU, SolverConfiguration conf) {
 		this.configuration = conf;
 		this.entryPoint = entryPointIU;
+		solution = null;
 		try {
 			long start = 0;
 			if (TIMING) {
@@ -116,12 +128,12 @@ public class Projector {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 			}
 			Iterator iusToEncode = picker.iterator();
-				List iusToOrder = new ArrayList(picker.getSize());
-				while (iusToEncode.hasNext()) {
-					iusToOrder.add(iusToEncode.next());
-				}
-				Collections.sort(iusToOrder);
-				iusToEncode = iusToOrder.iterator();
+			List iusToOrder = new ArrayList(picker.getSize());
+			while (iusToEncode.hasNext()) {
+				iusToOrder.add(iusToEncode.next());
+			}
+			Collections.sort(iusToOrder);
+			iusToEncode = iusToOrder.iterator();
 			while (iusToEncode.hasNext()) {
 				InstallableUnit iuToEncode = (InstallableUnit) iusToEncode.next();
 				if (iuToEncode != entryPointIU) {
@@ -132,7 +144,8 @@ public class Projector {
 
 			createMustHave(entryPointIU);
 
-			setObjectiveFunction(getOptimizationFactory(configuration.objective).createOptimizationFunction(entryPointIU));
+			optFunction = getOptimizationFactory(configuration.objective);
+			setObjectiveFunction(optFunction.createOptimizationFunction(entryPointIU));
 			if (TIMING) {
 				Tracing.debug("Objective function contains " + solver.getObjectiveFunction().getVars().size() + " literals");
 				long stop = System.currentTimeMillis();
@@ -454,6 +467,8 @@ public class Projector {
 
 	private void backToIU() {
 		solution = new ArrayList();
+		if (configuration.verbose)
+			optFunction.printSolutionValue();
 		IVec sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
 			Object var = i.next();
@@ -514,7 +529,9 @@ public class Projector {
 	}
 
 	public Collection getBestSolutionFoundSoFar() {
-		backToIU();
+		if (solution == null) {
+			backToIU();
+		}
 		return extractSolution();
 	}
 }

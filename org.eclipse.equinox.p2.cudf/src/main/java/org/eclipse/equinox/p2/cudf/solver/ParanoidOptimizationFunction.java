@@ -28,8 +28,8 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
 		int weight = slice.size() + 1;
-		removed(weightedObjects, weight);
-		changed(weightedObjects, 1);
+		removed(weightedObjects, weight, metaIu);
+		changed(weightedObjects, 1, metaIu);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}
@@ -38,5 +38,26 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 
 	public String getName() {
 		return "misc 2010 paranoid";
+	}
+
+	public void printSolutionValue() {
+		int removed = 0, changed = 0;
+		List proof = new ArrayList();
+		for (int i = 0; i < removalVariables.size(); i++) {
+			Object var = removalVariables.get(i);
+			if (dependencyHelper.getBooleanValueFor(var)) {
+				removed++;
+				proof.add(var);
+			}
+		}
+		for (int i = 0; i < changeVariables.size(); i++) {
+			Object var = changeVariables.get(i);
+			if (dependencyHelper.getBooleanValueFor(var)) {
+				changed++;
+				proof.add(var);
+			}
+		}
+		System.out.println("# Paranoid criteria value: -" + removed + ", -" + changed);
+		System.out.println("# Proof: " + proof);
 	}
 }

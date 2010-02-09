@@ -21,13 +21,21 @@ public abstract class OptimizationFunction {
 	protected List abstractVariables;
 	protected QueryableArray picker;
 	protected DependencyHelper dependencyHelper;
+	protected List removalVariables = new ArrayList();
+	protected List changeVariables = new ArrayList();
+	protected List nouptodateVariables = new ArrayList();
+	protected List newVariables = new ArrayList();
 
 	public abstract List createOptimizationFunction(InstallableUnit metaIu);
 
-	protected void removed(List weightedObjects, int weight) {
+	public abstract void printSolutionValue();
+
+	protected void removed(List weightedObjects, int weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
 			Collection versions = ((HashMap) entry.getValue()).values();
 			boolean installed = false;
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
@@ -36,7 +44,8 @@ public abstract class OptimizationFunction {
 			}
 			if (installed) {
 				try {
-					Projector.AbstractVariable abs = new Projector.AbstractVariable();
+					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
+					removalVariables.add(abs);
 					// a => not iuv1 and ... and  not iuvn
 					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 						dependencyHelper.implication(new Object[] {abs}).impliesNot(iterator2.next()).named("OPT1");
@@ -56,10 +65,12 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void changed(List weightedObjects, int weight) {
+	protected void changed(List weightedObjects, int weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
 			Collection versions = ((HashMap) entry.getValue()).values();
 			List changed = new ArrayList(versions.size());
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
@@ -71,7 +82,8 @@ public abstract class OptimizationFunction {
 				}
 			}
 			try {
-				Projector.AbstractVariable abs = new Projector.AbstractVariable();
+				Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
+				changeVariables.add(abs);
 				// a <= iuv1 or not iuv2 or ... or  not iuvn
 				for (Iterator iterator2 = changed.iterator(); iterator2.hasNext();) {
 					dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT3");
@@ -88,10 +100,12 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void uptodate(List weightedObjects, int weight) {
+	protected void uptodate(List weightedObjects, int weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
 			HashMap versions = (HashMap) entry.getValue();
 			List toSort = new ArrayList(versions.values());
 			Collections.sort(toSort, Collections.reverseOrder());
@@ -99,23 +113,28 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void notuptodate(List weightedObjects, int weight) {
+	protected void notuptodate(List weightedObjects, int weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
 			HashMap versions = (HashMap) entry.getValue();
 			List toSort = new ArrayList(versions.values());
 			Collections.sort(toSort, Collections.reverseOrder());
 			for (int i = 1; i < toSort.size(); i++) {
 				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
+				nouptodateVariables.add(toSort.get(i));
 			}
 		}
 	}
 
-	protected void niou(List weightedObjects, int weight) {
+	protected void niou(List weightedObjects, int weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
 			Collection versions = ((HashMap) entry.getValue()).values();
 			boolean installed = false;
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
@@ -124,7 +143,8 @@ public abstract class OptimizationFunction {
 			}
 			if (!installed) {
 				try {
-					Projector.AbstractVariable abs = new Projector.AbstractVariable();
+					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
+					newVariables.add(abs);
 					// a => iuv1 or ... or iuvn
 					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 						dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT2");

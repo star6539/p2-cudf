@@ -88,4 +88,9 @@ public class P2OptimizationFunction extends OptimizationFunction {
 	public String getName() {
 		return "p2";
 	}
+
+	public void printSolutionValue() {
+		// nothing to do
+
+	}
 }

@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 //    minimizing the number of extra packages installed;
 //    the optimization criterion is
 //
-//         lex( min #removed, max #uptodate, min #new)
+//         lex( min #removed, min #notuptodate, min #new)
 //
 //    Hence, two solutions S1 and S2 will be compared as follows:
 //
@@ -38,9 +38,9 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				continue;
 
 		}
-		removed(weightedObjects, weight * weight);
-		notuptodate(weightedObjects, weight);
-		niou(weightedObjects, 1);
+		removed(weightedObjects, weight * weight, metaIu);
+		notuptodate(weightedObjects, weight, metaIu);
+		niou(weightedObjects, 1, metaIu);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}
@@ -49,5 +49,33 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 
 	public String getName() {
 		return "misc 2010, trendy";
+	}
+
+	public void printSolutionValue() {
+		int removed = 0, notUpToDate = 0, niou = 0;
+		List proof = new ArrayList();
+		for (int i = 0; i < removalVariables.size(); i++) {
+			Object var = removalVariables.get(i);
+			if (dependencyHelper.getBooleanValueFor(var)) {
+				removed++;
+				proof.add(var);
+			}
+		}
+		for (int i = 0; i < nouptodateVariables.size(); i++) {
+			Object var = nouptodateVariables.get(i);
+			if (dependencyHelper.getBooleanValueFor(var)) {
+				notUpToDate++;
+				proof.add(var);
+			}
+		}
+		for (int i = 0; i < newVariables.size(); i++) {
+			Object var = newVariables.get(i);
+			if (dependencyHelper.getBooleanValueFor(var)) {
+				niou++;
+				proof.add(var);
+			}
+		}
+		System.out.println("# Trendy criteria value: -" + removed + ", -" + notUpToDate + ", -" + niou);
+		System.out.println("# Proof: " + proof);
 	}
 }
