@@ -122,10 +122,24 @@ public abstract class OptimizationFunction {
 			HashMap versions = (HashMap) entry.getValue();
 			List toSort = new ArrayList(versions.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			for (int i = 1; i < toSort.size(); i++) {
-				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
-				nouptodateVariables.add(toSort.get(i));
+			Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
+			Object notlatest = dependencyHelper.not(toSort.get(0));
+			try {
+				dependencyHelper.implication(new Object[] {abs}).implies(notlatest).named("OPT4");
+				Object[] clause = new Object[toSort.size()];
+				toSort.toArray(clause);
+				clause[0] = dependencyHelper.not(abs);
+				dependencyHelper.clause("OPT4", clause);
+				for (int i = 1; i < toSort.size(); i++) {
+					dependencyHelper.implication(new Object[] {notlatest, toSort.get(i)}).implies(abs).named("OPT4");
+				}
+			} catch (ContradictionException e) {
+				// should never happen
+				e.printStackTrace();
 			}
+
+			weightedObjects.add(WeightedObject.newWO(abs, weight));
+			nouptodateVariables.add(abs);
 		}
 	}
 
