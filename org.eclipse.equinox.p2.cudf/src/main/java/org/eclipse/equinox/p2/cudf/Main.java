@@ -53,6 +53,11 @@ public class Main {
 					}
 				} else {
 					planner.stopSolver();
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						// wait for the solver to stop properly.
+					}
 					long end = System.currentTimeMillis();
 					Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
 					Collection col = planner.getBestSolutionFoundSoFar();
