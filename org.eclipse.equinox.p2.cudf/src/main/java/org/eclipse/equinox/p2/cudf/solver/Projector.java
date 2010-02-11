@@ -436,7 +436,7 @@ public class Projector {
 		if (TIMING)
 			Tracing.debug("Invoking solver ..."); //$NON-NLS-1$
 		try {
-			Log.println("p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
+			Log.println(" p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 			if (dependencyHelper.hasASolution(assumptions)) {
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
