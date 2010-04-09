@@ -152,7 +152,6 @@ public class Projector {
 				Tracing.debug("Projection completed: " + (stop - start) + "ms."); //$NON-NLS-1$
 			}
 			if (DEBUG_ENCODING) {
-				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 				Log.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
@@ -205,8 +204,8 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(iu + "=1"); //$NON-NLS-1$
 		}
-		// dependencyHelper.setTrue(variable, new Explanation.IUToInstall(iu));
-		assumptions.add(iu);
+		dependencyHelper.setTrue(iu, new Explanation.IUToInstall(iu));
+		// assumptions.add(iu);
 	}
 
 	private void createNegation(InstallableUnit iu, IRequiredCapability req) throws ContradictionException {
