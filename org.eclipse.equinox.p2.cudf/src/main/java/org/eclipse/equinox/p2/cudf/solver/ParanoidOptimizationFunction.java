@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
@@ -27,9 +28,9 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
 
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
-		int weight = slice.size() + 1;
+		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		removed(weightedObjects, weight, metaIu);
-		changed(weightedObjects, 1, metaIu);
+		changed(weightedObjects, BigInteger.ONE, metaIu);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}

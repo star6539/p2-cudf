@@ -53,6 +53,8 @@ public class Projector {
 	private SolverConfiguration configuration;
 	private OptimizationFunction optFunction;
 
+	private List optionalPairs;
+
 	static class AbstractVariable {
 		private String str;
 
@@ -76,6 +78,7 @@ public class Projector {
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
+		optionalPairs = new ArrayList();
 	}
 
 	private void purgeIU(InstallableUnit iu) {
@@ -178,6 +181,7 @@ public class Projector {
 		function.abstractVariables = abstractVariables;
 		function.picker = picker;
 		function.dependencyHelper = dependencyHelper;
+		function.optionalPairs = optionalPairs;
 		return function;
 	}
 
@@ -254,6 +258,7 @@ public class Projector {
 			if (!matches.isEmpty()) {
 				AbstractVariable abs = getAbstractVariable();
 				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+				optionalPairs.add(new Pair(iu, abs));
 				optionalAbstractRequirements.add(abs);
 			}
 		}

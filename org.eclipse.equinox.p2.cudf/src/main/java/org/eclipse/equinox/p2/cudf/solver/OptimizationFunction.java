@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
@@ -25,12 +26,14 @@ public abstract class OptimizationFunction {
 	protected List changeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
+	protected List optionalVariables = new ArrayList();
+	protected List optionalPairs;
 
 	public abstract List createOptimizationFunction(InstallableUnit metaIu);
 
 	public abstract void printSolutionValue();
 
-	protected void removed(List weightedObjects, int weight, InstallableUnit metaIu) {
+	protected void removed(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -65,7 +68,7 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void changed(List weightedObjects, int weight, InstallableUnit metaIu) {
+	protected void changed(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -100,7 +103,7 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void uptodate(List weightedObjects, int weight, InstallableUnit metaIu) {
+	protected void uptodate(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -113,7 +116,7 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void notuptodate(List weightedObjects, int weight, InstallableUnit metaIu) {
+	protected void notuptodate(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -143,7 +146,7 @@ public abstract class OptimizationFunction {
 		}
 	}
 
-	protected void niou(List weightedObjects, int weight, InstallableUnit metaIu) {
+	protected void niou(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
@@ -177,5 +180,25 @@ public abstract class OptimizationFunction {
 		}
 	}
 
+	protected void optional(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		for (Iterator it = optionalPairs.iterator(); it.hasNext();) {
+			Pair pair = (Pair) it.next();
+			// create a new variable y <=> iu * abs
+			Projector.AbstractVariable yvar = new Projector.AbstractVariable(pair.left.toString() + "*" + pair.right.toString());
+			optionalVariables.add(yvar);
+			try {
+				dependencyHelper.implication(new Object[] {yvar}).implies(pair.left).named("OPT3");
+				dependencyHelper.implication(new Object[] {yvar}).implies(pair.right).named("OPT3");
+				dependencyHelper.implication(new Object[] {pair.left, pair.right}).implies(yvar).named("OPT3");
+				weightedObjects.add(WeightedObject.newWO(dependencyHelper.not(yvar), weight));
+			} catch (ContradictionException e) {
+				// should not happen
+				e.printStackTrace();
+			}
+
+		}
+	}
+
 	public abstract String getName();
+
 }

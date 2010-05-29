@@ -111,6 +111,8 @@ public class Parser {
 					handleProvides(line);
 				} else if (line.startsWith("expected: ")) {
 					handleExpected(line);
+				} else if (line.startsWith("recommends: ")) {
+					handleRecommends(line);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -151,7 +153,7 @@ public class Parser {
 	private void validateAndAddIU() {
 		if (currentIU == null)
 			return;
-		// For a package stanze, the id and version are the only mandatory elements
+		// For a package stanza, the id and version are the only mandatory elements
 		if (currentIU.getId() == null)
 			throw new IllegalStateException("Malformed \'package\' stanza. No package element found.");
 		if (currentIU.getVersion() == null)
@@ -179,7 +181,7 @@ public class Parser {
 
 	private void handleInstall(String line) {
 		line = line.substring("install: ".length());
-		List installRequest = createRequires(line, true);
+		List installRequest = createRequires(line, true, false);
 		for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
 			currentRequest.addInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -194,7 +196,7 @@ public class Parser {
 
 	private void handleRemove(String line) {
 		line = line.substring("remove: ".length());
-		List removeRequest = createRequires(line, true);
+		List removeRequest = createRequires(line, true, false);
 		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
 			currentRequest.removeInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -207,7 +209,7 @@ public class Parser {
 
 	private void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		List updateRequest = createRequires(line, true);
+		List updateRequest = createRequires(line, true, false);
 		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
 			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
 			currentRequest.upgradeInstallableUnit(requirement);
@@ -257,14 +259,19 @@ public class Parser {
 	}
 
 	private void handleDepends(String line) {
-		mergeRequirements(createRequires(line.substring("depends: ".length()), true));
+		mergeRequirements(createRequires(line.substring("depends: ".length()), true, false));
+	}
+
+	private void handleRecommends(String line) {
+		Log.println("Handling " + line);
+		mergeRequirements(createRequires(line.substring("recommends: ".length()), true, true));
 	}
 
 	/*
 	 * Conflicts are like depends except NOT'd.
 	 */
 	private void handleConflicts(String line) {
-		List reqs = createRequires(line.substring("conflicts: ".length()), false);
+		List reqs = createRequires(line.substring("conflicts: ".length()), false, false);
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iter.next();
@@ -303,13 +310,13 @@ public class Parser {
 		return result;
 	}
 
-	private List createRequires(String line, boolean expandNotEquals) {
+	private List createRequires(String line, boolean expandNotEquals, boolean optional) {
 		ArrayList ands = new ArrayList();
 		StringTokenizer s = new StringTokenizer(line, ",");
 		while (s.hasMoreElements()) {
 			StringTokenizer subTokenizer = new StringTokenizer(s.nextToken(), "|");
 			if (subTokenizer.countTokens() == 1) { //This token does not contain a |.
-				Object o = createRequire(subTokenizer.nextToken(), expandNotEquals);
+				Object o = createRequire(subTokenizer.nextToken(), expandNotEquals, optional);
 				if (o instanceof IRequiredCapability)
 					ands.add(o);
 				else
@@ -320,23 +327,23 @@ public class Parser {
 			IRequiredCapability[] ors = new RequiredCapability[subTokenizer.countTokens()];
 			int i = 0;
 			while (subTokenizer.hasMoreElements()) {
-				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken(), expandNotEquals);
+				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken(), expandNotEquals, optional);
 			}
 			ands.add(new ORRequirement(ors));
 		}
 		return ands;
 	}
 
-	private Object createRequire(String nextToken, boolean expandNotEquals) {
+	private Object createRequire(String nextToken, boolean expandNotEquals, boolean optional) {
 		//>, >=, =, <, <=, !=
 		StringTokenizer expressionTokens = new StringTokenizer(nextToken.trim(), ">=!<", true);
 		int tokenCount = expressionTokens.countTokens();
 
 		if (tokenCount == 1) // a
-			return new RequiredCapability(expressionTokens.nextToken().trim(), VersionRange.emptyRange);
+			return new RequiredCapability(expressionTokens.nextToken().trim(), VersionRange.emptyRange, optional);
 
 		if (tokenCount == 3) // a > 2, a < 2, a = 2
-			return new RequiredCapability(expressionTokens.nextToken().trim(), createRange3(expressionTokens.nextToken(), expressionTokens.nextToken()));
+			return new RequiredCapability(expressionTokens.nextToken().trim(), createRange3(expressionTokens.nextToken(), expressionTokens.nextToken()), optional);
 
 		if (tokenCount == 4) { //a >= 2, a <=2, a != 2
 			String id = expressionTokens.nextToken().trim();
@@ -344,15 +351,15 @@ public class Parser {
 			expressionTokens.nextToken();//skip second char of the sign
 			String version = expressionTokens.nextToken().trim();
 			if (!("!".equals(signFirstChar))) // a >= 2 a <= 2
-				return new RequiredCapability(id, createRange4(signFirstChar, version));
+				return new RequiredCapability(id, createRange4(signFirstChar, version), optional);
 
 			//a != 2
 			if (expandNotEquals) {
-				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version)), new RequiredCapability(id, createRange3(">", version))});
+				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version), optional), new RequiredCapability(id, createRange3(">", version), optional)});
 			}
 			ArrayList res = new ArrayList(2);
-			res.add(new RequiredCapability(id, createRange3("<", version)));
-			res.add(new RequiredCapability(id, createRange3(">", version)));
+			res.add(new RequiredCapability(id, createRange3("<", version), optional));
+			res.add(new RequiredCapability(id, createRange3(">", version), optional));
 			return res;
 		}
 		return null;

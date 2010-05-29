@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
@@ -31,16 +32,11 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
 		Collection ius = slice.values();
-		int weight = slice.size() + 1;
-		for (Iterator it = ius.iterator(); it.hasNext();) {
-			InstallableUnit iu = (InstallableUnit) it.next();
-			if (iu == metaIu)
-				continue;
-
-		}
-		removed(weightedObjects, weight * weight, metaIu);
-		notuptodate(weightedObjects, weight, metaIu);
-		niou(weightedObjects, 1, metaIu);
+		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
+		removed(weightedObjects, weight.multiply(weight).multiply(weight), metaIu);
+		notuptodate(weightedObjects, weight.multiply(weight), metaIu);
+		optional(weightedObjects, weight, metaIu);
+		niou(weightedObjects, BigInteger.ONE, metaIu);
 		if (!weightedObjects.isEmpty()) {
 			return weightedObjects;
 		}
@@ -52,7 +48,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 	}
 
 	public void printSolutionValue() {
-		int removed = 0, notUpToDate = 0, niou = 0;
+		int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
 		List proof = new ArrayList();
 		for (int i = 0; i < removalVariables.size(); i++) {
 			Object var = removalVariables.get(i);
@@ -68,6 +64,13 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
+		for (int i = 0; i < optionalVariables.size(); i++) {
+			Object var = optionalVariables.get(i);
+			if (!dependencyHelper.getBooleanValueFor(var)) {
+				recommends++;
+				proof.add(var);
+			}
+		}
 		for (int i = 0; i < newVariables.size(); i++) {
 			Object var = newVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
@@ -75,7 +78,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
-		System.out.println("# Trendy criteria value: -" + removed + ", -" + notUpToDate + ", -" + niou);
+		System.out.println("# Trendy criteria value: -" + removed + ", -" + notUpToDate + ", -" + recommends + ", -" + niou);
 		System.out.println("# Proof: " + proof);
 	}
 }
