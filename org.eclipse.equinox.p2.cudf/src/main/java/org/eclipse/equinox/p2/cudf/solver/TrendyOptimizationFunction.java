@@ -29,7 +29,10 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
 public class TrendyOptimizationFunction extends OptimizationFunction {
 
+	private InstallableUnit metaIu;
+
 	public List createOptimizationFunction(InstallableUnit metaIu) {
+		this.metaIu = metaIu;
 		List weightedObjects = new ArrayList();
 		Collection ius = slice.values();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
@@ -71,6 +74,8 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
+		recommends -= numberOfInstalledIUs(metaIu);
+
 		for (int i = 0; i < newVariables.size(); i++) {
 			Object var = newVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {

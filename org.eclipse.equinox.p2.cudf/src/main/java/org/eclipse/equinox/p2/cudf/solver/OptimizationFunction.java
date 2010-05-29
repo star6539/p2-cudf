@@ -199,6 +199,24 @@ public abstract class OptimizationFunction {
 		}
 	}
 
+	protected int numberOfInstalledIUs(InstallableUnit metaIu) {
+		List installed = new ArrayList(slice.size());
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iuv = (InstallableUnit) iterator2.next();
+				if (iuv.isInstalled()) {
+					installed.add(iuv);
+				}
+			}
+		}
+		return installed.size();
+	}
+
 	public abstract String getName();
 
 }
