@@ -53,6 +53,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 	public void printSolutionValue() {
 		int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
 		List proof = new ArrayList();
+
 		for (int i = 0; i < removalVariables.size(); i++) {
 			Object var = removalVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
@@ -60,6 +61,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
+
 		for (int i = 0; i < nouptodateVariables.size(); i++) {
 			Object var = nouptodateVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
@@ -67,6 +69,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
+
 		for (int i = 0; i < optionalVariables.size(); i++) {
 			Object var = optionalVariables.get(i);
 			if (!dependencyHelper.getBooleanValueFor(var)) {
@@ -74,7 +77,6 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
-		recommends -= numberOfInstalledIUs(metaIu);
 
 		for (int i = 0; i < newVariables.size(); i++) {
 			Object var = newVariables.get(i);

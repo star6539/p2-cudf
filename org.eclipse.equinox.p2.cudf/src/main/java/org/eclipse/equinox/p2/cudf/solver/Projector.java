@@ -258,7 +258,9 @@ public class Projector {
 			if (!matches.isEmpty()) {
 				AbstractVariable abs = getAbstractVariable();
 				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
-				optionalPairs.add(new Pair(iu, abs));
+				if (!isRootIu) {
+					optionalPairs.add(new Pair(iu, abs));
+				}
 				optionalAbstractRequirements.add(abs);
 			}
 		}
