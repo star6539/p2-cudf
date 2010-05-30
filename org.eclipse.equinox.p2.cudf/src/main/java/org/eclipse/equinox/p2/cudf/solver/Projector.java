@@ -431,8 +431,11 @@ public class Projector {
 		}
 	}
 
+	private boolean isSatisfiable;
+
 	public IStatus invokeSolver() {
 		purge();
+		isSatisfiable = false;
 		if (result.getSeverity() == IStatus.ERROR)
 			return result;
 		// CNF filename is given on the command line
@@ -442,6 +445,7 @@ public class Projector {
 		try {
 			Log.println(" p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 			if (dependencyHelper.hasASolution(assumptions)) {
+				isSatisfiable = true;
 				if (DEBUG) {
 					Tracing.debug("Satisfiable !"); //$NON-NLS-1$
 				}
@@ -471,9 +475,13 @@ public class Projector {
 
 	private void backToIU() {
 		solution = new ArrayList();
-		if (configuration.verbose)
-			optFunction.printSolutionValue();
+		if (!isSatisfiable)
+			return;
 		IVec sat4jSolution = dependencyHelper.getSolution();
+		if (sat4jSolution.isEmpty())
+			return;
+		if (configuration.verbose && optFunction != null)
+			optFunction.printSolutionValue();
 		for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
 			Object var = i.next();
 			if (var instanceof InstallableUnit) {
