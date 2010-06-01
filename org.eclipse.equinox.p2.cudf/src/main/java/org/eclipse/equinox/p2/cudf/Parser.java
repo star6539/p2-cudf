@@ -255,7 +255,14 @@ public class Parser {
 	 * Convert the version string to a version object and set it on the IU
 	 */
 	private void handleVersion(String line) {
-		currentIU.setVersion(new Version(line.substring("version: ".length())));
+		currentIU.setVersion(new Version(cudfPosintToInt(line.substring("version: ".length()))));
+	}
+
+	private String cudfPosintToInt(String posint) {
+		if (posint.startsWith("+")) {
+			return posint.substring(1).trim();
+		}
+		return posint.trim();
 	}
 
 	private void handleDepends(String line) {
@@ -313,10 +320,15 @@ public class Parser {
 	private List createRequires(String line, boolean expandNotEquals, boolean optional) {
 		ArrayList ands = new ArrayList();
 		StringTokenizer s = new StringTokenizer(line, ",");
+		String subtoken;
 		while (s.hasMoreElements()) {
 			StringTokenizer subTokenizer = new StringTokenizer(s.nextToken(), "|");
 			if (subTokenizer.countTokens() == 1) { //This token does not contain a |.
-				Object o = createRequire(subTokenizer.nextToken(), expandNotEquals, optional);
+				subtoken = subTokenizer.nextToken().trim();
+				// FIXME should be handled differently in depends and conflicts.
+				if ("true!".equals(subtoken) || "false!".equals(subtoken))
+					continue;
+				Object o = createRequire(subtoken, expandNotEquals, optional);
 				if (o instanceof IRequiredCapability)
 					ands.add(o);
 				else
@@ -366,7 +378,7 @@ public class Parser {
 	}
 
 	private VersionRange createRange3(String sign, String versionAsString) {
-		int version = Integer.decode(versionAsString.trim()).intValue();
+		int version = Integer.decode(cudfPosintToInt(versionAsString)).intValue();
 		sign = sign.trim();
 		if (">".equals(sign))
 			return new VersionRange(new Version(version), false, Version.maxVersion, false);
@@ -378,7 +390,7 @@ public class Parser {
 	}
 
 	private VersionRange createRange4(String sign, String versionAsString) {
-		int version = Integer.decode(versionAsString.trim()).intValue();
+		int version = Integer.decode(cudfPosintToInt(versionAsString)).intValue();
 		if (">".equals(sign)) //THIS IS FOR >=
 			return new VersionRange(new Version(version), true, Version.maxVersion, false);
 		if ("<".equals(sign)) //THIS IS FOR <=
