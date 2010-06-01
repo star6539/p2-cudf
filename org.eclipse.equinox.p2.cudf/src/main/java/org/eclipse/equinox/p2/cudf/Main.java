@@ -183,7 +183,11 @@ public class Main {
 				System.exit(1);
 			}
 		}
-		invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain, options.encoding));
+		try {
+			invokeSolver(parseCUDF(options.input), new SolverConfiguration(options.objective, options.timeout, options.verbose, options.explain, options.encoding));
+		} catch (Exception ex) {
+			printFail(ex.getMessage());
+		}
 		System.exit(0);
 	}
 

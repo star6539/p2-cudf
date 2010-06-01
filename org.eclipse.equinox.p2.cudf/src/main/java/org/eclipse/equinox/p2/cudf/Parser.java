@@ -181,7 +181,7 @@ public class Parser {
 
 	private void handleInstall(String line) {
 		line = line.substring("install: ".length());
-		List installRequest = createRequires(line, true, false);
+		List installRequest = createRequires(line, true, false, true);
 		for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
 			currentRequest.addInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -196,7 +196,7 @@ public class Parser {
 
 	private void handleRemove(String line) {
 		line = line.substring("remove: ".length());
-		List removeRequest = createRequires(line, true, false);
+		List removeRequest = createRequires(line, true, false, true);
 		for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
 			currentRequest.removeInstallableUnit((IRequiredCapability) iterator.next());
 		}
@@ -209,7 +209,7 @@ public class Parser {
 
 	private void handleUpgrade(String line) {
 		line = line.substring("upgrade: ".length());
-		List updateRequest = createRequires(line, true, false);
+		List updateRequest = createRequires(line, true, false, true);
 		for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
 			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
 			currentRequest.upgradeInstallableUnit(requirement);
@@ -266,19 +266,19 @@ public class Parser {
 	}
 
 	private void handleDepends(String line) {
-		mergeRequirements(createRequires(line.substring("depends: ".length()), true, false));
+		mergeRequirements(createRequires(line.substring("depends: ".length()), true, false, true));
 	}
 
 	private void handleRecommends(String line) {
 		Log.println("Handling " + line);
-		mergeRequirements(createRequires(line.substring("recommends: ".length()), true, true));
+		mergeRequirements(createRequires(line.substring("recommends: ".length()), true, true, true));
 	}
 
 	/*
 	 * Conflicts are like depends except NOT'd.
 	 */
 	private void handleConflicts(String line) {
-		List reqs = createRequires(line.substring("conflicts: ".length()), false, false);
+		List reqs = createRequires(line.substring("conflicts: ".length()), false, false, false);
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iter.next();
@@ -317,7 +317,7 @@ public class Parser {
 		return result;
 	}
 
-	private List createRequires(String line, boolean expandNotEquals, boolean optional) {
+	private List createRequires(String line, boolean expandNotEquals, boolean optional, boolean dependency) {
 		ArrayList ands = new ArrayList();
 		StringTokenizer s = new StringTokenizer(line, ",");
 		String subtoken;
@@ -326,8 +326,16 @@ public class Parser {
 			if (subTokenizer.countTokens() == 1) { //This token does not contain a |.
 				subtoken = subTokenizer.nextToken().trim();
 				// FIXME should be handled differently in depends and conflicts.
-				if ("true!".equals(subtoken) || "false!".equals(subtoken))
-					continue;
+				if ("true!".equals(subtoken)) {
+					if (dependency)
+						continue;
+					throw new RuntimeException("Cannot have true! in a conflict!!!!!");
+				}
+				if ("false!".equals(subtoken)) {
+					if (!dependency)
+						continue;
+					throw new RuntimeException("Cannot have false! in a dependency!!!!!");
+				}
 				Object o = createRequire(subtoken, expandNotEquals, optional);
 				if (o instanceof IRequiredCapability)
 					ands.add(o);
