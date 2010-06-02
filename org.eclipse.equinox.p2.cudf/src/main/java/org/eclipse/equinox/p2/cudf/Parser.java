@@ -295,7 +295,6 @@ public class Parser {
 	}
 
 	private void handleRecommends(String line) {
-		Log.println("Handling " + line);
 		mergeRequirements(createRequires(line.substring("recommends: ".length()), true, true, true));
 	}
 
