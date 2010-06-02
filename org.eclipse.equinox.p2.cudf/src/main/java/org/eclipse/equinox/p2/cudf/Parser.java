@@ -25,6 +25,7 @@ public class Parser {
 	private List allIUs = new ArrayList();
 	private QueryableArray query = null;
 	private List preInstalled = new ArrayList(10000);
+	private List keepRequests = new ArrayList();
 
 	class Tuple {
 		String name;
@@ -113,6 +114,8 @@ public class Parser {
 					handleExpected(line);
 				} else if (line.startsWith("recommends: ")) {
 					handleRecommends(line);
+				} else if (line.startsWith("keep: ")) {
+					handleKeep(line);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -140,6 +143,27 @@ public class Parser {
 		}
 		debug(currentRequest);
 		return currentRequest;
+	}
+
+	private void handleKeep(String line) {
+		line = line.substring("keep: ".length());
+		if (line.contains("version")) {
+			keepRequests.add(new RequiredCapability(currentIU.getId(), new VersionRange(currentIU.getVersion()), false));
+			return;
+		}
+		if (line.contains("package")) {
+			keepRequests.add(new RequiredCapability(currentIU.getId(), VersionRange.emptyRange, false));
+			return;
+		}
+		if (line.contains("none"))
+			return;
+		if (line.contains("feature")) {
+			IProvidedCapability[] caps = currentIU.getProvidedCapabilities();
+			for (int i = 0; i < caps.length; i++) {
+				keepRequests.add(new RequiredCapability(caps[i].getName(), caps[i].getVersion(), false));
+			}
+		}
+
 	}
 
 	private void handleExpected(String line) {
@@ -192,6 +216,7 @@ public class Parser {
 		initializeQueryableArray();
 		currentRequest = new ProfileChangeRequest(query);
 		currentRequest.setPreInstalledIUs(preInstalled);
+		currentRequest.setContrainstFromKeep(keepRequests);
 	}
 
 	private void handleRemove(String line) {

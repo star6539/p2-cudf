@@ -21,6 +21,8 @@ public class ProfileChangeRequest {
 	private ArrayList iusToAdd = new ArrayList(10); // list of ius to add
 	private ArrayList iusToUpdate = new ArrayList(10); // list of ius to add
 	private List iusPreInstalled = new ArrayList(1); //this will get overwritten
+	private List constraintsFromKeep = new ArrayList(1); //this will get overwritten
+
 	private int expected = -10;
 
 	public ProfileChangeRequest(QueryableArray initialState) {
@@ -29,6 +31,10 @@ public class ProfileChangeRequest {
 
 	public void setPreInstalledIUs(List list) {
 		iusPreInstalled = list;
+	}
+
+	public void setContrainstFromKeep(List constraints) {
+		constraintsFromKeep = constraints;
 	}
 
 	public void addInstallableUnit(IRequiredCapability req) {
@@ -45,6 +51,7 @@ public class ProfileChangeRequest {
 
 	public ArrayList getAllRequests() {
 		ArrayList result = new ArrayList(iusToAdd.size() + iusToRemove.size() + iusToUpdate.size() + iusPreInstalled.size());
+		result.addAll(constraintsFromKeep);
 		result.addAll(iusToAdd);
 		result.addAll(iusToRemove);
 		result.addAll(iusToUpdate);
