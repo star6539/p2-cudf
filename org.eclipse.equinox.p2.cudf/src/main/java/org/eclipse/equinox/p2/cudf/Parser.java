@@ -160,7 +160,8 @@ public class Parser {
 		if (line.contains("feature")) {
 			IProvidedCapability[] caps = currentIU.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
-				keepRequests.add(new RequiredCapability(caps[i].getName(), caps[i].getVersion(), false));
+				if (!caps[i].getName().equals(currentIU.getId()))
+					keepRequests.add(new RequiredCapability(caps[i].getName(), caps[i].getVersion(), false));
 			}
 		}
 
