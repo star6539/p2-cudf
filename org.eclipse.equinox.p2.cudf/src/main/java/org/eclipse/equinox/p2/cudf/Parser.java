@@ -65,7 +65,7 @@ public class Parser {
 
 				// look-ahead to check for line continuation
 				String line = next;
-				for (next = reader.readLine(); next != null && next.length() > 0 && next.charAt(0) == ' '; next = reader.readLine()) {
+				for (next = reader.readLine(); next != null && next.length() > 1 && next.charAt(0) == ' '; next = reader.readLine()) {
 					line = line + next.substring(1);
 				}
 
@@ -76,7 +76,7 @@ public class Parser {
 				}
 
 				// end of stanza
-				if (line.length() == 0) {
+				if (line.trim().length() == 0) {
 					validateAndAddIU();
 					continue;
 				}
