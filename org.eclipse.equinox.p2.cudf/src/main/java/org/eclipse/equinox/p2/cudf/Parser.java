@@ -26,6 +26,7 @@ public class Parser {
 	private QueryableArray query = null;
 	private List preInstalled = new ArrayList(10000);
 	private List keepRequests = new ArrayList();
+	private List currentKeepRequests = new ArrayList();
 
 	class Tuple {
 		String name;
@@ -148,11 +149,11 @@ public class Parser {
 	private void handleKeep(String line) {
 		line = line.substring("keep: ".length());
 		if (line.contains("version")) {
-			keepRequests.add(new RequiredCapability(currentIU.getId(), new VersionRange(currentIU.getVersion()), false));
+			currentKeepRequests.add(new RequiredCapability(currentIU.getId(), new VersionRange(currentIU.getVersion()), false));
 			return;
 		}
 		if (line.contains("package")) {
-			keepRequests.add(new RequiredCapability(currentIU.getId(), VersionRange.emptyRange, false));
+			currentKeepRequests.add(new RequiredCapability(currentIU.getId(), VersionRange.emptyRange, false));
 			return;
 		}
 		if (line.contains("none"))
@@ -161,7 +162,7 @@ public class Parser {
 			IProvidedCapability[] caps = currentIU.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
 				if (!caps[i].getName().equals(currentIU.getId()))
-					keepRequests.add(new RequiredCapability(caps[i].getName(), caps[i].getVersion(), false));
+					currentKeepRequests.add(new RequiredCapability(caps[i].getName(), caps[i].getVersion(), false));
 			}
 		}
 
@@ -186,9 +187,13 @@ public class Parser {
 		if (currentIU.getProvidedCapabilities().length == 0) {
 			currentIU.setCapabilities(new IProvidedCapability[] {new ProvidedCapability(currentIU.getId(), new VersionRange(currentIU.getVersion(), true, currentIU.getVersion(), true))});
 		}
+		if (currentIU.isInstalled()) {
+			keepRequests.addAll(currentKeepRequests);
+		}
 		allIUs.add(currentIU);
 		// reset to be ready for the next stanza
 		currentIU = null;
+		currentKeepRequests.clear();
 	}
 
 	private void handleInstalled(String line) {
