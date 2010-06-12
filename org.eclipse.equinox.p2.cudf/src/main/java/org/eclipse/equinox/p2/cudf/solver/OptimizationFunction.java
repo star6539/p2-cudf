@@ -26,7 +26,6 @@ public abstract class OptimizationFunction {
 	protected List changeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
-	protected List optionalVariables = new ArrayList();
 	protected List optionalPairs;
 
 	public abstract List createOptimizationFunction(InstallableUnit metaIu);
@@ -185,7 +184,6 @@ public abstract class OptimizationFunction {
 			Pair pair = (Pair) it.next();
 			// create a new variable y <=> iu * abs
 			Projector.AbstractVariable yvar = new Projector.AbstractVariable(pair.left.toString() + "*" + pair.right.toString());
-			optionalVariables.add(yvar);
 			try {
 				dependencyHelper.implication(new Object[] {yvar}).implies(pair.left).named("OPT3");
 				dependencyHelper.implication(new Object[] {yvar}).implies(pair.right).named("OPT3");

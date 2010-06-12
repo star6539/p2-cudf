@@ -69,12 +69,12 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 				proof.add(var);
 			}
 		}
-
-		for (int i = 0; i < optionalVariables.size(); i++) {
-			Object var = optionalVariables.get(i);
-			if (!dependencyHelper.getBooleanValueFor(var)) {
+		Pair pair;
+		for (Iterator it = optionalPairs.iterator(); it.hasNext();) {
+			pair = (Pair) it.next();
+			if (dependencyHelper.getBooleanValueFor(pair.left) && !dependencyHelper.getBooleanValueFor(pair.right)) {
 				recommends++;
-				proof.add(var);
+				proof.add(pair.right);
 			}
 		}
 
