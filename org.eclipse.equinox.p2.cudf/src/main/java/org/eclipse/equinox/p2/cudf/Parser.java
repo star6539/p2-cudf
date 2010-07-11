@@ -312,7 +312,7 @@ public class Parser {
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iter.next();
-			if (currentIU.getId().equals(req.getName())) {
+			if (currentIU.getId().equals(req.getName()) && currentIU.getVersion().equals(VersionRange.emptyRange)) {
 				currentIU.setSingleton(true);
 			} else {
 				conflicts.add(new NotRequirement(req));
