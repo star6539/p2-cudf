@@ -45,16 +45,16 @@ public class Parser {
 		}
 	}
 
-	public ProfileChangeRequest parse(File file) {
+	public ProfileChangeRequest parse(File file, Options options) {
 		try {
-			return parse(new FileInputStream(file));
+			return parse(new FileInputStream(file), options);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public ProfileChangeRequest parse(InputStream stream) {
+	public ProfileChangeRequest parse(InputStream stream, Options options) {
 		long start;
 		if (TIMING)
 			start = System.currentTimeMillis();
@@ -113,7 +113,7 @@ public class Parser {
 					handleProvides(line);
 				} else if (line.startsWith("expected: ")) {
 					handleExpected(line);
-				} else if (line.startsWith("recommends: ")) {
+				} else if (line.startsWith("recommends: ") && options.objective.equals(Options.TRENDY)) {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
