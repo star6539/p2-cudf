@@ -53,7 +53,7 @@ public class Projector {
 	private SolverConfiguration configuration;
 	private OptimizationFunction optFunction;
 
-	private List optionalPairs;
+	private List optionalityVariables;
 
 	static class AbstractVariable {
 		private String str;
@@ -78,7 +78,7 @@ public class Projector {
 		abstractVariables = new ArrayList();
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
-		optionalPairs = new ArrayList();
+		optionalityVariables = new ArrayList();
 	}
 
 	private void purgeIU(InstallableUnit iu) {
@@ -181,7 +181,7 @@ public class Projector {
 		function.abstractVariables = abstractVariables;
 		function.picker = picker;
 		function.dependencyHelper = dependencyHelper;
-		function.optionalPairs = optionalPairs;
+		function.optionalityVariables = optionalityVariables;
 		return function;
 	}
 
@@ -219,7 +219,7 @@ public class Projector {
 		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
 	}
 
-	private void expandNegatedRequirement(IRequiredCapability req, InstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+	private void expandNegatedRequirement(IRequiredCapability req, InstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
 		List matches = getApplicableMatches(negatedReq);
 		matches.remove(iu);
@@ -236,9 +236,9 @@ public class Projector {
 		createNegationImplication(iu, matches, explanation);
 	}
 
-	private void expandRequirement(IRequiredCapability req, InstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+	private void expandRequirement(IRequiredCapability req, InstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		if (req.isNegation()) {
-			expandNegatedRequirement(req, iu, optionalAbstractRequirements, isRootIu);
+			expandNegatedRequirement(req, iu, isRootIu);
 			return;
 		}
 		List matches = getApplicableMatches(req);
@@ -257,11 +257,11 @@ public class Projector {
 		} else {
 			if (!matches.isEmpty()) {
 				AbstractVariable abs = getAbstractVariable();
-				createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+				matches.add(abs);
+				createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
 				if (!isRootIu) {
-					optionalPairs.add(new Pair(iu, abs));
+					optionalityVariables.add(abs);
 				}
-				optionalAbstractRequirements.add(abs);
 			}
 		}
 	}
@@ -270,11 +270,9 @@ public class Projector {
 		if (reqs.length == 0) {
 			return;
 		}
-		List optionalAbstractRequirements = new ArrayList();
 		for (int i = 0; i < reqs.length; i++) {
-			expandRequirement(reqs[i], iu, optionalAbstractRequirements, isRootIu);
+			expandRequirement(reqs[i], iu, isRootIu);
 		}
-		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
 
 	public void processIU(InstallableUnit iu, boolean isRootIU) throws ContradictionException {
@@ -380,17 +378,17 @@ public class Projector {
 		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
 	}
 
-	private void createOptionalityExpression(InstallableUnit iu, List optionalRequirements) throws ContradictionException {
-		if (optionalRequirements.isEmpty())
-			return;
-		AbstractVariable noop = getNoOperationVariable(iu);
-		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
-			AbstractVariable abs = (AbstractVariable) i.next();
-			createIncompatibleValues(abs, noop);
-		}
-		optionalRequirements.add(noop);
-		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
-	}
+	//	private void createOptionalityExpression(InstallableUnit iu, List optionalRequirements) throws ContradictionException {
+	//		if (optionalRequirements.isEmpty())
+	//			return;
+	//		AbstractVariable noop = getNoOperationVariable(iu);
+	//		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
+	//			AbstractVariable abs = (AbstractVariable) i.next();
+	//			createIncompatibleValues(abs, noop);
+	//		}
+	//		optionalRequirements.add(noop);
+	//		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
+	//	}
 
 	private AbstractVariable getNoOperationVariable(InstallableUnit iu) {
 		AbstractVariable v = (AbstractVariable) noopVariables.get(iu);

@@ -26,7 +26,7 @@ public abstract class OptimizationFunction {
 	protected List changeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
-	protected List optionalPairs;
+	protected List optionalityVariables;
 
 	public abstract List createOptimizationFunction(InstallableUnit metaIu);
 
@@ -180,19 +180,8 @@ public abstract class OptimizationFunction {
 	}
 
 	protected void optional(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
-		for (Iterator it = optionalPairs.iterator(); it.hasNext();) {
-			Pair pair = (Pair) it.next();
-			// create a new variable y <=> iu * abs
-			Projector.AbstractVariable yvar = new Projector.AbstractVariable(pair.left.toString() + "*" + pair.right.toString());
-			try {
-				dependencyHelper.implication(new Object[] {yvar}).implies(pair.left).named("OPT3");
-				dependencyHelper.implication(new Object[] {yvar}).implies(pair.right).named("OPT3");
-				dependencyHelper.implication(new Object[] {pair.left, pair.right}).implies(yvar).named("OPT3");
-				weightedObjects.add(WeightedObject.newWO(dependencyHelper.not(yvar), weight));
-			} catch (ContradictionException e) {
-				// should not happen
-				e.printStackTrace();
-			}
+		for (Iterator it = optionalityVariables.iterator(); it.hasNext();) {
+			weightedObjects.add(WeightedObject.newWO(it.next(), weight));
 		}
 	}
 
