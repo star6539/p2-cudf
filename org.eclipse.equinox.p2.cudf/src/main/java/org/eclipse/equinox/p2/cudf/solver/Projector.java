@@ -256,7 +256,7 @@ public class Projector {
 			}
 		} else {
 			if (!matches.isEmpty()) {
-				AbstractVariable abs = getAbstractVariable();
+				AbstractVariable abs = getAbstractVariable(req.getName());
 				matches.add(abs);
 				createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
 				if (!isRootIu) {
@@ -410,8 +410,8 @@ public class Projector {
 		dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius));
 	}
 
-	private AbstractVariable getAbstractVariable() {
-		AbstractVariable abstractVariable = new AbstractVariable();
+	private AbstractVariable getAbstractVariable(String name) {
+		AbstractVariable abstractVariable = new AbstractVariable(name);
 		abstractVariables.add(abstractVariable);
 		return abstractVariable;
 	}
