@@ -161,11 +161,11 @@ public abstract class OptimizationFunction {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 					newVariables.add(abs);
-					// a => iuv1 or ... or iuvn
+					// a <= iuv1 or ... or iuvn
 					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 						dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT2");
 					}
-					// a <= iuv1 or ... or iuvn
+					// a => iuv1 or ... or iuvn
 					Object[] clause = new Object[versions.size()];
 					versions.toArray(clause);
 					dependencyHelper.implication(new Object[] {abs}).implies(clause).named("OPT2");
