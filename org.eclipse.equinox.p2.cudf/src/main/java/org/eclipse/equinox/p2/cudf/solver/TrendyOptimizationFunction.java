@@ -58,33 +58,39 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 			Object var = removalVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
 				removed++;
-				proof.add(var);
+				proof.add(var.toString().substring(18));
 			}
 		}
-
+		System.out.println("# Removed packages: " + proof);
+		proof.clear();
 		for (int i = 0; i < nouptodateVariables.size(); i++) {
 			Object var = nouptodateVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
 				notUpToDate++;
-				proof.add(var);
+				proof.add(var.toString().substring(18));
 			}
 		}
+		System.out.println("# Not up-to-date packages: " + proof);
+		proof.clear();
 		for (Iterator it = optionalityVariables.iterator(); it.hasNext();) {
 			Object var = it.next();
 			if (dependencyHelper.getBooleanValueFor(var)) {
 				recommends++;
-				proof.add(var);
+				proof.add(var.toString().substring(18));
 			}
 		}
-
+		System.out.println("# Not installed recommended packages: " + proof);
+		proof.clear();
 		for (int i = 0; i < newVariables.size(); i++) {
 			Object var = newVariables.get(i);
 			if (dependencyHelper.getBooleanValueFor(var)) {
 				niou++;
-				proof.add(var);
+				proof.add(var.toString().substring(18));
 			}
 		}
+		System.out.println("# Newly installed packages: " + proof);
+		proof.clear();
 		System.out.println("# Trendy criteria value: -" + removed + ", -" + notUpToDate + ", -" + recommends + ", -" + niou);
-		System.out.println("# Proof: " + proof);
+
 	}
 }
