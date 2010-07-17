@@ -29,7 +29,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				currentWeight = currentWeight.divide(weight);
 				continue;
 			}
-			if (criteria[i].endsWith("notupdate")) {
+			if (criteria[i].endsWith("notuptodate")) {
 				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
 				continue;
@@ -61,15 +61,15 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			if (criteria[i].endsWith("new")) {
 				proof.clear();
 				counter = 0;
-				for (int j = 0; i < newVariables.size(); j++) {
+				for (int j = 0; j < newVariables.size(); j++) {
 					Object var = newVariables.get(j);
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;
 						proof.add(var.toString().substring(18));
 					}
 				}
-				System.out.println("# Newly installed packages: " + proof);
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
+				System.out.println("# Newly installed packages: " + proof);
 				continue;
 			}
 			if (criteria[i].endsWith("removed")) {
@@ -79,14 +79,14 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 					Object var = removalVariables.get(j);
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;
-						proof.add(var);
+						proof.add(var.toString().substring(18));
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				System.out.println("# Removed packages: " + proof);
 				continue;
 			}
-			if (criteria[i].endsWith("notupdate")) {
+			if (criteria[i].endsWith("notuptodate")) {
 				proof.clear();
 				counter = 0;
 				for (int j = 0; j < nouptodateVariables.size(); j++) {
@@ -98,6 +98,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				System.out.println("# Not up-to-date packages: " + proof);
+				continue;
 			}
 			if (criteria[i].endsWith("recommended")) {
 				proof.clear();
@@ -111,6 +112,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				System.out.println("# Not installed recommended packages: " + proof);
+				continue;
 			}
 			if (criteria[i].endsWith("changed")) {
 				proof.clear();
@@ -119,7 +121,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 					Object var = changeVariables.get(j);
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;
-						proof.add(var);
+						proof.add(var.toString().substring(18));
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
