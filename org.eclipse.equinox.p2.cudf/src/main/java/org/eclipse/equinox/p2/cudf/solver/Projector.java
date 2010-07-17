@@ -173,7 +173,8 @@ public class Projector {
 		} else if ("trendy".equalsIgnoreCase(optFunction)) {
 			function = new TrendyOptimizationFunction(); // trendy
 		} else {
-			throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
+			// throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
+			function = new UserDefinedOptimizationFunction(optFunction);
 		}
 		Log.println(" Optimization function: " + function.getName());
 		function.slice = slice;
