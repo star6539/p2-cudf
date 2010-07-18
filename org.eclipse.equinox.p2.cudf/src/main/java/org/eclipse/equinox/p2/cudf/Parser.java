@@ -113,7 +113,7 @@ public class Parser {
 					handleProvides(line);
 				} else if (line.startsWith("expected: ")) {
 					handleExpected(line);
-				} else if (line.startsWith("recommends: ") && options.objective.equals(Options.TRENDY)) {
+				} else if (line.startsWith("recommends: ") && (options.objective.equals(Options.TRENDY) || options.objective.contains("recommended"))) {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);

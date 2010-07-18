@@ -17,7 +17,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 		Collection ius = slice.values();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		String[] criteria = optfunction.split(",");
-		BigInteger currentWeight = weight.pow(criteria.length);
+		BigInteger currentWeight = weight.pow(criteria.length - 1);
 		for (int i = 0; i < criteria.length; i++) {
 			if (criteria[i].endsWith("new")) {
 				niou(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
@@ -35,7 +35,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				continue;
 			}
 			if (criteria[i].endsWith("recommended")) {
-				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
+				optional(weightedObjects, criteria[i].startsWith("-") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
 				continue;
 			}
