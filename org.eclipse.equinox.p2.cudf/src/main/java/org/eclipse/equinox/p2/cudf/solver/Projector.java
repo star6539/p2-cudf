@@ -107,12 +107,7 @@ public class Projector {
 				solver = new OptToPBSATAdapter(new PseudoOptDecorator(SolverFactory.newDefault()));// SolverFactory.newEclipseP2();
 			}
 			if ("default".equals(configuration.timeout)) {
-				if ("p2".equalsIgnoreCase(configuration.objective)) {
-					solver.setTimeoutOnConflicts(200);
-				} else {
-					solver.setTimeoutOnConflicts(2000);
-					// solver.setTimeout(270);
-				}
+				solver.setTimeout(300); // 5 minutess
 			} else {
 				int number = Integer.valueOf(configuration.timeout.substring(0, configuration.timeout.length() - 1)).intValue();
 				if (configuration.timeout.endsWith("s")) {
@@ -166,9 +161,7 @@ public class Projector {
 
 	private OptimizationFunction getOptimizationFactory(String optFunction) {
 		OptimizationFunction function = null;
-		if ("p2".equalsIgnoreCase(optFunction)) {
-			function = new P2OptimizationFunction(); //p2
-		} else if ("paranoid".equalsIgnoreCase(optFunction)) {
+		if ("paranoid".equalsIgnoreCase(optFunction)) {
 			function = new ParanoidOptimizationFunction(); //paranoid
 		} else if ("trendy".equalsIgnoreCase(optFunction)) {
 			function = new TrendyOptimizationFunction(); // trendy
@@ -179,7 +172,6 @@ public class Projector {
 		Log.println(" Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
-		function.abstractVariables = abstractVariables;
 		function.picker = picker;
 		function.dependencyHelper = dependencyHelper;
 		function.optionalityVariables = optionalityVariables;
@@ -260,9 +252,7 @@ public class Projector {
 				AbstractVariable abs = getAbstractVariable(req.getName());
 				matches.add(abs);
 				createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
-				if (!isRootIu) {
-					optionalityVariables.add(abs);
-				}
+				optionalityVariables.add(abs);
 			}
 		}
 	}
