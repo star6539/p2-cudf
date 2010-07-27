@@ -232,7 +232,7 @@ public class Main {
 	private static ProfileChangeRequest parseCUDF(File file) {
 		Log.println("Parsing ...");
 		long begin = System.currentTimeMillis();
-		ProfileChangeRequest result = new Parser().parse(file, options);
+		ProfileChangeRequest result = new Parser().parse(file, options.objective.equals(Options.TRENDY) || options.objective.contains("recommended"));
 		long end = System.currentTimeMillis();
 		Log.println(("Parsing done (" + (end - begin) / 1000.0 + "s)."));
 		return result;

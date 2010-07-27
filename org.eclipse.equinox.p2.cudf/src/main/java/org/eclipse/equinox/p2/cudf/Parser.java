@@ -45,16 +45,24 @@ public class Parser {
 		}
 	}
 
-	public ProfileChangeRequest parse(File file, Options options) {
+	public ProfileChangeRequest parse(File file) {
+		return parse(file, false);
+	}
+
+	public ProfileChangeRequest parse(File file, boolean includeRecommends) {
 		try {
-			return parse(new FileInputStream(file), options);
+			return parse(new FileInputStream(file), includeRecommends);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public ProfileChangeRequest parse(InputStream stream, Options options) {
+	public ProfileChangeRequest parse(InputStream stream) {
+		return parse(stream, false);
+	}
+
+	public ProfileChangeRequest parse(InputStream stream, boolean includeRecommends) {
 		long start;
 		if (TIMING)
 			start = System.currentTimeMillis();
@@ -113,7 +121,7 @@ public class Parser {
 					handleProvides(line);
 				} else if (line.startsWith("expected: ")) {
 					handleExpected(line);
-				} else if (line.startsWith("recommends: ") && (options.objective.equals(Options.TRENDY) || options.objective.contains("recommended"))) {
+				} else if (line.startsWith("recommends: ") && includeRecommends) {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
@@ -312,7 +320,7 @@ public class Parser {
 		List conflicts = new ArrayList();
 		for (Iterator iter = reqs.iterator(); iter.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iter.next();
-			if (currentIU.getId().equals(req.getName()) && currentIU.getVersion().equals(VersionRange.emptyRange)) {
+			if (currentIU.getId().equals(req.getName()) && req.getRange().equals(VersionRange.emptyRange)) {
 				currentIU.setSingleton(true);
 			} else {
 				conflicts.add(new NotRequirement(req));
