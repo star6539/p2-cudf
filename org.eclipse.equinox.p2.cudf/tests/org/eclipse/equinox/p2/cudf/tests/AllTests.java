@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.tests;
 
+import junit.framework.TestSuite;
+
 import junit.framework.*;
 
 public class AllTests extends TestCase {

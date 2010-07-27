@@ -22,7 +22,7 @@ public class TestJosepExample extends TestCase {
 			assertEquals(col.toString(), 2, col.size());
 			assertEquals(col.toString(), 1, getIU(col, "A").getVersion().getMajor());
 			// here the solver can install B1 or B2
-			assertEquals(col.toString(), 1, getIU(col, "B").getVersion().getMajor());
+			assertTrue(col.toString(), 1 == getIU(col, "B").getVersion().getMajor() || 2 == getIU(col, "B").getVersion().getMajor());
 
 		} else {
 			fail("No result found!");
