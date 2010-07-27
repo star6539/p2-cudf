@@ -19,7 +19,6 @@ import org.sat4j.specs.ContradictionException;
 public abstract class OptimizationFunction {
 	protected Map slice;
 	protected Map noopVariables;
-	protected List abstractVariables;
 	protected QueryableArray picker;
 	protected DependencyHelper dependencyHelper;
 	protected List removalVariables = new ArrayList();
