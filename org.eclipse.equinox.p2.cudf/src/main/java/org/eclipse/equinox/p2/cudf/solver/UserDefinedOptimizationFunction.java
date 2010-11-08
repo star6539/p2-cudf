@@ -14,7 +14,6 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 
 	public List createOptimizationFunction(InstallableUnit metaIu) {
 		List weightedObjects = new ArrayList();
-		Collection ius = slice.values();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		String[] criteria = optfunction.split(",");
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
@@ -36,6 +35,11 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			}
 			if (criteria[i].endsWith("recommended")) {
 				optional(weightedObjects, criteria[i].startsWith("-") ? currentWeight.negate() : currentWeight, metaIu);
+				currentWeight = currentWeight.divide(weight);
+				continue;
+			}
+			if (criteria[i].endsWith("unmet_recommends")) {
+				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
 				continue;
 			}
@@ -100,10 +104,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				System.out.println("# Not up-to-date packages: " + proof);
 				continue;
 			}
-			if (criteria[i].endsWith("recommended")) {
+			if (criteria[i].endsWith("recommended") || criteria[i].endsWith("unmet_recommends")) {
 				proof.clear();
 				counter = 0;
-				for (Iterator it = optionalityVariables.iterator(); it.hasNext();) {
+				for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
 					Object var = it.next();
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;

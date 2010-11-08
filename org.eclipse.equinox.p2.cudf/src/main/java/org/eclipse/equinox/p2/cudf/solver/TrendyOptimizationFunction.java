@@ -29,12 +29,8 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
 public class TrendyOptimizationFunction extends OptimizationFunction {
 
-	private InstallableUnit metaIu;
-
 	public List createOptimizationFunction(InstallableUnit metaIu) {
-		this.metaIu = metaIu;
 		List weightedObjects = new ArrayList();
-		Collection ius = slice.values();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		removed(weightedObjects, weight.multiply(weight).multiply(weight), metaIu);
 		notuptodate(weightedObjects, weight.multiply(weight), metaIu);
@@ -72,7 +68,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
 		}
 		System.out.println("# Not up-to-date packages: " + proof);
 		proof.clear();
-		for (Iterator it = optionalityVariables.iterator(); it.hasNext();) {
+		for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
 			Object var = it.next();
 			if (dependencyHelper.getBooleanValueFor(var)) {
 				recommends++;

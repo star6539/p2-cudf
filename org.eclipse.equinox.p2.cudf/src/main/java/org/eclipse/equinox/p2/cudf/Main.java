@@ -146,17 +146,17 @@ public class Main {
 		return result;
 	}
 
-	private static boolean validateOptions(Options options) {
+	private static boolean validateOptions(Options theOptions) {
 		boolean error = false;
 		//		if (!"paranoid".equalsIgnoreCase(options.objective) && !"trendy".equalsIgnoreCase(options.objective) && !"p2".equalsIgnoreCase(options.objective)) {
 		//			printFail("Wrong Optimization criteria: " + options.objective);
 		//			error = true;
 		//		}
-		if (options.input == null || !options.input.exists()) {
+		if (theOptions.input == null || !theOptions.input.exists()) {
 			printFail("Missing input file.");
 			error = true;
 		}
-		if (options.timeout != null && !options.timeout.equals("default") && !options.timeout.endsWith("c") && !options.timeout.endsWith("s")) {
+		if (theOptions.timeout != null && !theOptions.timeout.equals("default") && !theOptions.timeout.endsWith("c") && !theOptions.timeout.endsWith("s")) {
 			printFail("Timeout should be either <number>s (100s) or <number>c (100c)");
 			error = true;
 		}
@@ -192,14 +192,14 @@ public class Main {
 		System.exit(0);
 	}
 
-	private static void logOptions(Options options) {
-		if (!options.verbose)
+	private static void logOptions(Options theOptions) {
+		if (!theOptions.verbose)
 			return;
 		Log.println("Solver launched on " + new Date());
-		Log.println("Using input file " + options.input.getAbsolutePath());
-		Log.println("Using ouput file " + (options.output == null ? "STDOUT" : options.output.getAbsolutePath()));
-		Log.println("Objective function " + options.objective);
-		Log.println("Timeout " + options.timeout);
+		Log.println("Using input file " + theOptions.input.getAbsolutePath());
+		Log.println("Using ouput file " + (theOptions.output == null ? "STDOUT" : theOptions.output.getAbsolutePath()));
+		Log.println("Objective function " + theOptions.objective);
+		Log.println("Timeout " + theOptions.timeout);
 	}
 
 	private static void logVmDetails() {
@@ -231,15 +231,15 @@ public class Main {
 
 	private static ProfileChangeRequest parseCUDF(File file) {
 		Log.println("Parsing ...");
-		long begin = System.currentTimeMillis();
-		ProfileChangeRequest result = new Parser().parse(file, options.objective.equals(Options.TRENDY) || options.objective.contains("recommended"));
-		long end = System.currentTimeMillis();
-		Log.println(("Parsing done (" + (end - begin) / 1000.0 + "s)."));
+		long myBegin = System.currentTimeMillis();
+		ProfileChangeRequest result = new Parser().parse(file, options.objective.equals(Options.TRENDY) || options.objective.contains("recommend"));
+		long myEnd = System.currentTimeMillis();
+		Log.println(("Parsing done (" + (myEnd - myBegin) / 1000.0 + "s)."));
 		return result;
 	}
 
-	private static void printSolution(Collection state, Options options) {
-		if (options.sort) {
+	private static void printSolution(Collection state, Options theOptions) {
+		if (theOptions.sort) {
 			ArrayList tmp = new ArrayList(state);
 			Collections.sort(tmp);
 			state = tmp;

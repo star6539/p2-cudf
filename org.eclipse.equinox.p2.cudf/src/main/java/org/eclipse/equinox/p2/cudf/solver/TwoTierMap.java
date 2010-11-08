@@ -232,8 +232,8 @@ public class TwoTierMap implements Map, Serializable {
 		if (key instanceof Object[]) {
 			Object[] keys = (Object[]) key;
 			return get(keys[0], keys[1]);
-		} else
-			return getAll(key);
+		}
+		return getAll(key);
 	}
 
 	/* (non-Javadoc)
@@ -268,8 +268,8 @@ public class TwoTierMap implements Map, Serializable {
 		if (key instanceof Object[]) {
 			Object[] keys = (Object[]) key;
 			return remove(keys[0], keys[1]);
-		} else
-			return removeAll(key);
+		}
+		return removeAll(key);
 	}
 
 	public String toString() {

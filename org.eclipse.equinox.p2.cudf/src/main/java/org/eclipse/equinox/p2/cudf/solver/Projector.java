@@ -54,6 +54,7 @@ public class Projector {
 	private OptimizationFunction optFunction;
 
 	private List optionalityVariables;
+	private List optionalityPairs;
 
 	static class AbstractVariable {
 		private String str;
@@ -79,6 +80,7 @@ public class Projector {
 		result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList();
 		optionalityVariables = new ArrayList();
+		optionalityPairs = new ArrayList();
 	}
 
 	private void purgeIU(InstallableUnit iu) {
@@ -159,15 +161,15 @@ public class Projector {
 		}
 	}
 
-	private OptimizationFunction getOptimizationFactory(String optFunction) {
+	private OptimizationFunction getOptimizationFactory(String optFunctionName) {
 		OptimizationFunction function = null;
-		if ("paranoid".equalsIgnoreCase(optFunction)) {
+		if ("paranoid".equalsIgnoreCase(optFunctionName)) {
 			function = new ParanoidOptimizationFunction(); //paranoid
-		} else if ("trendy".equalsIgnoreCase(optFunction)) {
+		} else if ("trendy".equalsIgnoreCase(optFunctionName)) {
 			function = new TrendyOptimizationFunction(); // trendy
 		} else {
 			// throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
-			function = new UserDefinedOptimizationFunction(optFunction);
+			function = new UserDefinedOptimizationFunction(optFunctionName);
 		}
 		Log.println(" Optimization function: " + function.getName());
 		function.slice = slice;
@@ -175,6 +177,7 @@ public class Projector {
 		function.picker = picker;
 		function.dependencyHelper = dependencyHelper;
 		function.optionalityVariables = optionalityVariables;
+		function.optionalityPairs = optionalityPairs;
 		return function;
 	}
 
@@ -253,6 +256,7 @@ public class Projector {
 				matches.add(abs);
 				createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
 				optionalityVariables.add(abs);
+				optionalityPairs.add(new Pair(iu, abs));
 			}
 		}
 	}
@@ -312,13 +316,6 @@ public class Projector {
 		dependencyHelper.implication(new Object[] {left}).implies(right.toArray()).named(name);
 	}
 
-	private void createImplication(Object[] left, List right, Explanation name) throws ContradictionException {
-		if (DEBUG) {
-			Tracing.debug(name + ": " + Arrays.asList(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		dependencyHelper.implication(left).implies(right.toArray()).named(name);
-	}
-
 	//Create constraints to deal with singleton
 	//When there is a mix of singleton and non singleton, several constraints are generated
 	private void createConstraintsForSingleton() throws ContradictionException {
@@ -355,39 +352,6 @@ public class Projector {
 				}
 			}
 		}
-	}
-
-	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
-		AbstractVariable[] vars = {v1, v2};
-		if (DEBUG) {
-			StringBuffer b = new StringBuffer();
-			for (int i = 0; i < vars.length; i++) {
-				b.append(vars[i].toString());
-			}
-			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
-		}
-		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
-	}
-
-	//	private void createOptionalityExpression(InstallableUnit iu, List optionalRequirements) throws ContradictionException {
-	//		if (optionalRequirements.isEmpty())
-	//			return;
-	//		AbstractVariable noop = getNoOperationVariable(iu);
-	//		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
-	//			AbstractVariable abs = (AbstractVariable) i.next();
-	//			createIncompatibleValues(abs, noop);
-	//		}
-	//		optionalRequirements.add(noop);
-	//		createImplication(iu, optionalRequirements, Explanation.OPTIONAL_REQUIREMENT);
-	//	}
-
-	private AbstractVariable getNoOperationVariable(InstallableUnit iu) {
-		AbstractVariable v = (AbstractVariable) noopVariables.get(iu);
-		if (v == null) {
-			v = new AbstractVariable();
-			noopVariables.put(iu, v);
-		}
-		return v;
 	}
 
 	private void createAtMostOne(InstallableUnit[] ius) throws ContradictionException {

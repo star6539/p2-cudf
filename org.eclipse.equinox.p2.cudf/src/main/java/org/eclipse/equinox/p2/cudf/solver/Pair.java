@@ -15,4 +15,8 @@ class Pair {
 		this.left = left;
 		this.right = right;
 	}
+
+	public String toString() {
+		return "(" + left + "," + right + ")";
+	}
 }

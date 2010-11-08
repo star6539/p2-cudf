@@ -25,7 +25,9 @@ public abstract class OptimizationFunction {
 	protected List changeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
+	protected List unmetVariables = new ArrayList();
 	protected List optionalityVariables;
+	protected List optionalityPairs;
 
 	public abstract List createOptimizationFunction(InstallableUnit metaIu);
 
@@ -144,6 +146,26 @@ public abstract class OptimizationFunction {
 		}
 	}
 
+	protected void unmetRecommends(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		for (Iterator iterator = optionalityPairs.iterator(); iterator.hasNext();) {
+			Pair entry = (Pair) iterator.next();
+			if (entry.left == metaIu) {
+				weightedObjects.add(WeightedObject.newWO(entry.right, weight));
+				continue;
+			}
+
+			Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.left.toString() + entry.right);
+			try {
+				dependencyHelper.and("OPTX", abs, new Object[] {entry.right, entry.left});
+			} catch (ContradictionException e) {
+				// should never happen
+				e.printStackTrace();
+			}
+			weightedObjects.add(WeightedObject.newWO(abs, weight));
+			unmetVariables.add(abs);
+		}
+	}
+
 	protected void niou(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
@@ -179,8 +201,12 @@ public abstract class OptimizationFunction {
 	}
 
 	protected void optional(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
-		for (Iterator it = optionalityVariables.iterator(); it.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(it.next(), weight));
+		for (Iterator it = optionalityPairs.iterator(); it.hasNext();) {
+			Pair pair = (Pair) it.next();
+			weightedObjects.add(WeightedObject.newWO(pair.right, weight));
+			if (pair.left != metaIu) {
+				unmetVariables.add(pair.right);
+			}
 		}
 	}
 

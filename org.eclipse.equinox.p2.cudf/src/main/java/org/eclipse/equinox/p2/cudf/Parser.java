@@ -125,6 +125,8 @@ public class Parser {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
+				// } else {
+				//	Log.println("Ignoring line:" + line);
 				}
 			}
 		} catch (FileNotFoundException e) {
