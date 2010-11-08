@@ -41,23 +41,19 @@ public abstract class OptimizationFunction {
 				continue;
 			Collection versions = ((HashMap) entry.getValue()).values();
 			boolean installed = false;
+			Object[] literals = new Object[versions.size()];
+			int i = 0;
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 				InstallableUnit iuv = (InstallableUnit) iterator2.next();
 				installed = installed || iuv.isInstalled();
+				literals[i++] = dependencyHelper.not(iuv);
 			}
 			if (installed) {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 					removalVariables.add(abs);
-					// a => not iuv1 and ... and  not iuvn
-					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
-						dependencyHelper.implication(new Object[] {abs}).impliesNot(iterator2.next()).named("OPT1");
-					}
-					// a <= not iuv1 and ... and  not iuvn
-					Object[] clause = new Object[versions.size() + 1];
-					versions.toArray(clause);
-					clause[clause.length - 1] = abs;
-					dependencyHelper.clause("OPT1", clause);
+					// abs <=> not iuv1 and ... and  not iuvn
+					dependencyHelper.and("OPT1", abs, literals);
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
 					// should not happen
@@ -75,26 +71,18 @@ public abstract class OptimizationFunction {
 			if (entry.getKey() == metaIu.getId())
 				continue;
 			Collection versions = ((HashMap) entry.getValue()).values();
-			List changed = new ArrayList(versions.size());
+			Object[] changed = new Object[versions.size()];
+			int i = 0;
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 				InstallableUnit iu = (InstallableUnit) iterator2.next();
-				if (iu.isInstalled()) {
-					changed.add(dependencyHelper.not(iu));
-				} else {
-					changed.add(iu);
-				}
+
+				changed[i++] = iu.isInstalled() ? dependencyHelper.not(iu) : iu;
 			}
 			try {
 				Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 				changeVariables.add(abs);
-				// a <= iuv1 or not iuv2 or ... or  not iuvn
-				for (Iterator iterator2 = changed.iterator(); iterator2.hasNext();) {
-					dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT3");
-				}
-				// a => iuv1 or not iuv2 or ... or  not iuvn
-				Object[] clause = new Object[changed.size()];
-				changed.toArray(clause);
-				dependencyHelper.implication(new Object[] {abs}).implies(clause).named("OPT3");
+				// abs <=> iuv1 or not iuv2 or ... or  not iuvn
+				dependencyHelper.or("OPT3", abs, changed);
 				weightedObjects.add(WeightedObject.newWO(abs, weight));
 			} catch (ContradictionException e) {
 				// should not happen
@@ -128,6 +116,7 @@ public abstract class OptimizationFunction {
 			Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 			Object notlatest = dependencyHelper.not(toSort.get(0));
 			try {
+				// notuptodate <=> not iuvn and (iuv1 or iuv2 or ... iuvn-1) 
 				dependencyHelper.implication(new Object[] {abs}).implies(notlatest).named("OPT4");
 				Object[] clause = new Object[toSort.size()];
 				toSort.toArray(clause);
@@ -182,14 +171,10 @@ public abstract class OptimizationFunction {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 					newVariables.add(abs);
-					// a <= iuv1 or ... or iuvn
-					for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
-						dependencyHelper.implication(new Object[] {iterator2.next()}).implies(abs).named("OPT2");
-					}
-					// a => iuv1 or ... or iuvn
+					// a <=> iuv1 or ... or iuvn
 					Object[] clause = new Object[versions.size()];
 					versions.toArray(clause);
-					dependencyHelper.implication(new Object[] {abs}).implies(clause).named("OPT2");
+					dependencyHelper.or("OPT2", abs, clause);
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
 					// should not happen
