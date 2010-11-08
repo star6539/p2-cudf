@@ -82,8 +82,8 @@ public class Main {
 
 	private static final void usage() {
 		System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
-		System.out.println("-obj (paranoid | trendy | p2)     The objective function to be used to resolve the problem. p2 is used by default.");
-		System.out.println("                                  Users can define their own: +new,-changed,-notuptodate,+recommended,-removed");
+		System.out.println("-obj (paranoid | trendy | p2 | <user defined>)     The objective function to be used to resolve the problem. p2 is used by default.");
+		System.out.println("                                  Users can define their own: +new,-changed,-notuptodate,-unmet_recommends,-removed");
 		System.out.println("-timeout <number>(c|s)            The time out after which the solver will stop. e.g. 10s stops after 10 seconds, 10c stops after 10 conflicts. Default is set to 200c for p2 and 2000c for other objective functions.");
 		System.out.println("-sort                             Sort the output.");
 		System.out.println("-explain                          Provides one reason of the unability to fullfil the request");
