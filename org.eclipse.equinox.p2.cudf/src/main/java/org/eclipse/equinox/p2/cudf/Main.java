@@ -91,10 +91,10 @@ public class Main {
 		System.out.println("-encoding                         Output the original cudf request into an OPB problem");
 	}
 
-	private static PrintStream out = System.out;
-	private static SimplePlanner planner;
-	private static Options options;
-	private static long begin;
+	static PrintStream out = System.out;
+	static SimplePlanner planner;
+	static Options options;
+	static long begin;
 
 	public static Options processArguments(String[] args) {
 		Options result = new Options();
@@ -216,7 +216,7 @@ public class Main {
 		Log.println(("Number of processors \t" + runtime.availableProcessors())); //$NON-NLS-1$
 	}
 
-	private static void printFail(String message) {
+	static void printFail(String message) {
 		out.println("FAIL");
 		out.println(message);
 	}
@@ -238,7 +238,7 @@ public class Main {
 		return result;
 	}
 
-	private static void printSolution(Collection state, Options theOptions) {
+	static void printSolution(Collection state, Options theOptions) {
 		if (theOptions.sort) {
 			ArrayList tmp = new ArrayList(state);
 			Collections.sort(tmp);

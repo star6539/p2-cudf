@@ -11,6 +11,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import java.io.PrintWriter;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
@@ -411,7 +412,7 @@ public class Projector {
 				if (TIMING)
 					Tracing.debug("Solver best solution decoded: " + (stop - start) + "ms."); //$NON-NLS-1$
 				if (configuration.verbose)
-					dependencyHelper.getSolver().printStat(System.out, "# ");
+					dependencyHelper.getSolver().printStat(new PrintWriter(System.out, true), "# ");
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
