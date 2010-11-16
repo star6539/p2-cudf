@@ -9,10 +9,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.tests;
 
-import java.io.*;
+import java.io.File;
 import java.util.Collection;
 import junit.framework.TestCase;
-import org.apache.tools.bzip2.CBZip2InputStream;
 import org.eclipse.equinox.p2.cudf.Parser;
 import org.eclipse.equinox.p2.cudf.solver.*;
 
@@ -30,7 +29,7 @@ public class CheckInstance extends TestCase {
 		System.out.println();
 		System.out.println();
 		System.out.println("# " + inputFile);
-		ProfileChangeRequest req = new Parser().parse(getStream(inputFile));
+		ProfileChangeRequest req = new Parser().parse(CUDFTestHelper.getStream(inputFile));
 		SolverConfiguration configuration = new SolverConfiguration("paranoid", "1000c", true, successExpected);
 		Object result = new SimplePlanner().getSolutionFor(req, configuration);
 		if (successExpected) {
@@ -48,21 +47,4 @@ public class CheckInstance extends TestCase {
 		System.gc();
 	}
 
-	private InputStream getStream(File file) throws IOException {
-		InputStream inputStream = null;
-		if (inputFile.getAbsolutePath().endsWith(".bz2")) {
-			inputStream = new FileInputStream(file);
-			int b = inputStream.read();
-			if (b != 'B') {
-				throw new IOException("not a bz2 file");
-			}
-			b = inputStream.read();
-			if (b != 'Z') {
-				throw new IOException("not a bz2 file");
-			}
-			inputStream = new CBZip2InputStream(inputStream);
-		} else
-			inputStream = new FileInputStream(inputFile);
-		return inputStream;
-	}
 }
