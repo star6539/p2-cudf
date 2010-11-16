@@ -9,11 +9,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.metadata;
 
+import java.util.Arrays;
+
 public class ORRequirement implements IRequiredCapability {
 	private IRequiredCapability[] oredRequirements;
 
-	public ORRequirement(IRequiredCapability[] reqs) {
+	private boolean optional;
+
+	public ORRequirement(IRequiredCapability[] reqs, boolean optional) {
 		oredRequirements = reqs;
+		this.optional = optional;
 	}
 
 	public IRequiredCapability[] getRequirements() {
@@ -26,8 +31,7 @@ public class ORRequirement implements IRequiredCapability {
 	}
 
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.asList(oredRequirements).toString();
 	}
 
 	public String getNamespace() {
@@ -56,7 +60,7 @@ public class ORRequirement implements IRequiredCapability {
 	}
 
 	public boolean isOptional() {
-		return false;
+		return optional;
 	}
 
 	public void setFilter(String filter) {
