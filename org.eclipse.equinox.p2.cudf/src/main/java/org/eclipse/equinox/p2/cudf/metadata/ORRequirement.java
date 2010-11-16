@@ -31,7 +31,7 @@ public class ORRequirement implements IRequiredCapability {
 	}
 
 	public String getName() {
-		return Arrays.asList(oredRequirements).toString();
+		return "OR" + Arrays.asList(oredRequirements);
 	}
 
 	public String getNamespace() {
