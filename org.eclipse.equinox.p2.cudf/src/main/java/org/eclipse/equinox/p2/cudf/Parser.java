@@ -125,8 +125,8 @@ public class Parser {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
-				// } else {
-				//	Log.println("Ignoring line:" + line);
+					// } else {
+					//	Log.println("Ignoring line:" + line);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -389,7 +389,7 @@ public class Parser {
 			while (subTokenizer.hasMoreElements()) {
 				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken(), expandNotEquals, optional);
 			}
-			ands.add(new ORRequirement(ors));
+			ands.add(new ORRequirement(ors, optional));
 		}
 		return ands;
 	}
@@ -415,7 +415,7 @@ public class Parser {
 
 			//a != 2
 			if (expandNotEquals) {
-				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version), optional), new RequiredCapability(id, createRange3(">", version), optional)});
+				return new ORRequirement(new IRequiredCapability[] {new RequiredCapability(id, createRange3("<", version), optional), new RequiredCapability(id, createRange3(">", version), optional)}, optional);
 			}
 			ArrayList res = new ArrayList(2);
 			res.add(new RequiredCapability(id, createRange3("<", version), optional));
