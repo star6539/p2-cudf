@@ -3,12 +3,11 @@ package org.eclipse.equinox.p2.cudf;
 import java.io.File;
 
 public class Options {
-	public static final String P2 = "p2";
-	public static final String PARANOID = "paranoid";
-	public static final String TRENDY = "trendy";
+	public static final String PARANOID = "-removed,-changed";
+	public static final String TRENDY = "-removed,-notuptodate,-unmet_recommends,-new";
 
 	boolean verbose = false;
-	String objective = P2;
+	String objective = PARANOID;
 	String timeout = "default";
 	boolean explain = false;
 	public File input;

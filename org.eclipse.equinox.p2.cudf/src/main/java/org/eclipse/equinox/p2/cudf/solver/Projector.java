@@ -165,14 +165,7 @@ public class Projector {
 
 	private OptimizationFunction getOptimizationFactory(String optFunctionName) {
 		OptimizationFunction function = null;
-		if ("paranoid".equalsIgnoreCase(optFunctionName)) {
-			function = new ParanoidOptimizationFunction(); //paranoid
-		} else if ("trendy".equalsIgnoreCase(optFunctionName)) {
-			function = new TrendyOptimizationFunction(); // trendy
-		} else {
-			// throw new IllegalArgumentException("Unknown optimisation function: " + optFunction);
-			function = new UserDefinedOptimizationFunction(optFunctionName);
-		}
+		function = new UserDefinedOptimizationFunction(optFunctionName);
 		Log.println(" Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
