@@ -12,7 +12,7 @@ import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
-import org.sat4j.pb.tools.DependencyHelper;
+import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.ContradictionException;
 
@@ -20,7 +20,7 @@ public abstract class OptimizationFunction {
 	protected Map slice;
 	protected Map noopVariables;
 	protected QueryableArray picker;
-	protected DependencyHelper dependencyHelper;
+	protected LexicoHelper dependencyHelper;
 	protected List removalVariables = new ArrayList();
 	protected List changeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
@@ -81,8 +81,8 @@ public abstract class OptimizationFunction {
 			try {
 				Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 				changeVariables.add(abs);
-				// abs <=> iuv1 or not iuv2 or ... or  not iuvn
-				dependencyHelper.or("OPT3", abs, changed);
+				// abs <= iuv1 or not iuv2 or ... or  not iuvn
+				dependencyHelper.halfOr("OPT3", abs, changed);
 				weightedObjects.add(WeightedObject.newWO(abs, weight));
 			} catch (ContradictionException e) {
 				// should not happen
@@ -118,10 +118,10 @@ public abstract class OptimizationFunction {
 			try {
 				// notuptodate <=> not iuvn and (iuv1 or iuv2 or ... iuvn-1) 
 				dependencyHelper.implication(new Object[] {abs}).implies(notlatest).named("OPT4");
-				Object[] clause = new Object[toSort.size()];
-				toSort.toArray(clause);
-				clause[0] = dependencyHelper.not(abs);
-				dependencyHelper.clause("OPT4", clause);
+				// Object[] clause = new Object[toSort.size()];
+				// toSort.toArray(clause);
+				// clause[0] = dependencyHelper.not(abs);
+				// dependencyHelper.clause("OPT4", clause);
 				for (int i = 1; i < toSort.size(); i++) {
 					dependencyHelper.implication(new Object[] {notlatest, toSort.get(i)}).implies(abs).named("OPT4");
 				}
@@ -171,10 +171,10 @@ public abstract class OptimizationFunction {
 				try {
 					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
 					newVariables.add(abs);
-					// a <=> iuv1 or ... or iuvn
+					// a <= iuv1 or ... or iuvn
 					Object[] clause = new Object[versions.size()];
 					versions.toArray(clause);
-					dependencyHelper.or("OPT2", abs, clause);
+					dependencyHelper.halfOr("OPT2", abs, clause);
 					weightedObjects.add(WeightedObject.newWO(abs, weight));
 				} catch (ContradictionException e) {
 					// should not happen
