@@ -52,6 +52,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				objects.add(((WeightedObject) it.next()).thing);
 			}
 			dependencyHelper.addCriterion(objects);
+			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size());
 		}
 		weightedObjects.clear();
 		return null;
