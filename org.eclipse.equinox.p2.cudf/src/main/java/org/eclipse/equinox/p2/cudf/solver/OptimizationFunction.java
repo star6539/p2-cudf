@@ -139,7 +139,7 @@ public abstract class OptimizationFunction {
 		for (Iterator iterator = optionalityPairs.iterator(); iterator.hasNext();) {
 			Pair entry = (Pair) iterator.next();
 			if (entry.left == metaIu) {
-				weightedObjects.add(WeightedObject.newWO(entry.right, weight));
+				// weightedObjects.add(WeightedObject.newWO(entry.right, weight));
 				continue;
 			}
 
@@ -188,8 +188,8 @@ public abstract class OptimizationFunction {
 	protected void optional(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
 		for (Iterator it = optionalityPairs.iterator(); it.hasNext();) {
 			Pair pair = (Pair) it.next();
-			weightedObjects.add(WeightedObject.newWO(pair.right, weight));
 			if (pair.left != metaIu) {
+				weightedObjects.add(WeightedObject.newWO(pair.right, weight));
 				unmetVariables.add(pair.right);
 			}
 		}
