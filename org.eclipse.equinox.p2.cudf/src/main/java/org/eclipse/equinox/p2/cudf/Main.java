@@ -108,8 +108,9 @@ public class Main {
 			}
 
 			if (args[i].equalsIgnoreCase(ENCODING)) {
-				result.encoding = true;
-				continue;
+				throw new IllegalArgumentException("Encoding not available for lexico solving");
+				// result.encoding = true;
+				// continue;
 			}
 			if (args[i].equalsIgnoreCase(EXPLAIN)) {
 				result.explain = true;
