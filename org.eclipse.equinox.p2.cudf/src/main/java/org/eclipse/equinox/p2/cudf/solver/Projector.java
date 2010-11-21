@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.sat4j.pb.*;
-import org.sat4j.pb.tools.DependencyHelper;
+import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.*;
 
@@ -43,7 +43,7 @@ public class Projector {
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
-	DependencyHelper dependencyHelper;
+	LexicoHelper dependencyHelper;
 	private Collection solution;
 	private Collection assumptions;
 
@@ -107,10 +107,10 @@ public class Projector {
 			} else if (conf.encoding) {
 				solver = SolverFactory.newOPBStringSolver();
 			} else {
-				solver = new OptToPBSATAdapter(new PseudoOptDecorator(SolverFactory.newDefault()));// SolverFactory.newEclipseP2();
+				solver = SolverFactory.newResolutionGlucoseSimpleSimp();// SolverFactory.newEclipseP2();
 			}
 			if ("default".equals(configuration.timeout)) {
-				solver.setTimeout(300); // 5 minutess
+				solver.setTimeout(300); // 5 minutes
 			} else {
 				int number = Integer.valueOf(configuration.timeout.substring(0, configuration.timeout.length() - 1)).intValue();
 				if (configuration.timeout.endsWith("s")) {
@@ -121,10 +121,11 @@ public class Projector {
 			}
 			solver.setVerbose(configuration.verbose);
 			solver.setLogPrefix("# ");
+			// solver.setSearchListener(new DecisionTracing("/tmp/p2cudf.trace"));
 			Log.println(solver.toString("# "));
 			// Log.println("# Solver timeout: " + solver.getTimeout());
 			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
-			dependencyHelper = new DependencyHelper(solver, conf.explain);
+			dependencyHelper = new LexicoHelper(solver, conf.explain);
 			if (DEBUG_ENCODING) {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
 			}
