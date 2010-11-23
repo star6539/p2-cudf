@@ -77,4 +77,8 @@ public class SimplePlanner {
 	public Map getMappingToDomain() {
 		return projector.dependencyHelper.getMappingToDomain();
 	}
+
+	public boolean isSolutionOptimal() {
+		return projector.dependencyHelper.isOptimal();
+	}
 }

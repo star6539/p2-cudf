@@ -5,6 +5,6 @@ public class Log {
 
 	public static void println(String s) {
 		if (verbose)
-			System.out.println("#" + s);
+			System.out.println("# " + s);
 	}
 }

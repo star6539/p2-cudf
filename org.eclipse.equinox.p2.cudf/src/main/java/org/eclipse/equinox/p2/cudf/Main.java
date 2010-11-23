@@ -67,6 +67,11 @@ public class Main {
 							out.println(planner.getExplanation());
 						}
 					} else {
+						if (planner.isSolutionOptimal()) {
+							System.out.println("# The solution found IS optimal");
+						} else {
+							System.out.println("# WARNING: The solution found MIGHT NOT BE optimal");
+						}
 						printSolution(col, options);
 					}
 					if (options.output != null)
