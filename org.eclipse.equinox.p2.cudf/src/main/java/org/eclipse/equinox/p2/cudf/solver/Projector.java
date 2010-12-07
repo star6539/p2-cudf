@@ -246,13 +246,11 @@ public class Projector {
 				createImplication(iu, matches, explanation);
 			}
 		} else {
-			if (!matches.isEmpty()) {
-				AbstractVariable abs = getAbstractVariable(req.getName());
-				matches.add(abs);
-				createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
-				optionalityVariables.add(abs);
-				optionalityPairs.add(new Pair(iu, abs));
-			}
+			AbstractVariable abs = getAbstractVariable(iu.toString() + "->" + req.toString());
+			matches.add(abs);
+			createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
+			optionalityVariables.add(abs);
+			optionalityPairs.add(new Pair(iu, abs));
 		}
 	}
 
