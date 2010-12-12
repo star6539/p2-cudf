@@ -53,11 +53,12 @@ public class P2OptimizationFunction extends OptimizationFunction {
 
 		maxWeight = maxWeight.multiply(POWER);
 
-		// Add the abstract variables
-		BigInteger abstractWeight = maxWeight.negate();
-		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
-		}
+		//DISABLED the complete following block because there was a compile error
+		//		// Add the abstract variables
+		//		BigInteger abstractWeight = maxWeight.negate();
+		//		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
+		//			weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
+		//		}
 
 		maxWeight = maxWeight.multiply(POWER);
 

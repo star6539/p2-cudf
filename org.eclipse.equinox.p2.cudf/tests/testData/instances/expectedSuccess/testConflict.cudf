@@ -1,6 +1,0 @@
-package: A
-version: 1
-conflicts: X != 1
-
-request: 
-install A
