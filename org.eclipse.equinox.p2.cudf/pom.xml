@@ -41,7 +41,7 @@
 		<connection>scm:cvs:pserver:anonynous:@dev.eclipse.org:/cvsroot/rt:org.eclipse.equinox/incubator/p2/demos/misc-conf-2010/org.eclipse.equinox.p2.cudf</connection>
 		<url>scm:cvs:pserver:anonynous:@dev.eclipse.org:/cvsroot/rt:org.eclipse.equinox/incubator/p2/demos/misc-conf-2010/org.eclipse.equinox.p2.cudf</url>
 	</scm>
-	
+
 	<licenses>
 		<license>
 			<name>Eclipse Public License 1.0</name>
@@ -49,7 +49,7 @@
 			<distribution>Manual</distribution>
 		</license>
 	</licenses>
-	
+
 	<groupId>org.eclipse.equinox</groupId>
 	<artifactId>org.eclipse.equinox.p2.cudf</artifactId>
 	<version>1.9-SNAPSHOT</version>
@@ -106,9 +106,10 @@
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<artifactSet>
-								<!-- Exclude job  -->
+								<!-- Exclude job -->
 								<excludes>
 									<exclude>org.eclipse.core:org.eclipse.core.jobs</exclude>
+									<exclude>org.eclipse.osgi:org.eclipse.osgi</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -116,18 +117,15 @@
 									<!-- Only copy a handful of classes from equinox.common -->
 									<artifact>org.eclipse.equinox:org.eclipse.equinox.common</artifact>
 									<includes>
+										<include>org/eclipse/core/runtime/OperationCanceledException.class</include>
 										<include>org/eclipse/core/runtime/IProgressMonitor.class</include>
 										<include>org/eclipse/core/runtime/IStatus.class</include>
 										<include>org/eclipse/core/runtime/MultiStatus.class</include>
 										<include>org/eclipse/core/runtime/NullProgressMonitor.class</include>
 										<include>org/eclipse/core/runtime/Status.class</include>
-									</includes>
-								</filter>
-								<filter>
-									<!-- Only copy a handful of classes from osgi -->
-									<artifact>org.eclipse.osgi:org.eclipse.osgi</artifact>
-									<includes>
-										<include>org/eclipse/osgi/util/NLS.class</include>
+										<include>org/eclipse/core/internal/runtime/LocalizationUtils.class</include>
+										<include>org/eclipse/core/runtime/Assert.class</include>
+										<include>org/eclipse/core/runtime/AssertionFailedException.class</include>
 									</includes>
 								</filter>
 							</filters>
