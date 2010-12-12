@@ -106,12 +106,14 @@
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<artifactSet>
+								<!-- Exclude job  -->
 								<excludes>
 									<exclude>org.eclipse.core:org.eclipse.core.jobs</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
+									<!-- Only copy a handful of classes from equinox.common -->
 									<artifact>org.eclipse.equinox:org.eclipse.equinox.common</artifact>
 									<includes>
 										<include>org/eclipse/core/runtime/IProgressMonitor.class</include>
@@ -122,6 +124,7 @@
 									</includes>
 								</filter>
 								<filter>
+									<!-- Only copy a handful of classes from osgi -->
 									<artifact>org.eclipse.osgi:org.eclipse.osgi</artifact>
 									<includes>
 										<include>org/eclipse/osgi/util/NLS.class</include>
@@ -129,6 +132,7 @@
 								</filter>
 							</filters>
 							<transformers>
+								<!-- Make the jar executable -->
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>org.eclipse.equinox.p2.cudf.Main</mainClass>
