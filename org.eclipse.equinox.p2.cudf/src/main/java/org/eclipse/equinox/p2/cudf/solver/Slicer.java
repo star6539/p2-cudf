@@ -14,8 +14,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.Main;
-import org.eclipse.equinox.p2.cudf.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -82,6 +81,7 @@ public class Slicer {
 	protected void processIU(InstallableUnit iu) {
 		slice.put(iu.getId(), iu.getVersion(), iu);
 
+		addHighestVersion(iu);
 		IRequiredCapability[] reqs = getRequiredCapabilities(iu);
 		if (reqs.length == 0) {
 			return;
@@ -89,6 +89,26 @@ public class Slicer {
 		for (int i = 0; i < reqs.length; i++) {
 			expandRequirement(iu, reqs[i]);
 		}
+	}
+
+	//Get the highest version available for the given IU 
+	private void addHighestVersion(InstallableUnit iu) {
+		Collector matches = possibilites.query(new CapabilityQuery(new RequiredCapability(iu.getId(), VersionRange.emptyRange, 1)), new Collector(), null);
+		if (matches.size() == 1 || matches.size() == 0)
+			return;
+
+		InstallableUnit highestVersion = iu;
+		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+			InstallableUnit candidate = (InstallableUnit) iterator.next();
+			if (candidate.getId().equals(iu.getId())) {
+				if (candidate.getVersion().getMajor() > highestVersion.getVersion().getMajor())
+					highestVersion = candidate;
+			}
+		}
+		//We only need to 
+		if (highestVersion != iu)
+			considered.add(highestVersion);
+
 	}
 
 	private IRequiredCapability[] getRequiredCapabilities(InstallableUnit iu) {
