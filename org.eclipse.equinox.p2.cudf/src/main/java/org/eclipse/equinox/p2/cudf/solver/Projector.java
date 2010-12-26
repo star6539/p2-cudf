@@ -20,7 +20,9 @@ import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.osgi.util.NLS;
+import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.pb.*;
+import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.*;
@@ -107,7 +109,10 @@ public class Projector {
 			} else if (conf.encoding) {
 				solver = SolverFactory.newOPBStringSolver();
 			} else {
-				solver = SolverFactory.newResolutionGlucoseSimpleSimp();// SolverFactory.newEclipseP2();
+				PBSolverResolution mysolver = SolverFactory.newCompetPBResWLMixedConstraintsObjectiveExpSimp();
+				mysolver.setSimplifier(mysolver.SIMPLE_SIMPLIFICATION);
+				mysolver.setRestartStrategy(new LubyRestarts(512));
+				solver = mysolver; // SolverFactory.newResolutionGlucoseSimpleSimp();// SolverFactory.newEclipseP2();
 			}
 			if ("default".equals(configuration.timeout)) {
 				solver.setTimeout(300); // 5 minutes
