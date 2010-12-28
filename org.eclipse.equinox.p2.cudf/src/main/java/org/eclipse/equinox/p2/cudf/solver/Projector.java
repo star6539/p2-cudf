@@ -126,10 +126,7 @@ public class Projector {
 			}
 			solver.setVerbose(configuration.verbose);
 			solver.setLogPrefix("# ");
-			// solver.setSearchListener(new DecisionTracing("/tmp/p2cudf.trace"));
 			Log.println(solver.toString("# "));
-			// Log.println("# Solver timeout: " + solver.getTimeout());
-			//			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
 			dependencyHelper = new LexicoHelper(solver, conf.explain);
 			if (DEBUG_ENCODING) {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
