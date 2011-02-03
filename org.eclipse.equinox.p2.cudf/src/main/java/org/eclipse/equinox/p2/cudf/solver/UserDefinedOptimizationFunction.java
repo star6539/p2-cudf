@@ -19,6 +19,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
 		String[] criteria = optfunction.split(",");
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
+		int formermaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
+		int newmaxvarid;
 		boolean maximizes;
 		Object thing;
 		for (int i = 0; i < criteria.length; i++) {
@@ -34,7 +36,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				weightedObjects.clear();
 				notuptodate(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
-			} else if (criteria[i].endsWith("unmet_recommends")) {
+			} else if (criteria[i].endsWith("unsat_recommends")) {
 				weightedObjects.clear();
 				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
@@ -55,7 +57,9 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				objects.add(thing);
 			}
 			dependencyHelper.addCriterion(objects);
-			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size());
+			newmaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
+			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size() + " using vars " + formermaxvarid + " to " + newmaxvarid);
+			formermaxvarid = newmaxvarid;
 		}
 		weightedObjects.clear();
 		return null;
@@ -112,7 +116,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				System.out.println("# Not up-to-date packages: " + proof);
 				continue;
 			}
-			if (criteria[i].endsWith("recommended") || criteria[i].endsWith("unmet_recommends")) {
+			if (criteria[i].endsWith("recommended") || criteria[i].endsWith("unsat_recommends")) {
 				proof.clear();
 				counter = 0;
 				for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
