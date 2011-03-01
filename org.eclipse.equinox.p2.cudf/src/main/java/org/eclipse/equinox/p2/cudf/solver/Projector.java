@@ -19,13 +19,12 @@ import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.Main;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
 import org.eclipse.osgi.util.NLS;
-import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.pb.*;
 import org.sat4j.pb.core.PBSolverResolution;
 import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
-import org.sat4j.specs.*;
 
 /**
  * This class is the interface between SAT4J and the planner. It produces a
@@ -109,7 +108,7 @@ public class Projector {
 			} else if (conf.encoding) {
 				solver = SolverFactory.newOPBStringSolver();
 			} else {
-				PBSolverResolution mysolver = SolverFactory.newCompetPBResWLMixedConstraintsObjectiveExpSimp();
+				PBSolverResolution mysolver = SolverFactory.newCompetPBResLongWLMixedConstraintsObjectiveExpSimp();
 				mysolver.setSimplifier(mysolver.SIMPLE_SIMPLIFICATION);
 				mysolver.setRestartStrategy(new LubyRestarts(512));
 				solver = mysolver; // SolverFactory.newResolutionGlucoseSimpleSimp();// SolverFactory.newEclipseP2();
