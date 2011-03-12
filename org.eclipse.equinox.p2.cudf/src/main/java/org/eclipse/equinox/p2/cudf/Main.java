@@ -131,7 +131,7 @@ public class Main {
 				if ("paranoid".equalsIgnoreCase(result.objective)) {
 					result.objective = "-removed,-changed";
 				} else if ("trendy".equalsIgnoreCase(result.objective)) {
-					result.objective = "-removed,-notuptodate,-unmet_recommends,-new";
+					result.objective = "-removed,-notuptodate,-unsat_recommends,-new";
 				}
 				continue;
 			}
