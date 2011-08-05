@@ -195,6 +195,23 @@ public abstract class OptimizationFunction {
 		}
 	}
 
+	protected void sum(List weightedObjects, boolean minimize, InstallableUnit metaIu, String sumProperty) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iuv = (InstallableUnit) iterator2.next();
+				if (iuv.getSumProperty() != null) {
+					BigInteger weight = new BigInteger(iuv.getSumProperty());
+					weightedObjects.add(WeightedObject.newWO(iuv, minimize ? weight : weight.negate()));
+				}
+			}
+		}
+	}
+
 	public abstract String getName();
 
 }

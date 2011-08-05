@@ -4,7 +4,11 @@ import java.io.File;
 
 public class Options {
 	public static final String PARANOID = "-removed,-changed";
-	public static final String TRENDY = "-removed,-notuptodate,-unmet_recommends,-new";
+	public static final String TRENDY = "-removed,-notuptodate,-unsat_recommends,-new";
+
+	public static String extractSumProperty(String sumCriterion) {
+		return sumCriterion.substring(5, sumCriterion.length() - 1);
+	}
 
 	boolean verbose = false;
 	String objective = PARANOID;

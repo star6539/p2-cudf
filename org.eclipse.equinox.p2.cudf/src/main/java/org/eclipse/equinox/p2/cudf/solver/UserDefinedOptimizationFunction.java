@@ -2,8 +2,10 @@ package org.eclipse.equinox.p2.cudf.solver;
 
 import java.math.BigInteger;
 import java.util.*;
+import org.eclipse.equinox.p2.cudf.Options;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.sat4j.pb.tools.WeightedObject;
+import org.sat4j.specs.IVec;
 
 public class UserDefinedOptimizationFunction extends OptimizationFunction {
 
@@ -44,6 +46,12 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				weightedObjects.clear();
 				changed(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
+			} else if (criteria[i].contains("sum")) {
+				weightedObjects.clear();
+				sum(weightedObjects, criteria[i].charAt(0) == '-', metaIu, Options.extractSumProperty(criteria[i]));
+				dependencyHelper.addWeightedCriterion(weightedObjects);
+				System.out.println("# criteria " + criteria[i].substring(1) + " size is " + weightedObjects.size());
+				continue;
 			} else {
 				System.out.println("Skipping unknown criteria:" + criteria[i]);
 			}
@@ -58,7 +66,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			}
 			dependencyHelper.addCriterion(objects);
 			newmaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
-			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size() + " using vars " + formermaxvarid + " to " + newmaxvarid);
+			System.out.println("# criteria " + criteria[i].substring(1) + " size is " + objects.size() + " using new vars " + formermaxvarid + " to " + newmaxvarid);
 			formermaxvarid = newmaxvarid;
 		}
 		weightedObjects.clear();
@@ -142,6 +150,22 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				System.out.println("# Changed packages: " + proof);
+				continue;
+			}
+			if (criteria[i].contains("sum")) {
+				String sumpProperty = Options.extractSumProperty(criteria[i]);
+				long sum = 0;
+				IVec sol = dependencyHelper.getSolution();
+				for (Iterator it = sol.iterator(); it.hasNext();) {
+					Object element = it.next();
+					if (element instanceof InstallableUnit) {
+						InstallableUnit iu = (InstallableUnit) element;
+						if (iu.getSumProperty() != null) {
+							sum += Long.parseLong(iu.getSumProperty());
+						}
+					}
+				}
+				System.out.println("# " + criteria[i] + " criteria value: " + sum);
 				continue;
 			}
 		}

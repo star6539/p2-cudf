@@ -46,12 +46,12 @@ public class Parser {
 	}
 
 	public ProfileChangeRequest parse(File file) {
-		return parse(file, false);
+		return parse(file, false, null);
 	}
 
-	public ProfileChangeRequest parse(File file, boolean includeRecommends) {
+	public ProfileChangeRequest parse(File file, boolean includeRecommends, String sumProperty) {
 		try {
-			return parse(new FileInputStream(file), includeRecommends);
+			return parse(new FileInputStream(file), includeRecommends, sumProperty);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -59,10 +59,14 @@ public class Parser {
 	}
 
 	public ProfileChangeRequest parse(InputStream stream) {
-		return parse(stream, false);
+		return parse(stream, false, null);
 	}
 
-	public ProfileChangeRequest parse(InputStream stream, boolean includeRecommends) {
+	public ProfileChangeRequest parse(InputStream stream, String sumProperty) {
+		return parse(stream, false, sumProperty);
+	}
+
+	public ProfileChangeRequest parse(InputStream stream, boolean includeRecommends, String sumProperty) {
 		long start;
 		if (TIMING)
 			start = System.currentTimeMillis();
@@ -125,8 +129,8 @@ public class Parser {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
-					// } else {
-					//	Log.println("Ignoring line:" + line);
+				} else if (sumProperty != null && line.startsWith(sumProperty)) {
+					handleSumProperty(line, sumProperty);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -154,6 +158,11 @@ public class Parser {
 		}
 		debug(currentRequest);
 		return currentRequest;
+	}
+
+	private void handleSumProperty(String line, String sumProperty) {
+		currentIU.setSumProperty(line.substring(sumProperty.length() + 1).trim());
+		System.out.printf("**** handling property %s with value %s for IU %s\n", sumProperty, currentIU.getSumProperty(), currentIU.getId());
 	}
 
 	private void handleKeep(String line) {

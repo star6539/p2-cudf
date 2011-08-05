@@ -88,7 +88,7 @@ public class Main {
 	private static final void usage() {
 		System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
 		System.out.println("-obj paranoid|trendy|<user defined>   The objective function to be used to resolve the problem.");
-		System.out.println("                                      Users can define their own: +new,-changed,-notuptodate,-unsat_recommends,-removed");
+		System.out.println("                                      Users can define their own: +new,-changed,-notuptodate,-unsat_recommends,-removed,-sum(installedsize)");
 		System.out.println("-timeout <number>(c|s)                The time out after which the solver will stop. e.g. 10s stops after 10 seconds, 10c stops after 10 conflicts. Default is set to 200c for p2 and 2000c for other objective functions.");
 		System.out.println("-sort                                 Sort the output.");
 		System.out.println("-explain                              Provides one reason of the unability to fullfil the request");
@@ -129,9 +129,9 @@ public class Main {
 				//				}
 				result.objective = args[++i];
 				if ("paranoid".equalsIgnoreCase(result.objective)) {
-					result.objective = "-removed,-changed";
+					result.objective = Options.PARANOID;
 				} else if ("trendy".equalsIgnoreCase(result.objective)) {
-					result.objective = "-removed,-notuptodate,-unsat_recommends,-new";
+					result.objective = Options.TRENDY;
 				}
 				continue;
 			}
@@ -243,10 +243,21 @@ public class Main {
 	private static ProfileChangeRequest parseCUDF(File file) {
 		Log.println("Parsing ...");
 		long myBegin = System.currentTimeMillis();
-		ProfileChangeRequest result = new Parser().parse(file, options.objective.contains("recommend"));
+		String sumpProperty = extractSumProperty(options.objective);
+		ProfileChangeRequest result = new Parser().parse(file, options.objective.contains("recommend"), sumpProperty);
 		long myEnd = System.currentTimeMillis();
 		Log.println(("Parsing done (" + (myEnd - myBegin) / 1000.0 + "s)."));
 		return result;
+	}
+
+	private static String extractSumProperty(String objectiveFunction) {
+		String[] criteria = objectiveFunction.split(",");
+		for (String criterion : criteria) {
+			if (criterion.contains("sum")) {
+				return Options.extractSumProperty(criterion);
+			}
+		}
+		return null;
 	}
 
 	static void printSolution(Collection state, Options theOptions) {
