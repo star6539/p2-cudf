@@ -7,4 +7,9 @@ public class Log {
 		if (verbose)
 			System.out.println("# " + s);
 	}
+
+	public static void printlnNoPrefix(String s) {
+		if (verbose)
+			System.out.println(s);
+	}
 }
