@@ -126,7 +126,7 @@ public class Projector {
 			}
 			solver.setVerbose(configuration.verbose);
 			solver.setLogPrefix("# ");
-			Log.println(solver.toString("# "));
+			Log.printlnNoPrefix(solver.toString("# "));
 			dependencyHelper = new LexicoHelper(solver, conf.explain);
 			if (DEBUG_ENCODING) {
 				((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
@@ -168,7 +168,7 @@ public class Projector {
 	private OptimizationFunction getOptimizationFactory(String optFunctionName) {
 		OptimizationFunction function = null;
 		function = new UserDefinedOptimizationFunction(optFunctionName);
-		Log.println(" Optimization function: " + function.getName());
+		Log.println("Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
 		function.picker = picker;
@@ -393,7 +393,7 @@ public class Projector {
 		if (TIMING)
 			Tracing.debug("Invoking solver ..."); //$NON-NLS-1$
 		try {
-			Log.println(" p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
+			Log.println("p cnf " + dependencyHelper.getSolver().nVars() + " " + dependencyHelper.getSolver().nConstraints());
 			if (dependencyHelper.hasASolution(assumptions)) {
 				isSatisfiable = true;
 				if (DEBUG) {
