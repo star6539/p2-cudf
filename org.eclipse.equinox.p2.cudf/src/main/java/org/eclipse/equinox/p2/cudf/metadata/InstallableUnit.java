@@ -26,7 +26,7 @@ public class InstallableUnit implements Comparable {
 	private boolean singleton;
 	private boolean installed;
 
-	private String sumProperty;
+	private long sumProperty;
 
 	public InstallableUnit() {
 		super();
@@ -136,11 +136,11 @@ public class InstallableUnit implements Comparable {
 		return installed;
 	}
 
-	public String getSumProperty() {
+	public long getSumProperty() {
 		return sumProperty;
 	}
 
-	public void setSumProperty(String sumProperty) {
+	public void setSumProperty(long sumProperty) {
 		this.sumProperty = sumProperty;
 	}
 }

@@ -161,8 +161,13 @@ public class Parser {
 	}
 
 	private void handleSumProperty(String line, String sumProperty) {
-		currentIU.setSumProperty(line.substring(sumProperty.length() + 1).trim());
-		System.out.printf("**** handling property %s with value %s for IU %s\n", sumProperty, currentIU.getSumProperty(), currentIU.getId());
+		String value = line.substring(sumProperty.length() + 1).trim();
+		try {
+			currentIU.setSumProperty(Long.valueOf(value));
+			System.out.printf("# **** handling property %s with value %s for IU %s\n", sumProperty, currentIU.getSumProperty(), currentIU.getId());
+		} catch (NumberFormatException ex) {
+			throw new IllegalArgumentException("The value \"" + value + "\" of property \"" + sumProperty + "\" cannot be summed up");
+		}
 	}
 
 	private void handleKeep(String line) {

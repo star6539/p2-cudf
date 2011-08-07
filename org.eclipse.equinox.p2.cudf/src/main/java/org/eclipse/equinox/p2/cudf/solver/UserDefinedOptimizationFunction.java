@@ -160,9 +160,7 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 					Object element = it.next();
 					if (element instanceof InstallableUnit) {
 						InstallableUnit iu = (InstallableUnit) element;
-						if (iu.getSumProperty() != null) {
-							sum += Long.parseLong(iu.getSumProperty());
-						}
+						sum += iu.getSumProperty();
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + sum);

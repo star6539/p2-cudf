@@ -204,8 +204,8 @@ public abstract class OptimizationFunction {
 			Collection versions = ((HashMap) entry.getValue()).values();
 			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
 				InstallableUnit iuv = (InstallableUnit) iterator2.next();
-				if (iuv.getSumProperty() != null) {
-					BigInteger weight = new BigInteger(iuv.getSumProperty());
+				if (iuv.getSumProperty() != 0) {
+					BigInteger weight = BigInteger.valueOf(iuv.getSumProperty());
 					weightedObjects.add(WeightedObject.newWO(iuv, minimize ? weight : weight.negate()));
 				}
 			}
