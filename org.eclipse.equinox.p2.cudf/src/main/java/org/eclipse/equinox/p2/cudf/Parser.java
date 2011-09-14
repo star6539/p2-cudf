@@ -129,7 +129,7 @@ public class Parser {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
-				} else if (sumProperty != null && line.startsWith(sumProperty)) {
+				} else if (sumProperty != null && line.startsWith(sumProperty + ":")) {
 					handleSumProperty(line, sumProperty);
 				}
 			}
