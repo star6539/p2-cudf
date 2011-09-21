@@ -112,6 +112,8 @@ public class Projector {
 				PBSolverResolution mysolver = SolverFactory.newCompetPBResLongWLMixedConstraintsObjectiveExpSimp();
 				mysolver.setSimplifier(mysolver.SIMPLE_SIMPLIFICATION);
 				mysolver.setRestartStrategy(new LubyRestarts(512));
+				// mysolver.setLearnedConstraintsDeletionStrategy(mysolver.memory_based);
+				// mysolver.setSearchListener(new DecisionTracing("/tmp/rand992.dat"));
 				solver = mysolver; // SolverFactory.newResolutionGlucoseSimpleSimp();// SolverFactory.newEclipseP2();
 			}
 			if ("default".equals(configuration.timeout)) {
@@ -160,8 +162,14 @@ public class Projector {
 			}
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, e.getMessage(), e));
+			if (configuration.verbose) {
+				Log.println("*** PBM *** " + e.getMessage());
+			}
 		} catch (ContradictionException e) {
 			result.add(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unsatisfiable_problem));
+			if (configuration.verbose) {
+				Log.println("Unsat OPB problem ");
+			}
 		}
 	}
 
@@ -417,16 +425,23 @@ public class Projector {
 			}
 		} catch (TimeoutException e) {
 			result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Timeout));
+			if (configuration.verbose) {
+				Log.println("Timeout reached");
+			}
 		} catch (Exception e) {
 			result.merge(new Status(IStatus.ERROR, Main.PLUGIN_ID, Messages.Planner_Unexpected_problem, e));
+			if (configuration.verbose) {
+				Log.println("*** PBM *** " + e.getMessage());
+			}
 		}
 		return result;
 	}
 
 	private void backToIU() {
-		solution = new ArrayList();
+		solution = null;
 		if (!isSatisfiable)
 			return;
+		solution = new ArrayList();
 		IVec sat4jSolution = dependencyHelper.getSolution();
 		if (sat4jSolution.isEmpty())
 			return;
@@ -494,6 +509,8 @@ public class Projector {
 		if (solution == null) {
 			backToIU();
 		}
+		if (solution == null)
+			return null;
 		return extractSolution();
 	}
 }

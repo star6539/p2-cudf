@@ -61,11 +61,14 @@ public class Main {
 					long end = System.currentTimeMillis();
 					Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
 					Collection col = planner.getBestSolutionFoundSoFar();
-					if (col.isEmpty()) {
+					if (col == null) {
 						printFail("Cannot find a solution");
 						if (options.explain) {
 							out.println(planner.getExplanation());
 						}
+					} else if (col.isEmpty()) {
+						System.out.println("# There is nothing to install ????");
+						out.println("# There is nothing to install ....");
 					} else {
 						if (planner.isSolutionOptimal()) {
 							System.out.println("# The solution found IS optimal");
