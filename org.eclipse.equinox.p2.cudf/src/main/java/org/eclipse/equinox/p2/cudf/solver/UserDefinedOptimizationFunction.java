@@ -42,6 +42,9 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				weightedObjects.clear();
 				optional(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
+			} else if (criteria[i].endsWith("versionchanged")) {
+				weightedObjects.clear();
+				versionChanged(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 			} else if (criteria[i].endsWith("changed")) {
 				weightedObjects.clear();
 				changed(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
@@ -136,6 +139,20 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				System.out.println("# Not installed recommended packages: " + proof);
+				continue;
+			}
+			if (criteria[i].endsWith("versionchanged")) {
+				proof.clear();
+				counter = 0;
+				for (int j = 0; j < versionChangeVariables.size(); j++) {
+					Object var = versionChangeVariables.get(j);
+					if (dependencyHelper.getBooleanValueFor(var)) {
+						counter++;
+						proof.add(var.toString().substring(18));
+					}
+				}
+				System.out.println("# " + criteria[i] + " criteria value: " + counter);
+				System.out.println("# Packages with version change: " + proof);
 				continue;
 			}
 			if (criteria[i].endsWith("changed")) {

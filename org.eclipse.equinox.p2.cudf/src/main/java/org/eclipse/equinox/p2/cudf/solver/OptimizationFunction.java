@@ -12,9 +12,11 @@ import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.sat4j.core.Vec;
 import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IVec;
 
 public abstract class OptimizationFunction {
 	protected Map slice;
@@ -23,6 +25,7 @@ public abstract class OptimizationFunction {
 	protected LexicoHelper dependencyHelper;
 	protected List removalVariables = new ArrayList();
 	protected List changeVariables = new ArrayList();
+	protected List versionChangeVariables = new ArrayList();
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
 	protected List unmetVariables = new ArrayList();
@@ -61,6 +64,39 @@ public abstract class OptimizationFunction {
 				}
 			}
 
+		}
+	}
+
+	protected void versionChanged(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			boolean installed = false;
+			IVec<InstallableUnit> changed = new Vec<InstallableUnit>(versions.size());
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iu = (InstallableUnit) iterator2.next();
+				installed = installed || iu.isInstalled();
+				if (!iu.isInstalled()) {
+					changed.push(iu);
+				}
+			}
+			if (installed) {
+				Object[] changedarray = new Object[changed.size()];
+				changed.copyTo(changedarray);
+				try {
+					Projector.AbstractVariable abs = new Projector.AbstractVariable(entry.getKey().toString());
+					versionChangeVariables.add(abs);
+					// abs <=> iuv1 or not iuv2 or ... or  not iuvn
+					dependencyHelper.or("OPT3", abs, changedarray);
+					weightedObjects.add(WeightedObject.newWO(abs, weight));
+				} catch (ContradictionException e) {
+					// should not happen
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
