@@ -502,7 +502,8 @@ public class Projector {
 	}
 
 	public void stopSolver() {
-		dependencyHelper.stopSolver();
+		if (dependencyHelper != null)
+			dependencyHelper.stopSolver();
 	}
 
 	public Collection getBestSolutionFoundSoFar() {
