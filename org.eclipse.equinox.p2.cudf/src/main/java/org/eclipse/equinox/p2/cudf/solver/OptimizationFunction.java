@@ -29,6 +29,8 @@ public abstract class OptimizationFunction {
 	protected List nouptodateVariables = new ArrayList();
 	protected List newVariables = new ArrayList();
 	protected List unmetVariables = new ArrayList();
+	protected List upVariables = new ArrayList();
+	protected List downVariables = new ArrayList();
 	protected List optionalityVariables;
 	protected List optionalityPairs;
 
@@ -123,6 +125,84 @@ public abstract class OptimizationFunction {
 			} catch (ContradictionException e) {
 				// should not happen
 				e.printStackTrace();
+			}
+		}
+	}
+
+	protected void changed2012(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			Object[] changed = new Object[versions.size()];
+			int i = 0;
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iu = (InstallableUnit) iterator2.next();
+				changed[i++] = iu.isInstalled() ? dependencyHelper.not(iu) : iu;
+			}
+			for (Object obj : changed) {
+				changeVariables.add(obj);
+				weightedObjects.add(WeightedObject.newWO(obj, weight));
+			}
+		}
+	}
+
+	protected void up(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			List changed = null;
+			int i = 0;
+			boolean pkgInstalled = false;
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iu = (InstallableUnit) iterator2.next();
+				if (iu.isInstalled()) {
+					changed = new ArrayList();
+					pkgInstalled = true;
+				} else {
+					if (pkgInstalled) {
+						changed.add(iu);
+					}
+				}
+			}
+			if (changed != null) {
+				for (Object obj : changed) {
+					upVariables.add(obj);
+					weightedObjects.add(WeightedObject.newWO(obj, weight));
+				}
+			}
+		}
+	}
+
+	protected void down(List weightedObjects, BigInteger weight, InstallableUnit metaIu) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			List changed = new ArrayList();
+			int i = 0;
+			boolean pkgInstalled = false;
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iu = (InstallableUnit) iterator2.next();
+				if (iu.isInstalled()) {
+					pkgInstalled = true;
+					break;
+				} else {
+					changed.add(iu);
+				}
+			}
+			if (pkgInstalled) {
+				for (Object obj : changed) {
+					downVariables.add(obj);
+					weightedObjects.add(WeightedObject.newWO(obj, weight));
+				}
 			}
 		}
 	}

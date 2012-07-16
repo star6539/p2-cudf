@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.cudf;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
 import org.eclipse.equinox.p2.cudf.solver.ProfileChangeRequest;
@@ -51,8 +52,17 @@ public class Parser {
 
 	public ProfileChangeRequest parse(File file, boolean includeRecommends, String sumProperty) {
 		try {
-			return parse(new FileInputStream(file), includeRecommends, sumProperty);
+			InputStream in = new FileInputStream(file);
+			if (file.getName().endsWith(".gz")) {
+				in = new GZIPInputStream(in);
+			} else if (file.getName().endsWith(".bz2")) {
+				in = Runtime.getRuntime().exec("bunzip2 -c " + file.getAbsolutePath()).getInputStream();
+			}
+			return parse(in, includeRecommends, sumProperty);
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}

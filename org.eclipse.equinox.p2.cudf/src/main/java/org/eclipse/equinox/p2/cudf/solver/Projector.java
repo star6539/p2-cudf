@@ -175,7 +175,7 @@ public class Projector {
 
 	private OptimizationFunction getOptimizationFactory(String optFunctionName) {
 		OptimizationFunction function = null;
-		function = new UserDefinedOptimizationFunction(optFunctionName);
+		function = new UserDefinedOptimizationFunction2012(optFunctionName);
 		Log.println("Optimization function: " + function.getName());
 		function.slice = slice;
 		function.noopVariables = noopVariables;
