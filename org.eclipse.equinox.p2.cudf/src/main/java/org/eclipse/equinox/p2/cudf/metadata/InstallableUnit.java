@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.metadata;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InstallableUnit implements Comparable {
 
 	public static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
@@ -27,6 +30,8 @@ public class InstallableUnit implements Comparable {
 	private boolean installed;
 
 	private long sumProperty;
+
+	private Map<String, String> properties = new HashMap<String, String>();
 
 	public InstallableUnit() {
 		super();
@@ -142,5 +147,13 @@ public class InstallableUnit implements Comparable {
 
 	public void setSumProperty(long sumProperty) {
 		this.sumProperty = sumProperty;
+	}
+
+	public void addExtraProperty(String key, String value) {
+		this.properties.put(key, value);
+	}
+
+	public String getExtraPropertyValue(String key) {
+		return this.properties.get(key);
 	}
 }

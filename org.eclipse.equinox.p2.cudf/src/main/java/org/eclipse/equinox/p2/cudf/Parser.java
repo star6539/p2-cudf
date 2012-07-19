@@ -125,6 +125,7 @@ public class Parser {
 					handlePackage(line);
 				} else if (line.startsWith("version: ")) {
 					handleVersion(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("installed: ")) {
 					handleInstalled(line);
 				} else if (line.startsWith("depends: ")) {
@@ -139,8 +140,11 @@ public class Parser {
 					handleRecommends(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
-				} else if (sumProperty != null && line.startsWith(sumProperty + ":")) {
-					handleSumProperty(line, sumProperty);
+				} else {
+					handleExtraProperty(line);
+					if (sumProperty != null && line.startsWith(sumProperty + ":")) {
+						handleSumProperty(line, sumProperty);
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -168,6 +172,12 @@ public class Parser {
 		}
 		debug(currentRequest);
 		return currentRequest;
+	}
+
+	private void handleExtraProperty(String line) {
+		String[] values = line.split(":", 2);
+		assert values.length == 2;
+		currentIU.addExtraProperty(values[0].trim(), values[1].trim());
 	}
 
 	private void handleSumProperty(String line, String sumProperty) {

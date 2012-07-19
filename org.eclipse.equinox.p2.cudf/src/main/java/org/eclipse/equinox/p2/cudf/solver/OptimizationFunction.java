@@ -31,6 +31,8 @@ public abstract class OptimizationFunction {
 	protected List unmetVariables = new ArrayList();
 	protected List upVariables = new ArrayList();
 	protected List downVariables = new ArrayList();
+	protected List firstLvlAlignedVariables = new ArrayList();
+	protected List secondLvlAlignedVariables = new ArrayList();
 	protected List optionalityVariables;
 	protected List optionalityPairs;
 
@@ -324,6 +326,78 @@ public abstract class OptimizationFunction {
 					BigInteger weight = BigInteger.valueOf(iuv.getSumProperty());
 					weightedObjects.add(WeightedObject.newWO(iuv, minimize ? weight : weight.negate()));
 				}
+			}
+		}
+	}
+
+	protected void aligned(List weightedObjects, boolean minimize, InstallableUnit metaIu, String prop1, String prop2) {
+		AlignedMeasurementHelper helper = new AlignedMeasurementHelper(prop1, prop2);
+		fillHelper(metaIu, helper);
+		processOnSecondLvlClusters(weightedObjects, minimize, helper);
+		processOnFirstLvlClusters(weightedObjects, minimize, helper);
+	}
+
+	private void processOnFirstLvlClusters(List weightedObjects, boolean minimize, AlignedMeasurementHelper helper) {
+		Iterator<List<InstallableUnit>> firstLvlClusterIt = helper.firstLvlClustersIterator();
+		int cpt = 0;
+		BigInteger weight = (!minimize) ? (BigInteger.ONE) : (BigInteger.valueOf(-1));
+		while (firstLvlClusterIt.hasNext()) {
+			List<InstallableUnit> ius = firstLvlClusterIt.next();
+			if (ius.size() > 1) {
+				try {
+					Projector.AbstractVariable abs = new Projector.AbstractVariable("aligned_lvl1_" + cpt);
+					firstLvlAlignedVariables.add(abs);
+					dependencyHelper.or("align_lvl1", abs, ius.toArray());
+					weightedObjects.add(WeightedObject.newWO(abs, weight));
+				} catch (ContradictionException e) {
+					// should never happen
+					e.printStackTrace();
+				}
+				++cpt;
+			} else {
+				InstallableUnit iu = ius.get(0);
+				firstLvlAlignedVariables.add(iu);
+				weightedObjects.add(WeightedObject.newWO(iu, weight));
+			}
+		}
+	}
+
+	private void processOnSecondLvlClusters(List weightedObjects, boolean minimize, AlignedMeasurementHelper helper) {
+		Iterator<List<InstallableUnit>> secondLvlClusterIt = helper.secondLvlClustersIterator();
+		int cpt = 0;
+		BigInteger weight = (minimize) ? (BigInteger.ONE) : (BigInteger.valueOf(-1));
+		while (secondLvlClusterIt.hasNext()) {
+			List<InstallableUnit> ius = secondLvlClusterIt.next();
+			if (ius.size() > 1) {
+				try {
+					Projector.AbstractVariable abs = new Projector.AbstractVariable("aligned_lvl2_" + cpt);
+					secondLvlAlignedVariables.add(abs);
+					dependencyHelper.or("align_lvl2", abs, ius.toArray());
+					weightedObjects.add(WeightedObject.newWO(abs, weight));
+				} catch (ContradictionException e) {
+					// should never happen
+					e.printStackTrace();
+				}
+				++cpt;
+			} else {
+				InstallableUnit iu = ius.get(0);
+				secondLvlAlignedVariables.add(iu);
+				weightedObjects.add(WeightedObject.newWO(iu, weight));
+			}
+
+		}
+	}
+
+	private void fillHelper(InstallableUnit metaIu, AlignedMeasurementHelper helper) {
+		Set s = slice.entrySet();
+		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+			Map.Entry entry = (Map.Entry) iterator.next();
+			if (entry.getKey() == metaIu.getId())
+				continue;
+			Collection versions = ((HashMap) entry.getValue()).values();
+			for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+				InstallableUnit iuv = (InstallableUnit) iterator2.next();
+				helper.addIU(iuv);
 			}
 		}
 	}

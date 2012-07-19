@@ -58,6 +58,16 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 				weightedObjects.clear();
 				down(weightedObjects, criteria[i].startsWith("+") ? currentWeight.negate() : currentWeight, metaIu);
 				currentWeight = currentWeight.divide(weight);
+			} else if (criteria[i].contains("aligned")) {
+				weightedObjects.clear();
+				StringTokenizer tokenizer = new StringTokenizer(criteria[i].substring(9), ";)");
+				// tokenizer.nextToken();
+				String prop1 = tokenizer.nextToken();
+				String prop2 = tokenizer.nextToken();
+				aligned(weightedObjects, criteria[i].charAt(0) == '-', metaIu, prop1, prop2);
+				dependencyHelper.addWeightedCriterion(weightedObjects);
+				System.out.println("# criteria " + criteria[i].substring(1) + " size is " + weightedObjects.size());
+				continue;
 			} else if (criteria[i].contains("sum")) {
 				weightedObjects.clear();
 				sum(weightedObjects, criteria[i].charAt(0) == '-', metaIu, Options.extractSumProperty(criteria[i]));
@@ -218,6 +228,25 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + sum);
+				continue;
+			}
+
+			if (criteria[i].endsWith("aligned")) {
+				proof.clear();
+				counter = 0;
+				for (int j = 0; j < secondLvlAlignedVariables.size(); j++) {
+					Object var = secondLvlAlignedVariables.get(j);
+					if (dependencyHelper.getBooleanValueFor(var)) {
+						counter++;
+					}
+				}
+				for (int j = 0; j < firstLvlAlignedVariables.size(); j++) {
+					Object var = firstLvlAlignedVariables.get(j);
+					if (dependencyHelper.getBooleanValueFor(var)) {
+						counter--;
+					}
+				}
+				System.out.println("# " + criteria[i] + " criteria value: " + counter);
 				continue;
 			}
 		}
