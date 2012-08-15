@@ -123,23 +123,34 @@ public class Parser {
 				// package stanza
 				else if (line.startsWith("package: ")) {
 					handlePackage(line);
+					handleExtraProperty(line);
+					String[] values = line.split(":", 2);
+					assert values.length == 2;
+					currentIU.addExtraProperty("name", values[1].trim());
 				} else if (line.startsWith("version: ")) {
 					handleVersion(line);
 					handleExtraProperty(line);
 				} else if (line.startsWith("installed: ")) {
 					handleInstalled(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("depends: ")) {
 					handleDepends(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("conflicts: ")) {
 					handleConflicts(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("provides: ")) {
 					handleProvides(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("expected: ")) {
 					handleExpected(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("recommends: ") && includeRecommends) {
 					handleRecommends(line);
+					handleExtraProperty(line);
 				} else if (line.startsWith("keep: ")) {
 					handleKeep(line);
+					handleExtraProperty(line);
 				} else {
 					handleExtraProperty(line);
 					if (sumProperty != null && line.startsWith(sumProperty + ":")) {

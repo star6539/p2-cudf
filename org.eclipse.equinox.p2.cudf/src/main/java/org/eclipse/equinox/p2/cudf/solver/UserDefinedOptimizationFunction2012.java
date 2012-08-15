@@ -20,7 +20,13 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 		List weightedObjects = new ArrayList();
 		List objects = new ArrayList();
 		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		String[] criteria = optfunction.split(",");
+		//String[] criteria = optfunction.split(",");
+		String[] criteria = null;
+		try {
+			criteria = splitCriteria(optfunction);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		BigInteger currentWeight = weight.pow(criteria.length - 1);
 		int formermaxvarid = dependencyHelper.getSolver().nextFreeVarId(false);
 		int newmaxvarid;
@@ -60,8 +66,7 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 				currentWeight = currentWeight.divide(weight);
 			} else if (criteria[i].contains("aligned")) {
 				weightedObjects.clear();
-				StringTokenizer tokenizer = new StringTokenizer(criteria[i].substring(9), ";)");
-				// tokenizer.nextToken();
+				StringTokenizer tokenizer = new StringTokenizer(criteria[i].substring(9), ",)");
 				String prop1 = tokenizer.nextToken();
 				String prop2 = tokenizer.nextToken();
 				aligned(weightedObjects, criteria[i].charAt(0) == '-', metaIu, prop1, prop2);
@@ -95,6 +100,69 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 		return null;
 	}
 
+	private String[] splitCriteria(String opt) {
+		List<String> res = new ArrayList<String>();
+		String crit = "";
+		int lookFrom = 0;
+		while (crit != null) {
+			crit = nextElement(opt, lookFrom);
+			if (crit != null) {
+				res.add(simplifyCriterion(crit));
+				lookFrom += crit.length() + 1;
+			}
+		}
+		String[] resArray = new String[res.size()];
+		resArray = res.toArray(resArray);
+		return resArray;
+	}
+
+	private String simplifyCriterion(String crit) {
+		crit = removeCountFunction(crit);
+		crit = removeSolutionToken(crit);
+		return crit;
+	}
+
+	private String removeCountFunction(String crit) {
+		String countFunction = "count";
+		if (crit.substring(1).startsWith(countFunction + "(")) {
+			crit = crit.substring(0, 1) + crit.substring(2 + countFunction.length(), crit.length() - 1);
+		}
+		return crit;
+	}
+
+	private String removeSolutionToken(String crit) {
+		String solutionToken = "solution";
+		int solutionTokenStart = crit.indexOf(solutionToken);
+		if (solutionTokenStart != -1) {
+			int solutionTokenEnd = solutionTokenStart + solutionToken.length();
+			if (crit.charAt(solutionTokenEnd) == ',') {
+				++solutionTokenEnd;
+			}
+			crit = crit.substring(0, solutionTokenStart) + crit.substring(solutionTokenEnd);
+		}
+		return crit;
+	}
+
+	private String nextElement(String opt, int lookFrom) {
+		if (lookFrom >= opt.length()) {
+			return null;
+		}
+		int parCpt = 0;
+		for (int i = lookFrom; i < opt.length(); ++i) {
+			char curChar = opt.charAt(i);
+			if (parCpt == 0 && curChar == ',') {
+				return opt.substring(lookFrom, i);
+			}
+			if (curChar == '(') {
+				++parCpt;
+			}
+			if (curChar == ')') {
+				--parCpt;
+			}
+		}
+		return opt.substring(lookFrom, opt.length());
+	}
+
 	public String getName() {
 		return "User defined:" + optfunction;
 	}
@@ -102,7 +170,13 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 	public void printSolutionValue() {
 		int counter;
 		List proof = new ArrayList();
-		String[] criteria = optfunction.split(",");
+		//String[] criteria = optfunction.split(",");
+		String[] criteria = null;
+		try {
+			criteria = splitCriteria(optfunction);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		for (int i = 0; i < criteria.length; i++) {
 			if (criteria[i].endsWith("new")) {
 				proof.clear();
@@ -195,7 +269,7 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 					Object var = upVariables.get(j);
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;
-						proof.add(var.toString().substring(18));
+						proof.add(var.toString());
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
@@ -209,7 +283,7 @@ public class UserDefinedOptimizationFunction2012 extends UserDefinedOptimization
 					Object var = downVariables.get(j);
 					if (dependencyHelper.getBooleanValueFor(var)) {
 						counter++;
-						proof.add(var.toString().substring(18));
+						proof.add(var.toString());
 					}
 				}
 				System.out.println("# " + criteria[i] + " criteria value: " + counter);
