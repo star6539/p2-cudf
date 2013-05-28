@@ -428,7 +428,7 @@ public class Parser {
 				continue;
 			}
 
-			IRequiredCapability[] ors = new RequiredCapability[subTokenizer.countTokens()];
+			IRequiredCapability[] ors = new IRequiredCapability[subTokenizer.countTokens()];
 			int i = 0;
 			while (subTokenizer.hasMoreElements()) {
 				ors[i++] = (IRequiredCapability) createRequire(subTokenizer.nextToken(), expandNotEquals, optional);
